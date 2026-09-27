@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atlas</groupId>
+    <artifactId>atlas-measurement-schema</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>atlas-measurement-schema</name>
+    <description>Shared JSON Schema, Avro schemas, conformance vectors and tolerance profiles for the Atlas 3D model platform</description>
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
+    </properties>
+    <dependencies>
+        <!-- Minimal dependencies for schema validation and compatibility checks (AT-2, AT-16).
+             Avro and JSON Schema dependencies will be added when schema tooling is implemented. -->
+    </dependencies>
+</project>
