@@ -14,16 +14,18 @@
     {"name": "schemaVersion", "type": "string", "default": "1.0", "doc": "Envelope: payload schema version, independent of the topic's major version suffix."},
 
     {"name": "stage", "type": {"type": "enum", "name": "FailureStage", "namespace": "com.atlas.events.v1",
-      "symbols": ["INGESTION", "PROCESSING"]}, "doc": "Which stage rejected or failed the model."},
+      "doc": "UNKNOWN is the first symbol and the default so future symbols stay backward compatible for readers on an older codegen jar during a rolling deploy.",
+      "symbols": ["UNKNOWN", "INGESTION", "PROCESSING"], "default": "UNKNOWN"}, "doc": "Which stage rejected or failed the model."},
     {"name": "reasonCode", "type": {"type": "enum", "name": "ReasonCode", "namespace": "com.atlas.events.v1",
-      "doc": "Reason codes from design section 10.4. Each maps to an HTTP status and a client-safe message.",
+      "doc": "Reason codes from design section 10.4. Each maps to an HTTP status and a client-safe message. UNKNOWN is the first symbol and the default so future symbols (e.g. those planned in a near-future ticket) stay backward compatible for readers on an older codegen jar during a rolling deploy.",
       "symbols": [
+        "UNKNOWN",
         "FILE_TOO_LARGE", "UNSUPPORTED_FORMAT", "MAGIC_MISMATCH", "CHECKSUM_MISMATCH",
         "MALWARE_DETECTED", "ARCHIVE_UNSAFE", "CORRUPT_MODEL", "EMPTY_GEOMETRY",
         "TOO_MANY_TRIANGLES", "CONVERTER_TIMEOUT", "CONVERTER_ERROR", "STORAGE_UNAVAILABLE",
         "INTERNAL_ERROR", "SCAN_UNAVAILABLE", "UPLOAD_QUOTA_EXCEEDED", "REPROCESS_RATE_LIMITED",
         "MODEL_DELETED", "STORAGE_KEY_MISMATCH", "OUT_OF_MEMORY", "CLIENT_PAYLOAD_CONFLICT"
-      ]}},
+      ], "default": "UNKNOWN"}},
     {"name": "retryable", "type": "boolean"},
     {"name": "message", "type": "string", "doc": "Safe, client-facing message; never file contents or a full storage key."}
   ]
