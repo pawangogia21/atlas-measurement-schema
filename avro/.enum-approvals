@@ -1,0 +1,7 @@
+# Fully qualified enum names whose symbol change is approved in the current change set.
+# One name per line, e.g.:
+#   com.atlas.events.v1.CaptureSource
+#
+# The CI compatibility gate (.github/workflows/ci.yml, tools/schema-gate) fails any PR that
+# changes an enum's symbols unless the enum is listed here in the same PR. Remove the entry again
+# once the change has landed on main, so a later, unrelated enum change is not silently approved.

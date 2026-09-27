@@ -1,0 +1,30 @@
+{
+  "type": "record",
+  "name": "ModelFailed",
+  "namespace": "com.atlas.events.v1",
+  "doc": "Emitted by atlas-ingestion-service or atlas-processing-service when a model is rejected or fails. Topic atlas.model.failed.v1, key = modelId. Design sections 6.2 and 10.4.",
+  "fields": [
+    {"name": "eventId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: unique id of this event instance."},
+    {"name": "eventType", "type": "string", "default": "ModelFailed", "doc": "Envelope: discriminator, matches the record name."},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}, "doc": "Envelope: when the event occurred."},
+    {"name": "modelId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: the model this event is about."},
+    {"name": "tenantId", "type": "string", "default": "default", "doc": "Envelope: owning tenant, from the JWT tenant_id claim."},
+    {"name": "ownerId", "type": "string", "doc": "Envelope: owning user, from the JWT sub claim."},
+    {"name": "traceId", "type": ["null", "string"], "default": null, "doc": "Envelope: correlation id for logs/events; the W3C traceparent travels separately in Kafka headers (design section 6.3)."},
+    {"name": "schemaVersion", "type": "string", "default": "1.0", "doc": "Envelope: payload schema version, independent of the topic's major version suffix."},
+
+    {"name": "stage", "type": {"type": "enum", "name": "FailureStage", "namespace": "com.atlas.events.v1",
+      "symbols": ["INGESTION", "PROCESSING"]}, "doc": "Which stage rejected or failed the model."},
+    {"name": "reasonCode", "type": {"type": "enum", "name": "ReasonCode", "namespace": "com.atlas.events.v1",
+      "doc": "Reason codes from design section 10.4. Each maps to an HTTP status and a client-safe message.",
+      "symbols": [
+        "FILE_TOO_LARGE", "UNSUPPORTED_FORMAT", "MAGIC_MISMATCH", "CHECKSUM_MISMATCH",
+        "MALWARE_DETECTED", "ARCHIVE_UNSAFE", "CORRUPT_MODEL", "EMPTY_GEOMETRY",
+        "TOO_MANY_TRIANGLES", "CONVERTER_TIMEOUT", "CONVERTER_ERROR", "STORAGE_UNAVAILABLE",
+        "INTERNAL_ERROR", "SCAN_UNAVAILABLE", "UPLOAD_QUOTA_EXCEEDED", "REPROCESS_RATE_LIMITED",
+        "MODEL_DELETED", "STORAGE_KEY_MISMATCH", "OUT_OF_MEMORY", "CLIENT_PAYLOAD_CONFLICT"
+      ]}},
+    {"name": "retryable", "type": "boolean"},
+    {"name": "message", "type": "string", "doc": "Safe, client-facing message; never file contents or a full storage key."}
+  ]
+}

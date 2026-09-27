@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "Widget",
+  "namespace": "com.atlas.schemagate.fixtures",
+  "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "count", "type": "int", "default": 0},
+    {"name": "requiredNewField", "type": "string"}
+  ]
+}

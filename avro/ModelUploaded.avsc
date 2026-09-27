@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "ModelUploaded",
+  "namespace": "com.atlas.events.v1",
+  "doc": "Emitted by atlas-ingestion-service once a validated raw model file is ready for processing. Topic atlas.model.uploaded.v1 (or atlas.model.uploaded.v1-heavy for files above 500 MB), key = modelId. Design section 6.2.",
+  "fields": [
+    {"name": "eventId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: unique id of this event instance."},
+    {"name": "eventType", "type": "string", "default": "ModelUploaded", "doc": "Envelope: discriminator, matches the record name."},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}, "doc": "Envelope: when the event occurred."},
+    {"name": "modelId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: the model this event is about."},
+    {"name": "tenantId", "type": "string", "default": "default", "doc": "Envelope: owning tenant, from the JWT tenant_id claim."},
+    {"name": "ownerId", "type": "string", "doc": "Envelope: owning user, from the JWT sub claim."},
+    {"name": "traceId", "type": ["null", "string"], "default": null, "doc": "Envelope: correlation id for logs/events; the W3C traceparent travels separately in Kafka headers (design section 6.3)."},
+    {"name": "schemaVersion", "type": "string", "default": "1.0", "doc": "Envelope: payload schema version, independent of the topic's major version suffix."},
+
+    {"name": "storageKey", "type": "string", "doc": "Object storage key of the raw file, e.g. t/{tenantId}/o/{ownerId}/m/{modelId}/raw/..."},
+    {"name": "storageVersionId", "type": "string", "doc": "Pinned object storage version id, so the verified hash matches the processed hash."},
+    {"name": "sizeBytes", "type": "long"},
+    {"name": "sha256", "type": "string"},
+    {"name": "declaredFormat", "type": ["null", "string"], "default": null, "doc": "Format the client declared, if any."},
+    {"name": "detectedFormat", "type": "string", "doc": "Format detected server-side from magic bytes."},
+    {"name": "claimedCaptureSource", "type": "com.atlas.events.v1.CaptureSource", "default": "UNKNOWN", "doc": "Capture source as claimed by the client; never trusted for scale corroboration (design section 25.3)."},
+    {"name": "claimedDepthTier", "type": ["null", "string"], "default": null, "doc": "Depth tier as claimed by the client."},
+    {"name": "clientCaptureSessionId", "type": ["null", "string"], "default": null, "doc": "Client capture session id, used by the association rule."},
+    {"name": "clientHintCount", "type": "int", "default": 0, "doc": "Number of client measurement hints submitted alongside the upload."}
+  ]
+}

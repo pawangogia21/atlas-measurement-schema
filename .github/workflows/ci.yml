@@ -12,6 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        # Needed so the Avro compatibility gate below can diff against a baseline commit.
+        fetch-depth: 0
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -19,12 +22,42 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+        # Populates ~/.m2/settings.xml with a <server id="github"> entry so `mvn deploy` can
+        # authenticate to GitHub Packages later in this job, using GITHUB_TOKEN below.
+        server-id: github
 
     - name: Build with Maven
       run: ./mvnw -B verify
 
-    - name: Schema lint (TODO AT-2/AT-16)
-      run: echo "no schemas yet"
+    - name: Build the Avro schema-compatibility gate tool
+      run: ./mvnw -f tools/schema-gate/pom.xml -B verify
 
-    - name: Avro compatibility gate (TODO AT-2)
-      run: echo "no schemas yet"
+    - name: Determine Avro compatibility baseline
+      id: baseline
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          echo "ref=origin/${{ github.event.pull_request.base.ref }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "ref=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Avro backward-compatibility and enum-change gate (AT-2)
+      run: ./.github/scripts/avro-compat-gate.sh "${{ steps.baseline.outputs.ref }}"
+
+    - name: Generate and test the Avro Java types (codegen)
+      # Includes the Testcontainers-based round-trip/spike IT (needs Docker; available by
+      # default on GitHub-hosted ubuntu-latest runners).
+      run: ./mvnw -f codegen/pom.xml -B verify
+
+    - name: Check for a GitHub Packages publish token
+      id: packages
+      run: echo "configured=${{ secrets.GH_PACKAGES_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+
+    - name: Publish the generated types jar to GitHub Packages
+      # Open point 4's default (AT-2.md): publish to GitHub Packages Maven once the
+      # GH_PACKAGES_TOKEN repository secret exists; never fail the build while it's absent.
+      # Until then, consumers use `./mvnw -f codegen/pom.xml install` locally (see README.md).
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.packages.outputs.configured == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      run: ./mvnw -f codegen/pom.xml -B -DskipTests deploy

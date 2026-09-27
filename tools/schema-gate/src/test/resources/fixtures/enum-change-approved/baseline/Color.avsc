@@ -1,0 +1,7 @@
+{
+  "type": "enum",
+  "name": "Color",
+  "namespace": "com.atlas.schemagate.fixtures",
+  "symbols": ["UNKNOWN", "RED", "GREEN"],
+  "default": "UNKNOWN"
+}
