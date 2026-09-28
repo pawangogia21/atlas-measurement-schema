@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "name": "ModelProcessed",
+  "namespace": "com.atlas.events.v1",
+  "doc": "Emitted by atlas-processing-service once the canonical model, geometry and scale are available. Topic atlas.model.processed.v1, key = modelId. Design sections 6.2 and 25.3.",
+  "fields": [
+    {"name": "eventId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: unique id of this event instance."},
+    {"name": "eventType", "type": "string", "default": "ModelProcessed", "doc": "Envelope: discriminator, matches the record name."},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}, "doc": "Envelope: when the event occurred."},
+    {"name": "modelId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: the model this event is about."},
+    {"name": "tenantId", "type": "string", "default": "default", "doc": "Envelope: owning tenant, from the JWT tenant_id claim."},
+    {"name": "ownerId", "type": "string", "doc": "Envelope: owning user, from the JWT sub claim."},
+    {"name": "traceId", "type": ["null", "string"], "default": null, "doc": "Envelope: correlation id for logs/events; the W3C traceparent travels separately in Kafka headers (design section 6.3)."},
+    {"name": "schemaVersion", "type": "string", "default": "1.0", "doc": "Envelope: payload schema version, independent of the topic's major version suffix."},
+
+    {"name": "canonicalStorageKey", "type": "string", "doc": "Object storage key of the canonical GLB."},
+    {"name": "geometryDocumentId", "type": "string", "doc": "MongoDB model_geometry _id, formatted {modelId}:{pipelineVersion}."},
+    {"name": "spatialArtifactKey", "type": "string", "doc": "Object storage key of the BVH spatial artifact."},
+    {"name": "scaleToMetres", "type": "double", "doc": "Compact scale summary: resolved metres-per-unit factor."},
+    {"name": "scaleSource", "type": "string", "doc": "Compact scale summary: how the scale was resolved (e.g. DECLARED_METERS_PER_UNIT, USD_PRODUCER_ROOMPLAN)."},
+    {"name": "scaleConfidence", "type": "double", "doc": "Compact scale summary: confidence in the resolved scale, 0.0 to 1.0."},
+    {"name": "needsConfirmation", "type": "boolean", "doc": "Compact scale summary: true if the resolved scale needs owner confirmation."},
+    {"name": "aabbSizeXMetres", "type": "double", "doc": "Axis-aligned bounding box size, X axis, in metres."},
+    {"name": "aabbSizeYMetres", "type": "double", "doc": "Axis-aligned bounding box size, Y axis, in metres."},
+    {"name": "aabbSizeZMetres", "type": "double", "doc": "Axis-aligned bounding box size, Z axis, in metres."},
+    {"name": "pipelineVersion", "type": "string"},
+    {"name": "durationMs", "type": "long", "doc": "Total processing duration in milliseconds."},
+    {"name": "derivedCaptureSource", "type": "com.atlas.events.v1.CaptureSource", "default": "UNKNOWN", "doc": "Capture source derived server-side from file evidence, never from the client's claim (design section 25.3)."},
+    {"name": "evidence", "type": {"type": "array", "items": "string"}, "default": [], "doc": "Evidence strings supporting derivedCaptureSource, e.g. USD_PRODUCER_ROOMPLAN, ARKIT_METADATA, DECLARED_METERS_PER_UNIT."}
+  ]
+}

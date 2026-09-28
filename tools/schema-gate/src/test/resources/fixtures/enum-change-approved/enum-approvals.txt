@@ -1,0 +1,2 @@
+# Enum symbol changes approved for this fixture.
+com.atlas.schemagate.fixtures.Color

@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "name": "ModelPurged",
+  "namespace": "com.atlas.events.v1",
+  "doc": "Emitted by each service once its own data for a deleted model is gone, confirming the delete saga. Topic atlas.model.purged.v1, key = modelId. Design sections 6.1 and 31.9.",
+  "fields": [
+    {"name": "eventId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: unique id of this event instance."},
+    {"name": "eventType", "type": "string", "default": "ModelPurged", "doc": "Envelope: discriminator, matches the record name."},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}, "doc": "Envelope: when the event occurred."},
+    {"name": "modelId", "type": {"type": "string", "logicalType": "uuid"}, "doc": "Envelope: the model this event is about."},
+    {"name": "tenantId", "type": "string", "default": "default", "doc": "Envelope: owning tenant, from the JWT tenant_id claim."},
+    {"name": "ownerId", "type": "string", "doc": "Envelope: owning user, from the JWT sub claim."},
+    {"name": "traceId", "type": ["null", "string"], "default": null, "doc": "Envelope: correlation id for logs/events; the W3C traceparent travels separately in Kafka headers (design section 6.3)."},
+    {"name": "schemaVersion", "type": "string", "default": "1.0", "doc": "Envelope: payload schema version, independent of the topic's major version suffix."},
+
+    {"name": "confirmingService", "type": {"type": "enum", "name": "ConfirmingService", "namespace": "com.atlas.events.v1",
+      "doc": "Which service is confirming its data for this model is gone (design section 31.9's delete saga sequence). UNKNOWN is the first symbol and the default so future symbols stay backward compatible for readers on an older codegen jar during a rolling deploy.",
+      "symbols": ["UNKNOWN", "INGESTION", "PROCESSING", "MEASUREMENT"], "default": "UNKNOWN"}}
+  ]
+}

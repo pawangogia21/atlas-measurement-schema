@@ -1,0 +1,16 @@
+{
+  "type": "enum",
+  "name": "CaptureSource",
+  "namespace": "com.atlas.events.v1",
+  "doc": "Origin of a 3D capture, either claimed by the client (ModelUploaded.claimedCaptureSource) or derived server-side (ModelProcessed.derivedCaptureSource). UNKNOWN is the first symbol and the default so future symbols stay backward compatible; per design section 6.2, any symbol change here is a compatibility event that must be explicitly approved (see avro/README.md).",
+  "symbols": [
+    "UNKNOWN",
+    "IPHONE_LIDAR",
+    "IPHONE_NO_LIDAR",
+    "ANDROID_TOF",
+    "ANDROID_ARCORE_DEPTH",
+    "PHOTOGRAMMETRY",
+    "CAD"
+  ],
+  "default": "UNKNOWN"
+}
