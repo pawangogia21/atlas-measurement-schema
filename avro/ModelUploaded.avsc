@@ -22,6 +22,7 @@
     {"name": "claimedCaptureSource", "type": "com.atlas.events.v1.CaptureSource", "default": "UNKNOWN", "doc": "Capture source as claimed by the client; never trusted for scale corroboration (design section 25.3)."},
     {"name": "claimedDepthTier", "type": ["null", "string"], "default": null, "doc": "Depth tier as claimed by the client."},
     {"name": "clientCaptureSessionId", "type": ["null", "string"], "default": null, "doc": "Client capture session id, used by the association rule."},
-    {"name": "clientHintCount", "type": "int", "default": 0, "doc": "Number of client measurement hints submitted alongside the upload."}
+    {"name": "clientHintCount", "type": "int", "default": 0, "doc": "Number of client measurement hints submitted alongside the upload."},
+    {"name": "pipelineVersion", "type": ["null", "string"], "default": null, "doc": "Processing pipeline version to run against, e.g. vN (design section 8.4 rule 5). Null on the initial upload; set on reprocess to a value higher than the model's prior current_pipeline_version."}
   ]
 }
