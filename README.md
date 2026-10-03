@@ -197,6 +197,7 @@ The governance gate (`.github/scripts/governance-gate.sh`, run in CI from the ba
 - approval: a new artifact version or a changed governed file needs a line `<artifact> <version> <digest> <approved-by> <date> <ticket>` in `governance/qa-approvals.txt` (digest from `governance-gate.sh --digests`);
 - deletion: removing a released artifact needs a `RETIRE` line;
 - the approvals file is append-only: a baseline line may not be removed or edited.
+- paths the digest cannot judge fail the gate: a symlink or submodule under a governed path (a link's content lives outside the digest), a governed path with a control character or a space in its name, a path that differs only in case from a governed one (`Vectors/`, `Tolerance/`, `Json-Schema/`, `vectors/Negative/` next to `vectors/negative/`: they collide on a case-insensitive checkout and CODEOWNERS does not match them), and a `governance/qa-approvals.txt` that is missing, untracked or not a regular file. Digests are computed from NUL-separated `git ls-files -z` output and hash the path and the content, so no file name can hide a change. The digest reads the files of the working tree: commit or stage the files before printing digests with `--digests`.
 
 #### What actually protects the gates
 

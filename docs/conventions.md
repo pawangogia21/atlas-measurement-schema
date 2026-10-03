@@ -28,7 +28,7 @@ The depth map is **row-major** (scanline order), with resolution that varies by 
 - ToF depth sensors: typically 240×180 or less
 
 All values are Float32, in metres. The depth frame coordinate system and intrinsics scaling are handled by the platform adapter:
-- The adapter normalises `confidence` to 0..1 (iOS: {0, 0.5, 1} → {0, 0.5, 1}; ARCore: 0-255 mapping by per-source table)
+- The adapter normalises `confidence` to 0..1 (iOS: 0/1/2 → 0/0.5/1; ARCore: DEPTH16 3-bit and raw-depth 0 to 255 confidence mapped by a per-source table owned by the adapter)
 - The adapter scales `depthIntrinsics` (focal length `fx`, `fy` and principal point `cx`, `cy`) to match the depth resolution
   - iOS example: for a 1920×1440 image with LiDAR depth at 256×192, scale is (256/1920, 192/1440)
 
@@ -54,7 +54,7 @@ The box is axis-aligned in the gravity frame: no roll or pitch, only yaw. This s
 
 ## Frame of Reference and Session Binding
 
-Two clients on the same AR session may have different world origins. The `frameOfReference` object identifies the coordinate frame so the server can relate a live hint to a scan's canonical frame.
+The `frameOfReference` object identifies the coordinate frame so the server can relate a live hint to a scan's canonical frame.
 
 ### Fields
 
@@ -73,7 +73,7 @@ Two clients on the same AR session may have different world origins. The `frameO
 
 - **`convention`**: Always `"Y_UP_RIGHT_HANDED"` (reserved for future alternatives; the value is fixed in the v1 schema)
 - **`worldOriginId`**: Optional platform-specific world-origin identifier (not used for reconciliation; present for diagnostics only)
-- **`worldOriginEpoch`**: Integer, incremented each time the AR platform's world origin is reset (e.g. on iOS ARKit `worldOrigin` change, Android ARCore relocalization). Frames of reference are comparable only when `epoch` values match. A large epoch change indicates the AR system has lost global tracking and the previous coordinates are no longer valid relative to the world.
+- **`worldOriginEpoch`**: Integer, incremented each time the AR platform's world origin is reset (for example on relocalization). Frames of reference are comparable only when `epoch` values match.
 - **`sessionId`**: Changes when the AR session is interrupted and resumed (iOS `sessionInterruptionEnded`, Android recreation). Hints with different session IDs cannot be directly compared in 3D space.
 
 ### Association and Comparison
@@ -95,11 +95,11 @@ The `FrameBundle` is the input from the AR platform to the Kit's core algorithm.
 |---|---|---|
 | `timestamp` | Monotonic seconds (Double or UInt64) | Frame timestamp, used to match frames and depth maps (max skew 20 ms). Monotonic within a session. |
 | `image` | Optional: YCbCr or BGRA + size | Camera image, optional. Used for edge refinement and keypoint visualisation; the core algorithm works without it. The Kit drops a reference to the platform image before returning from `ingest()`. |
-| `depth` | Float32 map (width, height) + confidence, source, alignedToImage, intrinsics | **Metres, variable resolution, row-major.** Each pixel is depth in metres (or NaN/0 for invalid). `confidence[0..1]`, normalised by the adapter. `source`: `LIDAR`, `TOF`, `DEPTH_FROM_MOTION`, `NONE`. `alignedToImage`: boolean (false on ARCore if depth is at a different resolution). `depthIntrinsics` (`fx`, `fy`, `cx`, `cy`) already scaled to this depth map's resolution. |
+| `depth` | Float32 map (width, height) + confidence, source, alignedToImage, intrinsics | **Metres, variable resolution, row-major.** Each pixel is depth in metres (or NaN/0 for invalid). `confidence[0..1]`, normalised by the adapter. `source`: `LIDAR`, `TOF`, `DEPTH_FROM_MOTION`, `NONE`. `alignedToImage`: boolean (false on ARCore). `depthIntrinsics` (`fx`, `fy`, `cx`, `cy`) already scaled to this depth map's resolution. |
 | `intrinsics` | fx, fy, cx, cy, image width/height | Image-space intrinsics; depth intrinsics are separate (in the `depth` struct). Per-frame, so refocusing or zoom changes are captured. |
 | `pose` | 4×4 matrix: camera-to-world | Transforms a point in camera space to world coordinates. ARKit and ARCore both use right-handed Y-up world frames. The layout handed to the core is fixed in `algorithm-spec.md` (row-major). |
 | `trackingState` | Enum | `NORMAL`, `LIMITED(reason)`, `NOT_AVAILABLE`. Used to gate algorithm execution; `LIMITED` may flag a quality issue. |
-| `worldOriginEpoch` | Integer | Incremented on world-origin change (ARKit `worldOrigin`, ARCore relocalization). Frames with different epochs are in different coordinate systems. |
+| `worldOriginEpoch` | Integer | Incremented when the AR world origin changes, for example on relocalization. Frames with different epochs are in different coordinate systems. |
 | `sessionId` | UUID | Changes when the AR session is interrupted and resumed. Used to bind hints to the scan's capture session. |
 | `planes` (optional) | Platform-detected planes | Extents and normals; speeds up support-plane estimation on tier B. Platform-specific representation (ARKit `ARPlaneAnchor`, ARCore `Plane`); the adapter normalises them. |
 | `gravity` | Unit vector (X, Y, Z) | Gravity vector (pointing downward, typically ~[0, −1, 0] in world frame), derived from IMU. Provided by the platform or computed from the pose if absent. |
@@ -109,7 +109,7 @@ The `FrameBundle` is the input from the AR platform to the Kit's core algorithm.
 
 The AR platform adapter (e.g., `ARKitFrameAdapter`, `ArCoreFrameAdapter`) is responsible for:
 1. **Copying depth into a pooled buffer** (3–4 slots, sized per device) and releasing the platform's depth image immediately.
-2. **Normalising `confidence`** to 0..1 by the platform-specific mapping (iOS: 0/1/2 → 0/0.5/1; ARCore: 0–255 table per source).
+2. **Normalising `confidence`** to 0..1 by the platform-specific mapping (iOS: 0/1/2 → 0/0.5/1; ARCore: DEPTH16 3-bit and raw-depth 0 to 255 confidence mapped by a per-source table owned by the adapter).
 3. **Scaling `depthIntrinsics`** to the actual depth map resolution (e.g., 1920×1440 image with 256×192 depth → scale factors 256/1920 and 192/1440).
 4. **Never retaining references** to platform frames (`ARFrame`, `Image`) after returning from the adapter method.
 5. **Handling latest-wins semantics**: when frames arrive faster than the core algorithm consumes them, drop older frames and process only the latest on each update.
