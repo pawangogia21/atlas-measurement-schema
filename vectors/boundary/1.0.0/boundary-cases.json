@@ -1,0 +1,431 @@
+{
+  "description" : "Boundary vectors for tolerance function: exactly at, just below and just above each threshold",
+  "tolEpsilon" : 1.0E-9,
+  "tol" : [ {
+    "id" : "floor-exact-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 0.01,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01
+  }, {
+    "id" : "floor-just-below-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 0.0099999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01
+  }, {
+    "id" : "floor-just-above-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 0.0100000001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01
+  }, {
+    "id" : "floor-exact-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 0.025,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025
+  }, {
+    "id" : "floor-just-below-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 0.0249999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025
+  }, {
+    "id" : "floor-just-above-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 0.025000000100000003,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025
+  }, {
+    "id" : "floor-exact-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.02,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02
+  }, {
+    "id" : "floor-just-below-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.0199999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02
+  }, {
+    "id" : "floor-just-above-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.020000000100000002,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02
+  }, {
+    "id" : "floor-exact-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.05,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05
+  }, {
+    "id" : "floor-just-below-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.0499999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05
+  }, {
+    "id" : "floor-just-above-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.050000000100000004,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05
+  }, {
+    "id" : "relative-exact-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 50.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.0
+  }, {
+    "id" : "relative-just-below-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 49.9999999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.9999999999979999
+  }, {
+    "id" : "relative-just-above-accuracyGate",
+    "profile" : "base",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "ref" : 50.0000000001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.000000000002
+  }, {
+    "id" : "relative-exact-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 25.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.0
+  }, {
+    "id" : "relative-just-below-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 24.9999999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.9999999999960001
+  }, {
+    "id" : "relative-just-above-accuracyGateP95",
+    "profile" : "base",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "ref" : 25.0000000001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.000000000004
+  }, {
+    "id" : "relative-exact-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 50.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.0
+  }, {
+    "id" : "relative-just-below-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 49.9999999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.9999999999979999
+  }, {
+    "id" : "relative-just-above-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 50.0000000001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.000000000002
+  }, {
+    "id" : "relative-exact-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 20.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.0
+  }, {
+    "id" : "relative-just-below-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 19.9999999999,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.9999999999950001
+  }, {
+    "id" : "relative-just-above-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 20.0000000001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 1.000000000005
+  }, {
+    "id" : "sigma-exact-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.05,
+    "sigmaClient" : 0.0,
+    "tol" : 0.1
+  }, {
+    "id" : "sigma-just-below-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.0499999999,
+    "sigmaClient" : 0.0,
+    "tol" : 0.0999999998
+  }, {
+    "id" : "sigma-just-above-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.050000000100000004,
+    "sigmaClient" : 0.0,
+    "tol" : 0.1
+  }, {
+    "id" : "sigma-exact-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.05,
+    "sigmaClient" : 0.0,
+    "tol" : 0.15
+  }, {
+    "id" : "sigma-just-below-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.0499999999,
+    "sigmaClient" : 0.0,
+    "tol" : 0.1499999997
+  }, {
+    "id" : "sigma-just-above-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.050000000100000004,
+    "sigmaClient" : 0.0,
+    "tol" : 0.15
+  }, {
+    "id" : "sigma-cap-exact-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.060000000000000005,
+    "sigmaClient" : 0.060000000000000005,
+    "tol" : 0.1
+  }, {
+    "id" : "sigma-cap-just-below-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.0599999999,
+    "sigmaClient" : 0.0599999999,
+    "tol" : 0.1
+  }, {
+    "id" : "sigma-cap-just-above-agree",
+    "profile" : "base",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.060000000100000006,
+    "sigmaClient" : 0.060000000100000006,
+    "tol" : 0.1
+  }, {
+    "id" : "sigma-cap-exact-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.06,
+    "sigmaClient" : 0.06,
+    "tol" : 0.15
+  }, {
+    "id" : "sigma-cap-just-below-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.059999999899999996,
+    "sigmaClient" : 0.059999999899999996,
+    "tol" : 0.15
+  }, {
+    "id" : "sigma-cap-just-above-minor",
+    "profile" : "base",
+    "row" : "minor",
+    "major" : 1,
+    "ref" : 0.001,
+    "sigmaServer" : 0.0600000001,
+    "sigmaClient" : 0.0600000001,
+    "tol" : 0.15
+  } ],
+  "within" : [ {
+    "id" : "rounding-exact",
+    "diff" : 0.02,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-just-below",
+    "diff" : 0.020004,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-just-above",
+    "diff" : 0.020006,
+    "tol" : 0.02,
+    "within" : false
+  } ],
+  "classify" : [ {
+    "id" : "classify-agree-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.02,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "classify-agree-just-below",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0199,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "classify-minor-just-over-agree",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0201,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "classify-minor-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.05,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "classify-major-just-over-minor",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0501,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "classify-worst-dimension-decides",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.36,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "classify-sigma-widens-agree",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.02,
+      "client" : 1.05,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "classify-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 0.98,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  } ]
+}

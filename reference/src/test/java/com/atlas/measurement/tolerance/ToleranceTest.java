@@ -27,6 +27,10 @@ class ToleranceTest {
         return MAPPER.readTree(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("../tolerance/smoke-cases.json")));
     }
 
+    private static JsonNode boundary() throws IOException {
+        return MAPPER.readTree(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("../vectors/boundary/1.0.0/boundary-cases.json")));
+    }
+
     @Test
     void profileMatchesItsSchemaAndHasVersion100() throws IOException {
         JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
@@ -115,5 +119,38 @@ class ToleranceTest {
         assertThat(Tolerance.units(0.020004)).isEqualTo(2000);
         assertThat(Tolerance.units(0.020006)).isEqualTo(2001);
         assertThat(Tolerance.units(0.0)).isZero();
+    }
+
+    @Test
+    void boundaryTolCases() throws IOException {
+        JsonNode b = boundary();
+        ToleranceProfile base = ToleranceProfile.loadBundled();
+        for (JsonNode c : b.get("tol")) {
+            ToleranceRow row = base.row(c.get("row").asText(), c.get("major").asInt());
+            double t = Tolerance.tol(c.get("ref").asDouble(), c.get("sigmaServer").asDouble(), c.get("sigmaClient").asDouble(), row);
+            assertThat(t).as(c.get("id").asText()).isCloseTo(c.get("tol").asDouble(), org.assertj.core.data.Offset.offset(b.get("tolEpsilon").asDouble()));
+        }
+    }
+
+    @Test
+    void boundaryWithinCases() throws IOException {
+        for (JsonNode c : boundary().get("within")) {
+            assertThat(Tolerance.withinTolerance(c.get("diff").asDouble(), c.get("tol").asDouble()))
+                    .as(c.get("id").asText()).isEqualTo(c.get("within").asBoolean());
+        }
+    }
+
+    @Test
+    void boundaryClassifyCases() throws IOException {
+        ToleranceProfile base = ToleranceProfile.loadBundled();
+        for (JsonNode c : boundary().get("classify")) {
+            List<Tolerance.DimensionPair> dims = new ArrayList<>();
+            for (JsonNode d : c.get("dims")) {
+                dims.add(new Tolerance.DimensionPair(d.get("server").asDouble(), d.get("sigmaServer").asDouble(),
+                        d.get("client").asDouble(), d.get("sigmaClient").asDouble()));
+            }
+            assertThat(Tolerance.classify(base, c.get("major").asInt(), dims).name())
+                    .as(c.get("id").asText()).isEqualTo(c.get("outcome").asText());
+        }
     }
 }

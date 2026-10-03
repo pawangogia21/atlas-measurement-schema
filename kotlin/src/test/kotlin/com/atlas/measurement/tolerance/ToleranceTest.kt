@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 class ToleranceTest {
     private val toleranceDir = Paths.get("..", "tolerance")
     private val smoke: JsonNode = ObjectMapper().readTree(Files.readAllBytes(toleranceDir.resolve("smoke-cases.json")))
+    private val boundaryDir = Paths.get("..", "vectors", "boundary", "1.0.0")
+    private val boundary: JsonNode = ObjectMapper().readTree(Files.readAllBytes(boundaryDir.resolve("boundary-cases.json")))
     private val base = ToleranceProfile.load(toleranceDir.resolve("tolerance-profile.json"))
     private val over = ToleranceProfile.parse(smoke.get("overrideProfile"))
 
@@ -64,5 +66,32 @@ class ToleranceTest {
     fun unitsRoundHalfUp() {
         assertEquals(2000L, Tolerance.units(0.020004))
         assertEquals(2001L, Tolerance.units(0.020006))
+    }
+
+    @Test
+    fun boundaryTolCases() {
+        val eps = boundary.get("tolEpsilon").asDouble()
+        for (c in boundary.get("tol")) {
+            val row = base.row(c.get("row").asText(), c.get("major").asInt())
+            val t = Tolerance.tol(c.get("ref").asDouble(), c.get("sigmaServer").asDouble(), c.get("sigmaClient").asDouble(), row)
+            assertTrue(abs(t - c.get("tol").asDouble()) <= eps, c.get("id").asText())
+        }
+    }
+
+    @Test
+    fun boundaryWithinCases() {
+        for (c in boundary.get("within")) {
+            assertEquals(c.get("within").asBoolean(), Tolerance.withinTolerance(c.get("diff").asDouble(), c.get("tol").asDouble()), c.get("id").asText())
+        }
+    }
+
+    @Test
+    fun boundaryClassifyCases() {
+        for (c in boundary.get("classify")) {
+            val dims = c.get("dims").map {
+                DimensionPair(it.get("server").asDouble(), it.get("sigmaServer").asDouble(), it.get("client").asDouble(), it.get("sigmaClient").asDouble())
+            }
+            assertEquals(c.get("outcome").asText(), Tolerance.classify(base, c.get("major").asInt(), dims).name, c.get("id").asText())
+        }
     }
 }

@@ -7,8 +7,17 @@ import Testing
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent().appendingPathComponent("tolerance")
 
+    private static let boundaryDir = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        .deletingLastPathComponent().appendingPathComponent("vectors/boundary/1.0.0")
+
     private func smoke() throws -> [String: Any] {
         let data = try Data(contentsOf: Self.toleranceDir.appendingPathComponent("smoke-cases.json"))
+        return try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    private func boundary() throws -> [String: Any] {
+        let data = try Data(contentsOf: Self.boundaryDir.appendingPathComponent("boundary-cases.json"))
         return try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
 
@@ -71,5 +80,36 @@ import Testing
     @Test func testUnitsRoundHalfUp() {
         #expect(Tolerance.units(0.020004) == 2000)
         #expect(Tolerance.units(0.020006) == 2001)
+    }
+
+    @Test func testBoundaryTolCases() throws {
+        let b = try boundary()
+        let eps = num(b, "tolEpsilon")
+        let base = try base()
+        for c in b["tol"] as! [[String: Any]] {
+            let row = try base.row(c["row"] as! String, algorithmMajor: (c["major"] as! NSNumber).intValue)
+            let t = try Tolerance.tol(ref: num(c, "ref"), sigmaServer: num(c, "sigmaServer"),
+                                      sigmaClient: num(c, "sigmaClient"), row: row)
+            #expect(abs(t - num(c, "tol")) <= eps, Comment(rawValue: c["id"] as! String))
+        }
+    }
+
+    @Test func testBoundaryWithinCases() throws {
+        for c in try boundary()["within"] as! [[String: Any]] {
+            #expect(Tolerance.withinTolerance(diff: num(c, "diff"), tol: num(c, "tol"))
+                    == (c["within"] as! NSNumber).boolValue, Comment(rawValue: c["id"] as! String))
+        }
+    }
+
+    @Test func testBoundaryClassifyCases() throws {
+        let base = try base()
+        for c in try boundary()["classify"] as! [[String: Any]] {
+            let dims = (c["dims"] as! [[String: Any]]).map {
+                DimensionPair(server: num($0, "server"), sigmaServer: num($0, "sigmaServer"),
+                              client: num($0, "client"), sigmaClient: num($0, "sigmaClient"))
+            }
+            let o = try Tolerance.classify(profile: base, algorithmMajor: (c["major"] as! NSNumber).intValue, dims: dims)
+            #expect(o.rawValue == c["outcome"] as! String, Comment(rawValue: c["id"] as! String))
+        }
     }
 }
