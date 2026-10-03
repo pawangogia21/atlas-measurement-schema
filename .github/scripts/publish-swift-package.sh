@@ -19,6 +19,7 @@ SWIFT_REPO="${SWIFT_REPO:-${GITHUB_REPOSITORY_OWNER:?GITHUB_REPOSITORY_OWNER is 
 URL_BASE="${SWIFT_REPO_URL_BASE:-https://github.com}"
 TAG="v$VERSION"
 [ -f "$PKG/Package.swift" ] || { echo "FAIL: $PKG is not an assembled Swift package (no Package.swift)" >&2; exit 1; }
+PKG="$(cd "$PKG" && pwd)" # absolute: the script changes into the clone below and uses $PKG again
 
 BASIC="$(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')"
 echo "::add-mask::$BASIC"

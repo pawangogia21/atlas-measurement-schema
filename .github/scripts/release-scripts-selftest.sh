@@ -95,6 +95,11 @@ git -C "$SWIFT_REMOTE" rev-parse -q --verify refs/tags/v1.0.1 >/dev/null || fail
 ok "swift: a run that stopped before the tag only adds the tag"
 [ "$(git -C "$SWIFT_REMOTE" rev-list --count main)" = 2 ] || fail "swift: no duplicate release commit expected"
 ok "swift: no duplicate release commit"
+# the package directory given as a RELATIVE path (ci.yml passes `swift-package`): the script changes directory, so it must resolve it first
+( cd "$T" && "$SCRIPTS/publish-swift-package.sh" pkg 1.0.3 >/dev/null 2>&1 ) || fail "swift: a relative package path must work"
+git -C "$SWIFT_REMOTE" rev-parse -q --verify refs/tags/v1.0.3 >/dev/null || fail "swift: a relative package path must publish the tag"
+[ "$(git -C "$SWIFT_REMOTE" show v1.0.3:Sources/a.swift)" = 'let x = 2' ] || fail "swift: a relative package path must publish the content"
+ok "swift: a relative package path works"
 expect_fail "swift: a missing repository fails closed" env SWIFT_REPO=o/does-not-exist "$SCRIPTS/publish-swift-package.sh" "$T/pkg" 1.0.2
 expect_fail "swift: no token fails closed" env -u SWIFT_REPO_TOKEN "$SCRIPTS/publish-swift-package.sh" "$T/pkg" 1.0.2
 if grep -rq 'swifttok' "$T/gh" 2>/dev/null; then fail "swift: the token reached the remote"; fi
