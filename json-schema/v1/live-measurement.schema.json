@@ -11,13 +11,13 @@
     "frameOfReference", "scaleSource", "device"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0", "description": "measurement-schema version; a different value is CLIENT_SCHEMA_UNSUPPORTED at intake." },
+    "schemaVersion": { "type": "string", "const": "1.0", "description": "measurement-schema version; a different value is CLIENT_SCHEMA_UNSUPPORTED at intake." },
     "algorithmVersion": { "$ref": "#/$defs/semver", "description": "Kit algorithm semver (design 21.4); maps to algorithm_major/minor/patch." },
     "clientMeasurementId": { "$ref": "#/$defs/uuid", "description": "Idempotency key generated at freeze()." },
     "supersedesClientMeasurementId": { "$ref": "#/$defs/uuid", "description": "An edited re-send is a new id that supersedes the old one (design 21.1)." },
     "timestamp": { "type": "string", "format": "date-time" },
     "mode": { "enum": ["OBJECT_BOX", "POINT_TO_POINT", "PLANE_DISTANCE"] },
-    "unit": { "const": "METRE" },
+    "unit": { "type": "string", "const": "METRE" },
     "dimensions": {
       "type": "object",
       "additionalProperties": false,
@@ -84,15 +84,16 @@
       "additionalProperties": false,
       "required": ["convention", "worldOriginEpoch", "sessionId"],
       "properties": {
-        "convention": { "const": "Y_UP_RIGHT_HANDED" },
+        "convention": { "type": "string", "const": "Y_UP_RIGHT_HANDED" },
         "worldOriginId": { "type": "string", "maxLength": 64, "description": "Diagnostics only." },
         "worldOriginEpoch": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
         "sessionId": { "$ref": "#/$defs/uuid" }
       }
     },
     "scaleSource": { "enum": ["SENSOR_METRIC_LIDAR", "SENSOR_METRIC_DEPTH", "VIO_METRIC"] },
-    "trust": { "const": "UNVERIFIED_ESTIMATE", "description": "Always UNVERIFIED_ESTIMATE on a client record; optional on the wire, the server stamps it." },
+    "trust": { "type": "string", "const": "UNVERIFIED_ESTIMATE", "description": "Always UNVERIFIED_ESTIMATE on a client record; optional on the wire, the server stamps it." },
     "device": {
+      "title": "LiveDevice",
       "type": "object",
       "additionalProperties": false,
       "required": ["model", "os", "kitVersion"],
