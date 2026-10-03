@@ -12,3 +12,4 @@ swift/Sources/AtlasMeasurementSchema/Generated.swift
 .swiftpm/
 swift/Sources/AtlasMeasurementTolerance/Resources/
 swift/Sources/AtlasMeasurementVectors/Resources/
+swift/quicktype/node_modules/

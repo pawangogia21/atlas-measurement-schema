@@ -1,0 +1,9 @@
+{
+  "name": "atlas-measurement-schema-quicktype",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned quicktype toolchain for swift/generate-types.sh (AT-16 S9): installed with npm ci --ignore-scripts from package-lock.json, whose integrity hashes pin every transitive dependency.",
+  "dependencies": {
+    "quicktype": "23.0.170"
+  }
+}
