@@ -83,7 +83,7 @@ The server uses `frameOfReference` to determine whether two measurements can be 
 2. **Independent measurements, frame mapping available** (client and server have matching `sessionId` and `worldOriginEpoch`, and `transformToCanonical` exists): map the hint into the canonical frame and compare by geometry (IoU, distance, normals; see section 21.2 of the design).
 3. **Dimension-only fallback** (mapping unavailable): compare dimensions only, frame-independent. Qualifies for `AGREE` or `MINOR_DIFF` only, never `MAJOR_DIFF`.
 
-If neither the session nor the epoch match, no 3D comparison is possible, and the outcome is `NOT_COMPARABLE`.
+If neither the session nor the epoch match, frame mapping is unavailable and the comparison falls back to the dimension-only association rule (section 21.2 of the design).
 
 ## FrameBundle Contract
 
@@ -116,7 +116,27 @@ The AR platform adapter (e.g., `ARKitFrameAdapter`, `ArCoreFrameAdapter`) is res
 
 ### Scale-Source Confidence Cap
 
-When the depth source is `VIO_METRIC` (visual-inertial odometry scale, tier B), the Kit **caps the composite confidence at 0.6** in the output `LiveMeasurement`. This reflects the inherent uncertainty of scale-from-motion. Sensor-metric sources (LiDAR, ToF) have no cap on the scale source alone, but the composite confidence accounts for all sources of error (depth noise, fit residual, coverage, tracking quality, thermal).
+When the scale source is `VIO_METRIC` (visual-inertial odometry scale from ARKit on non-LiDAR devices), the Kit **caps the composite confidence at 0.6** in the output `LiveMeasurement`. This reflects the inherent uncertainty of scale-from-motion. Sensor-metric sources (LiDAR, ToF) have no cap on the scale source alone, but the composite confidence accounts for all sources of error (depth noise, fit residual, coverage, tracking quality, thermal).
+
+## Optional Geometry Fields
+
+The `geometry` object is optional and carries normalized representations of the measurement's target for server-side comparison:
+
+| Field | Type | Semantics |
+|---|---|---|
+| `endpointsWorld` | 2×3 array (or null) | Two 3D points in world coordinates for `POINT_TO_POINT` mode (metres) |
+| `plane` | Object or null | For `PLANE_DISTANCE` mode: `normalWorld` (unit vector) and `offsetM` (signed distance from origin in metres) |
+
+When present, these fields override any inference from the dimensions and are used during geometric association. Both `normalWorld` and computed normals must be unit-length (1.0 ± 1e-5 m).
+
+## Axis Order in OBB
+
+The `halfExtentsM` array is `[X, Y, Z]` where:
+- **Index 0 (X)**: horizontal, gravity-perpendicular (typically left-right when facing the object)
+- **Index 1 (Y)**: vertical, gravity-aligned (upward)
+- **Index 2 (Z)**: horizontal, gravity-perpendicular (typically front-back when facing the object)
+
+This ordering is fixed across all platforms.
 
 ## Uncertainty: Sigma and CI95
 
