@@ -81,9 +81,9 @@ Two clients on the same AR session may have different world origins. The `frameO
 The server uses `frameOfReference` to determine whether two measurements can be directly compared in 3D:
 1. **Seeded association** (client hint seeded a server measurement): pair by construction.
 2. **Independent measurements, frame mapping available** (client and server have matching `sessionId` and `worldOriginEpoch`, and `transformToCanonical` exists): map the hint into the canonical frame and compare by geometry (IoU, distance, normals; see section 21.2 of the design).
-3. **Dimension-only fallback** (mapping unavailable): compare dimensions only, frame-independent. Qualifies for `AGREE` or `MINOR_DIFF` only, never `MAJOR_DIFF`.
+3. **Dimension-only fallback** (the frame mapping is unavailable, or the hint lacks the geometry its mode needs): compare dimensions only, frame-independent, decided per hint. It associates only when exactly one candidate is not a `MAJOR_DIFF`, so the result is `AGREE` or `MINOR_DIFF`, never `MAJOR_DIFF`.
 
-If neither the session nor the epoch match, frame mapping is unavailable and the comparison falls back to the dimension-only association rule (section 21.2 of the design).
+If the hint's `sessionId` or `worldOriginEpoch` differs from the scan's, frame mapping is unavailable for that hint and it falls back to the dimension-only rule; the outcome is not `NOT_COMPARABLE` for that reason. The normative rule is `tolerance/README.md`.
 
 ## FrameBundle Contract
 
@@ -116,27 +116,20 @@ The AR platform adapter (e.g., `ARKitFrameAdapter`, `ArCoreFrameAdapter`) is res
 
 ### Scale-Source Confidence Cap
 
-When the scale source is `VIO_METRIC` (visual-inertial odometry scale from ARKit on non-LiDAR devices), the Kit **caps the composite confidence at 0.6** in the output `LiveMeasurement`. This reflects the inherent uncertainty of scale-from-motion. Sensor-metric sources (LiDAR, ToF) have no cap on the scale source alone, but the composite confidence accounts for all sources of error (depth noise, fit residual, coverage, tracking quality, thermal).
+When `scaleSource` is `VIO_METRIC` (scale from visual-inertial odometry), the Kit **caps the composite confidence at 0.6** in the output `LiveMeasurement`. This reflects the inherent uncertainty of scale-from-motion. Sensor-metric sources (LiDAR, ToF) have no cap on the scale source alone, but the composite confidence accounts for all sources of error (depth noise, fit residual, coverage, tracking quality, thermal).
 
 ## Optional Geometry Fields
 
-The `geometry` object is optional and carries normalized representations of the measurement's target for server-side comparison:
+`geometry` is optional on a `LiveMeasurement` and holds the inputs of the geometric association, in the hint's `frameOfReference` (metres). A Kit that cannot supply it still sends a valid hint; the server then uses the dimension-only association. `OBJECT_BOX` derives its box from `obb` and carries no `geometry`.
 
-| Field | Type | Semantics |
+| Field | Mode | Content |
 |---|---|---|
-| `endpointsWorld` | 2×3 array (or null) | Two 3D points in world coordinates for `POINT_TO_POINT` mode (metres) |
-| `plane` | Object or null | For `PLANE_DISTANCE` mode: `normalWorld` (unit vector) and `offsetM` (signed distance from origin in metres) |
-
-When present, these fields override any inference from the dimensions and are used during geometric association. Both `normalWorld` and computed normals must be unit-length (1.0 ± 1e-5 m).
+| `geometry.endpointsWorld` | `POINT_TO_POINT` only | Two world-space points, each `[x, y, z]` |
+| `geometry.plane` | `PLANE_DISTANCE` only | `normalWorld` (`[x, y, z]`, unit length within 1e-3, checked at intake) and `offsetM`: the plane is `n . x = offsetM`. `n` with offset `o` and `-n` with `-o` are the same plane |
 
 ## Axis Order in OBB
 
-The `halfExtentsM` array is `[X, Y, Z]` where:
-- **Index 0 (X)**: horizontal, gravity-perpendicular (typically left-right when facing the object)
-- **Index 1 (Y)**: vertical, gravity-aligned (upward)
-- **Index 2 (Z)**: horizontal, gravity-perpendicular (typically front-back when facing the object)
-
-This ordering is fixed across all platforms.
+`obb.halfExtentsM` is `[x, y, z]` in the box's own frame (the world axes yawed by `yawRad` about +Y): index 0 and 2 are the footprint half-extents, index 1 is the vertical half-extent (Y up).
 
 ## Uncertainty: Sigma and CI95
 
