@@ -7,3 +7,4 @@ dependency-reduced-pom.xml
 *.log
 .env*
 !.env.example
+.build/

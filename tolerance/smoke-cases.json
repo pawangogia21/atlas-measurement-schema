@@ -1,0 +1,46 @@
+{
+  "description": "Hand-computed smoke cases replayed by the Java, Swift and Kotlin tolerance tests against tolerance-profile.json 1.0.0. Not the release boundary vectors (vectors/boundary/).",
+  "tolEpsilon": 1e-9,
+  "overrideProfile": {
+    "version": "9.9.9",
+    "rows": [
+      { "name": "accuracyGate",    "floorM": 0.01,  "relFrac": 0.02, "sigmaK": null, "sigmaCapM": null },
+      { "name": "accuracyGateP95", "floorM": 0.025, "relFrac": 0.04, "sigmaK": null, "sigmaCapM": null },
+      { "name": "agree",           "floorM": 0.02,  "relFrac": 0.02, "sigmaK": 2,    "sigmaCapM": 0.10 },
+      { "name": "minor",           "floorM": 0.05,  "relFrac": 0.05, "sigmaK": 3,    "sigmaCapM": 0.15 }
+    ],
+    "overrides": { "2": { "agree": { "floorM": 0.03, "sigmaK": null } } }
+  },
+  "tol": [
+    { "id": "agree-floor",            "profile": "base", "row": "agree", "major": 1, "ref": 1.0, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.02 },
+    { "id": "agree-relative",         "profile": "base", "row": "agree", "major": 1, "ref": 2.0, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.04 },
+    { "id": "agree-sigma-term",       "profile": "base", "row": "agree", "major": 1, "ref": 0.5, "sigmaServer": 0.02, "sigmaClient": 0.02, "tol": 0.05656854249492381 },
+    { "id": "agree-sigma-capped",     "profile": "base", "row": "agree", "major": 1, "ref": 0.5, "sigmaServer": 1.0, "sigmaClient": 1.0, "tol": 0.10 },
+    { "id": "minor-relative",         "profile": "base", "row": "minor", "major": 1, "ref": 3.0, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.15 },
+    { "id": "minor-sigma-capped",     "profile": "base", "row": "minor", "major": 1, "ref": 0.5, "sigmaServer": 1.0, "sigmaClient": 1.0, "tol": 0.15 },
+    { "id": "gate-ignores-sigma",     "profile": "base", "row": "accuracyGate", "major": 1, "ref": 1.0, "sigmaServer": 5, "sigmaClient": 5, "tol": 0.02 },
+    { "id": "gate-floor",             "profile": "base", "row": "accuracyGate", "major": 1, "ref": 0.1, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.01 },
+    { "id": "p95-relative",           "profile": "base", "row": "accuracyGateP95", "major": 1, "ref": 1.0, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.04 },
+    { "id": "override-applies-major2", "profile": "override", "row": "agree", "major": 2, "ref": 1.0, "sigmaServer": 5, "sigmaClient": 5, "tol": 0.03 },
+    { "id": "override-not-major1",    "profile": "override", "row": "agree", "major": 1, "ref": 0.5, "sigmaServer": 1.0, "sigmaClient": 1.0, "tol": 0.10 },
+    { "id": "override-not-major3",    "profile": "override", "row": "agree", "major": 3, "ref": 1.0, "sigmaServer": 0, "sigmaClient": 0, "tol": 0.02 }
+  ],
+  "within": [
+    { "id": "exactly",            "diff": 0.02,     "tol": 0.02, "within": true },
+    { "id": "rounds-down-to-tol", "diff": 0.020004, "tol": 0.02, "within": true },
+    { "id": "rounds-up-past-tol", "diff": 0.020006, "tol": 0.02, "within": false },
+    { "id": "just-over",          "diff": 0.02001,  "tol": 0.02, "within": false },
+    { "id": "just-under",         "diff": 0.01999,  "tol": 0.02, "within": true },
+    { "id": "zero",               "diff": 0,        "tol": 0.02, "within": true }
+  ],
+  "classify": [
+    { "id": "agree-just-under", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0.005, "client": 1.019, "sigmaClient": 0.005 }], "outcome": "AGREE" },
+    { "id": "agree-exact-despite-float-noise", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 1.02, "sigmaClient": 0 }], "outcome": "AGREE" },
+    { "id": "minor-just-over-agree", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 1.0201, "sigmaClient": 0 }], "outcome": "MINOR_DIFF" },
+    { "id": "minor-exact", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 1.05, "sigmaClient": 0 }], "outcome": "MINOR_DIFF" },
+    { "id": "major-just-over-minor", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 1.0501, "sigmaClient": 0 }], "outcome": "MAJOR_DIFF" },
+    { "id": "sigma-widens-agree", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0.02, "client": 1.05, "sigmaClient": 0.02 }], "outcome": "AGREE" },
+    { "id": "worst-dimension-decides", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 1.0, "sigmaClient": 0 }, { "server": 0.3, "sigmaServer": 0, "client": 0.36, "sigmaClient": 0 }], "outcome": "MAJOR_DIFF" },
+    { "id": "client-below-server", "major": 1, "dims": [{ "server": 1.0, "sigmaServer": 0, "client": 0.98, "sigmaClient": 0 }], "outcome": "AGREE" }
+  ]
+}
