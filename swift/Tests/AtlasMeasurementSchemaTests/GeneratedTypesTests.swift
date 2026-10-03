@@ -68,4 +68,17 @@ import Testing
             }
         }
     }
+
+    /// The server rejects duplicate keys and trailing content (S7). Foundation's decoder is lenient on duplicate keys and
+    /// picks one of the values (the first, with the Foundation of this toolchain; other parsers pick the last), which is
+    /// exactly the parser differential the server closes by rejecting the document. A Kit only ever produces records and
+    /// must never rely on its decoder to catch a duplicate.
+    @Test func testDuplicateKeysAreNotCaughtByTheDecoderButTheTrailingDocumentIs() throws {
+        let bad = try Data(contentsOf: Self.negative.appendingPathComponent("duplicate-key-hides-a-bad-value.json"))
+        if let m = try? AtlasMeasurementJSON.decoder().decode(LiveMeasurement.self, from: bad) {
+            #expect(m.confidence == 5 || m.confidence == 0.5)
+        }
+        let trailing = try Data(contentsOf: Self.negative.appendingPathComponent("trailing-content-second-document.json"))
+        #expect(throws: (any Error).self) { try AtlasMeasurementJSON.decoder().decode(LiveMeasurement.self, from: trailing) }
+    }
 }

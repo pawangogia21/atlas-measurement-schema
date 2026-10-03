@@ -33,4 +33,20 @@ class GeneratedTypesFromKotlinTest {
         val bad = Files.readString(negative.resolve("depth-9.json"))
         assertThrows(JsonProcessingException::class.java) { mapper.readValue(bad, LiveMeasurement::class.java) }
     }
+
+    @Test
+    fun parserDifferentialsAndOverflowingNumbersAreRejected() {
+        // S7/S8: duplicate keys, a second document, an overflowing number or an oversized string never reach the types
+        for (id in listOf("duplicate-key-top-level", "duplicate-key-hides-a-bad-value", "trailing-content-second-document", "value-1e999-overflows-a-double",
+            "yaw-1e999", "string-over-4096-characters")) {
+            val bad = Files.readString(negative.resolve("$id.json"))
+            assertThrows(java.io.IOException::class.java, { mapper.readValue(bad, LiveMeasurement::class.java) }, id)
+        }
+    }
+
+    @Test
+    fun geometryIsPartOfTheGeneratedTypes() {
+        val m = mapper.readValue(Files.readString(examples.resolve("live-measurement-plane-distance.json")), LiveMeasurement::class.java)
+        assertEquals(listOf(0.0, 1.0, 0.0), m.geometry.plane.normalWorld)
+    }
 }
