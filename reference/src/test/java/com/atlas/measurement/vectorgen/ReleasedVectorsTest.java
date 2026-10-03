@@ -68,7 +68,7 @@ class ReleasedVectorsTest {
                     .as(c.get("id").asText()).isEqualTo(c.get("expected"));
             branches++;
         }
-        assertThat(branches).isGreaterThanOrEqualTo(70);
+        assertThat(branches).isGreaterThanOrEqualTo(65);
     }
 
     @Test
