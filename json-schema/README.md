@@ -16,14 +16,21 @@ The client contract of the Measure Kits (design 17.3, 25.2, 25.3). Draft 2020-12
 - `trust`, when present, must be `UNVERIFIED_ESTIMATE` (the server stamps it on every client record).
 - `dimensions` must match `mode`: `OBJECT_BOX` has `lengthM`, `widthM`, `heightM`; the other modes have `distanceM`.
 - `confidence` is at most 0.6 when `scaleSource` is `VIO_METRIC`.
+- Optional `geometry` object carries `endpointsWorld` (for `POINT_TO_POINT`) and `plane` (for `PLANE_DISTANCE`); normals must be unit-length (1.0 ± 1e-5 m).
+- `value`, `sigmaM` and `ci95M` are bounded (within approximately ±10000 m); `algorithmVersion` major/minor/patch fit INT range.
+- Numeric values must be finite (not NaN or Infinity).
 
 ## Rules that are intake rules, not schema rules
 
 JSON Schema cannot express them; the intake service (AT-17) applies them with the same helper.
 
-- **JSON depth at most 8.** Depth counts containers; the root object is depth 1. It is enforced while parsing, before schema validation, so a deeply nested body is never materialised (`com.atlas.measurement.validation.ClientMeasurementValidator`, Jackson `maxNestingDepth`). It applies per `LiveMeasurement` item, not to the batch envelope.
+- **JSON depth at most 8.** Depth counts containers; the root object is depth 1. It is enforced while parsing, before schema validation, so a deeply nested body is never materialised (`com.atlas.measurement.validation.ClientMeasurementValidator`, Jackson `maxNestingDepth`). **Batch exception:** the depth limit applies per `LiveMeasurement` item in a batch (so one item at depth 9 causes the whole request to return HTTP 422 for that item), not to the batch envelope itself. A body deeper than 32, over size, or with too many items rejects the whole request.
 - An unsupported `schemaVersion` (anything but `1.0`) is `CLIENT_SCHEMA_UNSUPPORTED`; every other violation is `CLIENT_MEASUREMENT_INVALID`.
-- Size caps (4 KB per item, 256 KB per `complete` body, 400 KB per batch, 50 items in `complete`), timestamp windows and `sessionId` equality with the create request.
+- Size caps (4 KB per item, 256 KiB per `complete` body, 400 KiB per batch body, 50 items in `complete`). Whole-request limits: batch size 1-100 items, request body 400 KiB. String fields capped at 4096 chars, `algorithmVersion` and `kitVersion` at 32 chars, field names at 128 chars.
+- Duplicate object keys and trailing JSON content are rejected; all numeric values must be finite.
+- Timestamp windows: hint timestamp at most 5 minutes in the future and no older than 24 hours before the `complete` request. Batch timestamps at most 5 minutes in the future and at most 30 days old (offline sync).
+- `sessionId` equality with the create request (for `complete`); idempotency by `(tenantId, ownerId, clientMeasurementId)` for the batch endpoint.
+- On the `complete` endpoint, invalid hints are dropped and the upload succeeds with status 202 and `warnings: ["CLIENT_HINTS_DROPPED"]`; the upload itself is **never rejected for bad hints**.
 
 ## Generated Java types (`codegen-json/`, AT-16)
 
@@ -40,13 +47,14 @@ Ranges, patterns, field conditionals (the `dimensions` → `mode` rule), and the
 
 ### Per-item batch validation
 
-For a batch request, call `ClientMeasurementValidator.validateBatchItems(jsonString)` to return a `List<Result>` with per-item codes and errors:
+For a batch request, call `ClientMeasurementValidator.validateBatchItems(jsonString)` to return per-item validation results with codes and errors:
 
 ```java
 public List<Result> validateBatchItems(String json) { ... }
+// Result: code (VALID, CLIENT_MEASUREMENT_INVALID, etc.), errors (list of violation strings)
 ```
 
-The envelope and per-item parsing are handled in one call; see `vectors/negative/README.md` for the API.
+The envelope and per-item parsing are handled in one call; the HTTP 200 response body and per-item result codes are implementation-specific (reference implementation shape defined in `reference/`). See `vectors/negative/README.md` for negative test vectors.
 
 ### Swift types
 

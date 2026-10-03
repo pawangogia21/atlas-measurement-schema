@@ -1,13 +1,13 @@
 # Negative Vectors
 
-Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_INVALID`, plus per-item batch error reporting. Each of the 62 vectors is a mutation of a valid example from `json-schema/v1/examples/`.
+Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_INVALID`, plus per-item batch error reporting. Each of the 105 vectors is a mutation of a valid example from `json-schema/v1/examples/`.
 
 ## Layout
 
 `<version>/` is immutable once released (a change is a new version, never an edit; design 31.4).
 
 - `manifest.json`: the vector set metadata with `vectorSet`, `version`, a description, `vectors[]` with per-vector details, and `files[]` with `path`, `sha256` and `bytes` for every JSON file.
-- 62 JSON files: payloads organized by kind:
+- 105 JSON files: payloads organized by kind:
   - `liveMeasurement` (single item): missing/malformed/invalid required fields (timestamp, capture, mode, dimensions, etc.), depth limits (9 and 100001 levels), invalid enums and field values
   - `clientCapture` (the capture object): missing/invalid required fields and enums
   - `batch` (whole request): invalid envelope, non-object items, batch-size violations, too many items (101), empty batch
@@ -15,27 +15,21 @@ Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_I
 
 ## Error tokens and depth enforcement
 
-Every negative vector expects HTTP 422 with a `code` field; the `message` or top-level `errors` field contains the recorded error token (e.g. `"batch envelope must be {\"items\": [1..100 objects]}"`, or specific schema validation errors like `"required field timestamp is absent"`).
+Every negative vector expects HTTP 422 with a `code` field. The manifest specifies `expectedErrorContains` (a field name or keyword) that must appear in the response's `message` or error details field (e.g. `"required field schemaVersion is absent"`, `"additionalProperties"` for unknown fields, `"maximum"` for out-of-range, `"duplicate object key"`, `"trailing content"`).
 
-- **JSON depth limit 8** (depth counts containers; root is depth 1): enforced while parsing before schema validation via Jackson's `maxNestingDepth`, so a deeply nested body is never materialized. The limit applies per `LiveMeasurement` item in a batch, not to the batch envelope itself. Test cases: `depth-9.json` (single item just over limit) and `batch-item-depth-9.json` (batch with one item at depth 9).
+- **JSON depth limit 8** (depth counts containers; root is depth 1): enforced while parsing before schema validation via Jackson's `maxNestingDepth`, so a deeply nested body is never materialized. The limit applies per `LiveMeasurement` item in a batch, not to the batch envelope itself. A too-deep item rejects the whole request with HTTP 422 (batch exception: see `json-schema/README.md`). Test cases: `depth-9.json` (single item just over limit) and `batch-item-depth-9.json` (batch with one item at depth 9).
 - **Over-limit nesting**: `depth-100001.json` tests stack-safe rejection of a payload recursively nested 100,001 levels deep — a consumer must refuse it without exhausting its stack.
 
 ## Per-item batch validation (`ClientMeasurementValidator.validateBatchItems`)
 
-A batch request body with 1–100 valid `LiveMeasurement` items in an `items` array returns HTTP 200 with per-item results:
+A batch request body with 1–100 valid `LiveMeasurement` items in an `items` array returns HTTP 200 (per-item results format is implementation-specific; see `json-schema/README.md` for the reference):
 
-```json
-[
-  { "code": "VALID" },
-  { "code": "CLIENT_MEASUREMENT_INVALID", "errors": [
-    "violation 1",
-    "violation 2"
-  ]},
-  { "code": "VALID" }
-]
+```java
+List<Result> validateBatchItems(String json)
+// Each Result has: code (VALID, CLIENT_MEASUREMENT_INVALID, etc.), errors (list of violation strings)
 ```
 
-The batch envelope itself must be a JSON object with an `items` key and array; violations in the envelope (non-object items, batch size out of range, missing `items` key) return HTTP 422 with a single error in the response. Test cases: `batch-per-item-rejection.json` (valid envelope, mixed valid/invalid items), `batch-empty.json` (zero items), `batch-101-items.json` (101 items).
+The batch envelope itself must be a JSON object with an `items` key and array; violations in the envelope (non-object items, batch size out of range, missing `items` key) return HTTP 422 with a single error in the response. Test cases: `batch-per-item-rejection.json` (valid envelope, mixed valid/invalid items), `batch-empty.json` (zero items), `batch-101-items.json` (101 items). **Exception:** if one item is deeper than the JSON depth limit (9), the whole request rejects with HTTP 422 (see `batch-item-depth-9.json` and `json-schema/README.md`).
 
 ## Regenerate (reproducible, byte-identical)
 
