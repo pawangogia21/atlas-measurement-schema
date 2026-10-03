@@ -8,8 +8,9 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>atlas-measurement-schema-kotlin</name>
-    <description>Kotlin JVM 11 port of the tolerance function (AT-16). Reads tolerance-profile.json; verified against
-        the same vectors as the Java reference and the Swift port.
+    <description>Kotlin JVM 11 artifact (AT-16): the port of the tolerance function (reads tolerance-profile.json, verified
+        against the same vectors as the Java reference and the Swift port) plus the generated types, which come in
+        transitively from atlas-measurement-schema-types (jsonschema2pojo, usable from Kotlin as they are).
     </description>
 
     <properties>
@@ -27,6 +28,12 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <!-- the jsonschema2pojo types (AT-16 sub-task I); same release, so ${project.version} -->
+            <groupId>com.atlas</groupId>
+            <artifactId>atlas-measurement-schema-types</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -69,4 +76,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema</url>
+        </repository>
+    </distributionManagement>
 </project>

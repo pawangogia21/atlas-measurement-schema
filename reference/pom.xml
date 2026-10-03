@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlas</groupId>
     <artifactId>atlas-measurement-schema-reference</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>atlas-measurement-schema-reference</name>
     <description>AT-16 reference implementations (JVM 11): client-measurement validator (JSON Schema plus the
@@ -17,7 +17,7 @@
     <properties>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-10-03T03:58:15Z</project.build.outputTimestamp>
         <jackson.version>2.18.1</jackson.version>
         <junit.version>5.11.3</junit.version>
     </properties>
@@ -70,4 +70,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema</url>
+        </repository>
+    </distributionManagement>
 </project>

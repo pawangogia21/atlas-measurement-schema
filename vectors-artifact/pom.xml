@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atlas</groupId>
+    <artifactId>atlas-measurement-vectors</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>atlas-measurement-vectors</name>
+    <description>The versioned vector artifact (AT-16): conformance, boundary and negative vectors with their
+        manifests (sha256 per file), the tolerance profile and the JSON Schema, as a zip-compatible jar. The Kits and the
+        server pin it by version and unpack it in their own tests; released versions never change (a retune is a new
+        release).
+    </description>
+
+    <properties>
+        <maven.compiler.release>11</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../vectors</directory>
+                <targetPath>vectors</targetPath>
+                <excludes>
+                    <exclude>**/README.md</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../tolerance</directory>
+                <targetPath>tolerance</targetPath>
+                <includes>
+                    <include>tolerance-profile.json</include>
+                    <include>tolerance-profile.schema.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../json-schema</directory>
+                <targetPath>json-schema</targetPath>
+            </resource>
+        </resources>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema</url>
+        </repository>
+    </distributionManagement>
+</project>
