@@ -188,11 +188,12 @@ expect fail "an approval line of the baseline removed" origin/main
 git checkout -q governance && approve vectors-boundary 1.2.0
 cp governance/qa-approvals.txt "$T/elsewhere.txt"
 git checkout -q governance
-if GITHUB_ACTIONS=true GOVERNANCE_APPROVALS="$T/elsewhere.txt" "$GATE" origin/main >/dev/null 2>&1; then
+# explicit environments, so the result is the same on a laptop and on a runner (which sets GITHUB_ACTIONS=true)
+if env GITHUB_ACTIONS=true GOVERNANCE_APPROVALS="$T/elsewhere.txt" "$GATE" origin/main >/dev/null 2>&1; then
   echo "SELFTEST FAIL: GOVERNANCE_APPROVALS was honoured in CI"; exit 1
 fi
 echo "ok: GOVERNANCE_APPROVALS is ignored in CI"
-GOVERNANCE_APPROVALS="$T/elsewhere.txt" "$GATE" origin/main >/dev/null 2>&1 || { echo "SELFTEST FAIL: GOVERNANCE_APPROVALS not honoured locally"; exit 1; }
+env -u GITHUB_ACTIONS GOVERNANCE_APPROVALS="$T/elsewhere.txt" "$GATE" origin/main >/dev/null 2>&1 || { echo "SELFTEST FAIL: GOVERNANCE_APPROVALS not honoured locally"; exit 1; }
 echo "ok: GOVERNANCE_APPROVALS works outside CI"
 
 # the baseline of a tag build, and a stale branch
