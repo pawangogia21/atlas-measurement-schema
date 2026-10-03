@@ -18,9 +18,22 @@
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>2026-10-03T03:58:15Z</project.build.outputTimestamp>
-        <jackson.version>2.18.1</jackson.version>
+        <jackson.version>2.18.11</jackson.version>
         <junit.version>5.11.3</junit.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- the validator library brings jackson-dataformat-yaml: keep every Jackson artifact on one patched version -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
