@@ -69,6 +69,11 @@ public final class ClientMeasurementValidator {
                 .build());
     }
 
+    /** Whether a hint's {@code schemaVersion} is one the server accepts (the association reason SCHEMA_UNSUPPORTED). */
+    public static boolean isSupportedSchemaVersion(String schemaVersion) {
+        return SUPPORTED_SCHEMA_VERSIONS.contains(schemaVersion);
+    }
+
     /** Outcome: {@code code == null} means valid. */
     public static final class Result {
         public final String code;
