@@ -1,0 +1,8 @@
+# qaAgent approvals for vector and tolerance-profile releases (AT-16 sub-task K, design 31.4).
+# One line per approved artifact version; the CI gate (.github/scripts/governance-gate.sh) fails a vector or
+# tolerance-profile change that has no matching line. Format, space separated:
+#   <artifact> <version> <digest> <approved-by> <yyyy-mm-dd> <ticket>
+# <artifact>: tolerance-profile | vectors-conformance | vectors-boundary | vectors-negative
+# <digest>:   .github/scripts/governance-gate.sh --digests   (sha256 over the sorted file hashes of the artifact)
+# The line is added by the QA approver after review, in the same PR as the change. A released version is immutable:
+# a retune is a new version (1.1.0) with its own line, never an edit of 1.0.0.
