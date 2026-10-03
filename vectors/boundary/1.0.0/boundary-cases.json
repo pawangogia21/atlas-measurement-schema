@@ -1,330 +1,600 @@
 {
-  "description" : "Boundary vectors for tolerance function: exactly at, just below and just above each threshold",
+  "description" : "Boundary vectors for the tolerance function (profile 1.0.0): every row and every term at exactly, just under (-1e-5 m) and just over (+1e-5 m) the threshold, rounding edges and per-dimension classification.",
   "tolEpsilon" : 1.0E-9,
-  "tol" : [ {
-    "id" : "floor-exact-accuracyGate",
-    "profile" : "base",
+  "threshold" : [ {
+    "id" : "accuracyGate-floor-exact",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 0.01,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.01
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
   }, {
-    "id" : "floor-just-below-accuracyGate",
-    "profile" : "base",
+    "id" : "accuracyGate-floor-just-under",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 0.0099999999,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.01
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
   }, {
-    "id" : "floor-just-above-accuracyGate",
-    "profile" : "base",
+    "id" : "accuracyGate-floor-just-over",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 0.0100000001,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.01
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
   }, {
-    "id" : "floor-exact-accuracyGateP95",
-    "profile" : "base",
-    "row" : "accuracyGateP95",
-    "major" : 1,
-    "ref" : 0.025,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.025
-  }, {
-    "id" : "floor-just-below-accuracyGateP95",
-    "profile" : "base",
-    "row" : "accuracyGateP95",
-    "major" : 1,
-    "ref" : 0.0249999999,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.025
-  }, {
-    "id" : "floor-just-above-accuracyGateP95",
-    "profile" : "base",
-    "row" : "accuracyGateP95",
-    "major" : 1,
-    "ref" : 0.025000000100000003,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.025
-  }, {
-    "id" : "floor-exact-agree",
-    "profile" : "base",
-    "row" : "agree",
-    "major" : 1,
-    "ref" : 0.02,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.02
-  }, {
-    "id" : "floor-just-below-agree",
-    "profile" : "base",
-    "row" : "agree",
-    "major" : 1,
-    "ref" : 0.0199999999,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.02
-  }, {
-    "id" : "floor-just-above-agree",
-    "profile" : "base",
-    "row" : "agree",
-    "major" : 1,
-    "ref" : 0.020000000100000002,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.02
-  }, {
-    "id" : "floor-exact-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.05,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.05
-  }, {
-    "id" : "floor-just-below-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.0499999999,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.05
-  }, {
-    "id" : "floor-just-above-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.050000000100000004,
-    "sigmaServer" : 0.0,
-    "sigmaClient" : 0.0,
-    "tol" : 0.05
-  }, {
-    "id" : "relative-exact-accuracyGate",
-    "profile" : "base",
+    "id" : "accuracyGate-relative-exact",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 50.0,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.0
+    "tol" : 0.2,
+    "diff" : 0.2,
+    "within" : true
   }, {
-    "id" : "relative-just-below-accuracyGate",
-    "profile" : "base",
+    "id" : "accuracyGate-relative-just-under",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 49.9999999999,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.9999999999979999
+    "tol" : 0.2,
+    "diff" : 0.19999,
+    "within" : true
   }, {
-    "id" : "relative-just-above-accuracyGate",
-    "profile" : "base",
+    "id" : "accuracyGate-relative-just-over",
     "row" : "accuracyGate",
     "major" : 1,
-    "ref" : 50.0000000001,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.000000000002
+    "tol" : 0.2,
+    "diff" : 0.20001000000000002,
+    "within" : false
   }, {
-    "id" : "relative-exact-accuracyGateP95",
-    "profile" : "base",
+    "id" : "accuracyGate-floor-relative-crossover-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-relative-crossover-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-relative-crossover-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
+  }, {
+    "id" : "accuracyGate-sigma-ignored-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-sigma-ignored-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-sigma-ignored-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-floor-exact",
     "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 25.0,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.0
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
   }, {
-    "id" : "relative-just-below-accuracyGateP95",
-    "profile" : "base",
+    "id" : "accuracyGateP95-floor-just-under",
     "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 24.9999999999,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.9999999999960001
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
   }, {
-    "id" : "relative-just-above-accuracyGateP95",
-    "profile" : "base",
+    "id" : "accuracyGateP95-floor-just-over",
     "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 25.0000000001,
+    "term" : "floor",
+    "ref" : 0.1,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.000000000004
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
   }, {
-    "id" : "relative-exact-agree",
-    "profile" : "base",
-    "row" : "agree",
+    "id" : "accuracyGateP95-relative-exact",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 50.0,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.0
+    "tol" : 0.4,
+    "diff" : 0.4,
+    "within" : true
   }, {
-    "id" : "relative-just-below-agree",
-    "profile" : "base",
-    "row" : "agree",
+    "id" : "accuracyGateP95-relative-just-under",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 49.9999999999,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.9999999999979999
+    "tol" : 0.4,
+    "diff" : 0.39999,
+    "within" : true
   }, {
-    "id" : "relative-just-above-agree",
-    "profile" : "base",
-    "row" : "agree",
+    "id" : "accuracyGateP95-relative-just-over",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 50.0000000001,
+    "term" : "relative",
+    "ref" : 10.0,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.000000000002
+    "tol" : 0.4,
+    "diff" : 0.40001000000000003,
+    "within" : false
   }, {
-    "id" : "relative-exact-minor",
-    "profile" : "base",
-    "row" : "minor",
+    "id" : "accuracyGateP95-floor-relative-crossover-exact",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 20.0,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.0
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
   }, {
-    "id" : "relative-just-below-minor",
-    "profile" : "base",
-    "row" : "minor",
+    "id" : "accuracyGateP95-floor-relative-crossover-just-under",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 19.9999999999,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.9999999999950001
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
   }, {
-    "id" : "relative-just-above-minor",
-    "profile" : "base",
-    "row" : "minor",
+    "id" : "accuracyGateP95-floor-relative-crossover-just-over",
+    "row" : "accuracyGateP95",
     "major" : 1,
-    "ref" : 20.0000000001,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 1.000000000005
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
   }, {
-    "id" : "sigma-exact-agree",
-    "profile" : "base",
+    "id" : "accuracyGateP95-sigma-ignored-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-sigma-ignored-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-sigma-ignored-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
+  }, {
+    "id" : "agree-floor-exact",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.05,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.1
+    "tol" : 0.02,
+    "diff" : 0.02,
+    "within" : true
   }, {
-    "id" : "sigma-just-below-agree",
-    "profile" : "base",
+    "id" : "agree-floor-just-under",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.0499999999,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.0999999998
+    "tol" : 0.02,
+    "diff" : 0.01999,
+    "within" : true
   }, {
-    "id" : "sigma-just-above-agree",
-    "profile" : "base",
+    "id" : "agree-floor-just-over",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.050000000100000004,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
-    "tol" : 0.1
+    "tol" : 0.02,
+    "diff" : 0.02001,
+    "within" : false
   }, {
-    "id" : "sigma-exact-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.05,
-    "sigmaClient" : 0.0,
-    "tol" : 0.15
-  }, {
-    "id" : "sigma-just-below-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.0499999999,
-    "sigmaClient" : 0.0,
-    "tol" : 0.1499999997
-  }, {
-    "id" : "sigma-just-above-minor",
-    "profile" : "base",
-    "row" : "minor",
-    "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.050000000100000004,
-    "sigmaClient" : 0.0,
-    "tol" : 0.15
-  }, {
-    "id" : "sigma-cap-exact-agree",
-    "profile" : "base",
+    "id" : "agree-relative-exact",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.060000000000000005,
-    "sigmaClient" : 0.060000000000000005,
-    "tol" : 0.1
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.2,
+    "within" : true
   }, {
-    "id" : "sigma-cap-just-below-agree",
-    "profile" : "base",
+    "id" : "agree-relative-just-under",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.0599999999,
-    "sigmaClient" : 0.0599999999,
-    "tol" : 0.1
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.19999,
+    "within" : true
   }, {
-    "id" : "sigma-cap-just-above-agree",
-    "profile" : "base",
+    "id" : "agree-relative-just-over",
     "row" : "agree",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.060000000100000006,
-    "sigmaClient" : 0.060000000100000006,
-    "tol" : 0.1
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.20001000000000002,
+    "within" : false
   }, {
-    "id" : "sigma-cap-exact-minor",
-    "profile" : "base",
+    "id" : "agree-floor-relative-crossover-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02,
+    "within" : true
+  }, {
+    "id" : "agree-floor-relative-crossover-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.01999,
+    "within" : true
+  }, {
+    "id" : "agree-floor-relative-crossover-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02001,
+    "within" : false
+  }, {
+    "id" : "agree-sigma-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.0565685424949238,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.0565585424949238,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.056578542494923806,
+    "within" : false
+  }, {
+    "id" : "agree-sigma-cap-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.1,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-cap-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.09999000000000001,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-cap-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.10001,
+    "within" : false
+  }, {
+    "id" : "minor-floor-exact",
     "row" : "minor",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.06,
-    "sigmaClient" : 0.06,
-    "tol" : 0.15
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.05,
+    "within" : true
   }, {
-    "id" : "sigma-cap-just-below-minor",
-    "profile" : "base",
+    "id" : "minor-floor-just-under",
     "row" : "minor",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.059999999899999996,
-    "sigmaClient" : 0.059999999899999996,
-    "tol" : 0.15
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.04999,
+    "within" : true
   }, {
-    "id" : "sigma-cap-just-above-minor",
-    "profile" : "base",
+    "id" : "minor-floor-just-over",
     "row" : "minor",
     "major" : 1,
-    "ref" : 0.001,
-    "sigmaServer" : 0.0600000001,
-    "sigmaClient" : 0.0600000001,
-    "tol" : 0.15
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.050010000000000006,
+    "within" : false
+  }, {
+    "id" : "minor-relative-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.5,
+    "within" : true
+  }, {
+    "id" : "minor-relative-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.49999,
+    "within" : true
+  }, {
+    "id" : "minor-relative-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.50001,
+    "within" : false
+  }, {
+    "id" : "minor-floor-relative-crossover-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.05,
+    "within" : true
+  }, {
+    "id" : "minor-floor-relative-crossover-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.04999,
+    "within" : true
+  }, {
+    "id" : "minor-floor-relative-crossover-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.050010000000000006,
+    "within" : false
+  }, {
+    "id" : "minor-sigma-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.08485281374238571,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.08484281374238571,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.0848628137423857,
+    "within" : false
+  }, {
+    "id" : "minor-sigma-cap-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.15,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-cap-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.14998999999999998,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-cap-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.15001,
+    "within" : false
   } ],
   "within" : [ {
     "id" : "rounding-exact",
@@ -332,18 +602,93 @@
     "tol" : 0.02,
     "within" : true
   }, {
-    "id" : "rounding-just-below",
+    "id" : "rounding-below-half-unit-rounds-down-to-tol",
     "diff" : 0.020004,
     "tol" : 0.02,
     "within" : true
   }, {
-    "id" : "rounding-just-above",
+    "id" : "rounding-above-half-unit-rounds-up-past-tol",
     "diff" : 0.020006,
     "tol" : 0.02,
     "within" : false
+  }, {
+    "id" : "rounding-one-unit-over",
+    "diff" : 0.02001,
+    "tol" : 0.02,
+    "within" : false
+  }, {
+    "id" : "rounding-one-unit-under",
+    "diff" : 0.01999,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-zero-diff",
+    "diff" : 0.0,
+    "tol" : 0.02,
+    "within" : true
   } ],
   "classify" : [ {
-    "id" : "classify-agree-exact",
+    "id" : "agree-floor-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.12000000000000001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-floor-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.12001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-floor-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.08,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-relative-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.2,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-relative-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.20001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-relative-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 9.8,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-floor-relative-crossover-exact",
     "major" : 1,
     "dims" : [ {
       "server" : 1.0,
@@ -353,27 +698,127 @@
     } ],
     "outcome" : "AGREE"
   }, {
-    "id" : "classify-agree-just-below",
+    "id" : "agree-floor-relative-crossover-just-over",
     "major" : 1,
     "dims" : [ {
       "server" : 1.0,
       "sigmaServer" : 0.0,
-      "client" : 1.0199,
-      "sigmaClient" : 0.0
-    } ],
-    "outcome" : "AGREE"
-  }, {
-    "id" : "classify-minor-just-over-agree",
-    "major" : 1,
-    "dims" : [ {
-      "server" : 1.0,
-      "sigmaServer" : 0.0,
-      "client" : 1.0201,
+      "client" : 1.02001,
       "sigmaClient" : 0.0
     } ],
     "outcome" : "MINOR_DIFF"
   }, {
-    "id" : "classify-minor-exact",
+    "id" : "agree-floor-relative-crossover-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 0.98,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1565685424949238,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1565785424949238,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-sigma-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.0434314575050762,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-cap-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.2,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-cap-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.20001000000000002,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-sigma-cap-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.0,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "minor-floor-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.15000000000000002,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-floor-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.15001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-relative-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.5,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-relative-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.50001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-floor-relative-crossover-exact",
     "major" : 1,
     "dims" : [ {
       "server" : 1.0,
@@ -383,17 +828,92 @@
     } ],
     "outcome" : "MINOR_DIFF"
   }, {
-    "id" : "classify-major-just-over-minor",
+    "id" : "minor-floor-relative-crossover-just-over",
     "major" : 1,
     "dims" : [ {
       "server" : 1.0,
       "sigmaServer" : 0.0,
-      "client" : 1.0501,
+      "client" : 1.05001,
       "sigmaClient" : 0.0
     } ],
     "outcome" : "MAJOR_DIFF"
   }, {
-    "id" : "classify-worst-dimension-decides",
+    "id" : "minor-sigma-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1848528137423857,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-sigma-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.18486281374238572,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-sigma-cap-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.25,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-sigma-cap-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.25001,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "multi-all-dimensions-agree",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.319,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 3.0,
+      "sigmaServer" : 0.0,
+      "client" : 3.05,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.2,
+      "sigmaServer" : 0.0,
+      "client" : 0.2,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "multi-one-minor-dimension-decides",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.3,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.34,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "multi-one-major-dimension-decides",
     "major" : 1,
     "dims" : [ {
       "server" : 1.0,
@@ -408,24 +928,19 @@
     } ],
     "outcome" : "MAJOR_DIFF"
   }, {
-    "id" : "classify-sigma-widens-agree",
+    "id" : "multi-sigma-is-per-dimension",
     "major" : 1,
     "dims" : [ {
-      "server" : 1.0,
+      "server" : 0.5,
       "sigmaServer" : 0.02,
-      "client" : 1.05,
+      "client" : 0.55,
       "sigmaClient" : 0.02
-    } ],
-    "outcome" : "AGREE"
-  }, {
-    "id" : "classify-client-below-server",
-    "major" : 1,
-    "dims" : [ {
-      "server" : 1.0,
+    }, {
+      "server" : 0.5,
       "sigmaServer" : 0.0,
-      "client" : 0.98,
+      "client" : 0.53,
       "sigmaClient" : 0.0
     } ],
-    "outcome" : "AGREE"
+    "outcome" : "MINOR_DIFF"
   } ]
 }

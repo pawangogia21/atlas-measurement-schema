@@ -101,6 +101,32 @@ public final class ClientMeasurementValidator {
         }
     }
 
+    /**
+     * Batch intake (design 25.2): the envelope must be valid ({@code items} only, 1 to 100) and each item is then
+     * judged on its own; a bad item is INVALID and does not fail the batch. A body nested deeper than the limit
+     * is refused as a whole before it is materialised, so a too-deep item fails the entire request.
+     *
+     * @return one result for the whole request when the envelope or the depth is invalid, otherwise one per item
+     */
+    public List<Result> validateBatchItems(String json) {
+        JsonNode node;
+        try {
+            node = parseObject(BATCH_MAPPER, json);
+        } catch (InvalidDocument e) {
+            return List.of(e.result);
+        }
+        JsonNode items = node.get("items");
+        if (node.size() != 1 || items == null || !items.isArray() || items.size() < 1 || items.size() > 100) {
+            return List.of(new Result(CODE_INVALID, List.of("batch envelope must be {\"items\": [1..100 objects]}")));
+        }
+        List<Result> results = new ArrayList<>();
+        for (JsonNode item : items) {
+            results.add(item.isObject() ? validateLiveMeasurement(item.toString())
+                    : new Result(CODE_INVALID, List.of("batch item must be a JSON object")));
+        }
+        return results;
+    }
+
     private static final class InvalidDocument extends Exception {
         private static final long serialVersionUID = 1L;
         final transient Result result;

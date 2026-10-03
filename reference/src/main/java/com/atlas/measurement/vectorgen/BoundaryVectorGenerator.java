@@ -1,8 +1,8 @@
 package com.atlas.measurement.vectorgen;
 
+import com.atlas.measurement.association.Association;
 import com.atlas.measurement.tolerance.Tolerance;
 import com.atlas.measurement.tolerance.Tolerance.DimensionPair;
-import com.atlas.measurement.tolerance.Tolerance.Outcome;
 import com.atlas.measurement.tolerance.ToleranceProfile;
 import com.atlas.measurement.tolerance.ToleranceRow;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,362 +21,450 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Generates boundary vectors for the tolerance function: exactly at, just below and just above
- * each threshold in each tolerance profile row. Used to verify the tolerance function's accuracy.
+ * Generates the boundary vectors (design 21.2, 24 item 5): for every profile row and every term of the
+ * tolerance function the difference exactly at, just under (-1e-5 m) and just over (+1e-5 m) the threshold;
+ * the per-dimension AGREE / MINOR_DIFF / MAJOR_DIFF classification at each threshold; and the association
+ * and NOT_COMPARABLE vectors (one per association branch and per reason code).
+ *
+ * <p>Every case carries an <em>intended</em> result stated here by construction (exact and under are within,
+ * over is not; the branch or reason the case is built for). The generator fails if the reference
+ * implementation disagrees, so a vector is never merely a recording of the implementation's own output.
  * Usage: {@code BoundaryVectorGenerator <outDir>} (the release layout is vectors/boundary/<version>/).
  */
 public final class BoundaryVectorGenerator {
     public static final String VERSION = "1.0.0";
+    private static final double STEP = 1e-5;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final DefaultPrettyPrinter PRETTY = new DefaultPrettyPrinter()
             .withObjectIndenter(new DefaultIndenter("  ", "\n"));
-    private static final double EPSILON = 1e-9;
-    private static final double TINY = 1e-10;
+    private static final String[] ROWS = {"accuracyGate", "accuracyGateP95", "agree", "minor"};
 
-    private final Path out;
-    private final List<Map<String, Object>> vectors = new ArrayList<>();
+    private final ToleranceProfile profile;
     private final Map<String, byte[]> files = new TreeMap<>();
 
-    private BoundaryVectorGenerator(Path out) {
-        this.out = out;
+    private BoundaryVectorGenerator(ToleranceProfile profile) {
+        this.profile = profile;
     }
 
-    public static void generate(Path outDir) throws IOException, NoSuchAlgorithmException {
-        new BoundaryVectorGenerator(outDir).run();
+    public static void generate(Path outDir) throws IOException {
+        new BoundaryVectorGenerator(ToleranceProfile.loadBundled()).run(outDir);
     }
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.err.println("usage: BoundaryVectorGenerator <outDir>");
-            System.exit(1);
+            System.exit(2);
         }
         generate(Path.of(args[0]));
     }
 
-    private void run() throws IOException, NoSuchAlgorithmException {
-        ToleranceProfile profile = ToleranceProfile.loadBundled();
+    private void run(Path out) throws IOException {
+        ObjectNode cases = MAPPER.createObjectNode();
+        cases.put("description", "Boundary vectors for the tolerance function (profile 1.0.0): every row and every term at exactly, just under (-1e-5 m) and just over (+1e-5 m) the threshold, rounding edges and per-dimension classification.");
+        cases.put("tolEpsilon", 1e-9);
+        ArrayNode threshold = cases.putArray("threshold");
+        ArrayNode within = cases.putArray("within");
+        ArrayNode classify = cases.putArray("classify");
+        thresholds(threshold);
+        rounding(within);
+        classifyAtThresholds(classify);
+        classifyMultiDimension(classify);
+        files.put("boundary-cases.json", json(cases));
 
-        // Generate test cases for floor thresholds
-        generateFloorBoundaries(profile);
+        ObjectNode assoc = MAPPER.createObjectNode();
+        assoc.put("description", "Association and NOT_COMPARABLE vectors (design 21.2): one per association branch (SEEDED, IOU, GEOMETRIC, DIMENSION_ONLY) and per reason code, with the geometric thresholds at exactly, just under and just over. Replayed against the reference implementation (reference/.../association/Association.java); the association is server-side, so Swift and Kotlin do not replay this file.");
+        assoc.put("algorithmMajor", 1);
+        ArrayNode ac = assoc.putArray("cases");
+        new AssociationCases(ac).build();
+        files.put("association-cases.json", json(assoc));
 
-        // Generate test cases for relative thresholds
-        generateRelativeBoundaries(profile);
-
-        // Generate test cases for sigma thresholds
-        generateSigmaBoundaries(profile);
-
-        // Generate test cases for sigma cap thresholds
-        generateSigmaCapBoundaries(profile);
-
-        // Generate rounding edge cases
-        generateRoundingEdges();
-
-        // Generate per-dimension classification cases
-        generateClassificationCases(profile);
-
-        // Create manifest and write files
-        writeManifestAndFiles();
-    }
-
-    private void generateFloorBoundaries(ToleranceProfile profile) {
-        for (String rowName : new String[]{"accuracyGate", "accuracyGateP95", "agree", "minor"}) {
-            ToleranceRow row = profile.row(rowName, 1);
-            double floor = row.floorM;
-
-            // Test exactly at floor
-            addTolCase(
-                    "floor-exact-" + rowName,
-                    rowName, 1, floor, 0, 0,
-                    floor);
-
-            // Test just below floor (within)
-            addTolCase(
-                    "floor-just-below-" + rowName,
-                    rowName, 1, floor - TINY, 0, 0,
-                    floor - TINY);
-
-            // Test just above floor (outside if relative/sigma are smaller)
-            addTolCase(
-                    "floor-just-above-" + rowName,
-                    rowName, 1, floor + TINY, 0, 0,
-                    floor + TINY);
-        }
-    }
-
-    private void generateRelativeBoundaries(ToleranceProfile profile) {
-        for (String rowName : new String[]{"accuracyGate", "accuracyGateP95", "agree", "minor"}) {
-            ToleranceRow row = profile.row(rowName, 1);
-
-            // Use a reference value where relative term dominates
-            double refForRelative = 1.0 / row.relFrac;
-
-            // Test exactly at relative threshold
-            addTolCase(
-                    "relative-exact-" + rowName,
-                    rowName, 1, refForRelative, 0, 0,
-                    refForRelative * row.relFrac);
-
-            // Test just below relative threshold
-            addTolCase(
-                    "relative-just-below-" + rowName,
-                    rowName, 1, refForRelative - TINY, 0, 0,
-                    (refForRelative - TINY) * row.relFrac);
-
-            // Test just above relative threshold
-            addTolCase(
-                    "relative-just-above-" + rowName,
-                    rowName, 1, refForRelative + TINY, 0, 0,
-                    (refForRelative + TINY) * row.relFrac);
-        }
-    }
-
-    private void generateSigmaBoundaries(ToleranceProfile profile) {
-        // Only rows with sigma: agree and minor
-        for (String rowName : new String[]{"agree", "minor"}) {
-            ToleranceRow row = profile.row(rowName, 1);
-            if (row.sigmaK == null) {
-                continue;
-            }
-
-            // Use a small reference so sigma term dominates (no floor or relative contribution)
-            double smallRef = 0.001;
-
-            // Test exactly at sigma threshold (without cap)
-            double sigmaTerm = row.sigmaK * 0.07; // combined sigma of 0.05
-            addTolCase(
-                    "sigma-exact-" + rowName,
-                    rowName, 1, smallRef, 0.05, 0.0,
-                    sigmaTerm);
-
-            // Test just below sigma threshold
-            addTolCase(
-                    "sigma-just-below-" + rowName,
-                    rowName, 1, smallRef, 0.05 - TINY, 0.0,
-                    row.sigmaK * (0.05 - TINY));
-
-            // Test just above sigma threshold
-            addTolCase(
-                    "sigma-just-above-" + rowName,
-                    rowName, 1, smallRef, 0.05 + TINY, 0.0,
-                    row.sigmaK * (0.05 + TINY));
-        }
-    }
-
-    private void generateSigmaCapBoundaries(ToleranceProfile profile) {
-        // Only rows with sigma cap: agree and minor
-        for (String rowName : new String[]{"agree", "minor"}) {
-            ToleranceRow row = profile.row(rowName, 1);
-            if (row.sigmaCapM == null || row.sigmaK == null) {
-                continue;
-            }
-
-            // Use large sigma values to trigger the cap
-            double smallRef = 0.001;
-            double largeSigma = row.sigmaCapM / row.sigmaK + 0.01; // Larger than cap threshold
-
-            // Test exactly at sigma cap
-            addTolCase(
-                    "sigma-cap-exact-" + rowName,
-                    rowName, 1, smallRef, largeSigma, largeSigma,
-                    row.sigmaCapM);
-
-            // Test just below sigma cap
-            addTolCase(
-                    "sigma-cap-just-below-" + rowName,
-                    rowName, 1, smallRef, largeSigma - TINY, largeSigma - TINY,
-                    row.sigmaCapM - TINY);
-
-            // Test just above sigma cap (uncapped is larger)
-            double uncappedAboveCap = row.sigmaK * Math.sqrt(2 * (largeSigma + TINY) * (largeSigma + TINY));
-            addTolCase(
-                    "sigma-cap-just-above-" + rowName,
-                    rowName, 1, smallRef, largeSigma + TINY, largeSigma + TINY,
-                    Math.min(uncappedAboveCap, row.sigmaCapM));
-        }
-    }
-
-    private void generateRoundingEdges() {
-        // Test the 1e-5 rounding boundary
-        double onBoundary = 0.02;
-        double justBelowRound = 0.020004; // rounds down to 2000
-        double justAboveRound = 0.020006; // rounds up to 2001
-
-        // These are for the withinTolerance check
-        addWithinCase("rounding-exact", onBoundary, onBoundary, true);
-        addWithinCase("rounding-just-below", justBelowRound, onBoundary, true);
-        addWithinCase("rounding-just-above", justAboveRound, onBoundary, false);
-    }
-
-    private void generateClassificationCases(ToleranceProfile profile) {
-        // Test per-dimension classification
-        ToleranceRow agree = profile.row("agree", 1);
-        ToleranceRow minor = profile.row("minor", 1);
-
-        // Single dimension: exactly at agree threshold
-        addClassifyCase("classify-agree-exact", 1,
-                new DimensionPair(1.0, 0, 1.02, 0),
-                profile, Outcome.AGREE);
-
-        // Single dimension: just below agree threshold
-        addClassifyCase("classify-agree-just-below", 1,
-                new DimensionPair(1.0, 0, 1.0199, 0),
-                profile, Outcome.AGREE);
-
-        // Single dimension: just above agree but within minor
-        addClassifyCase("classify-minor-just-over-agree", 1,
-                new DimensionPair(1.0, 0, 1.0201, 0),
-                profile, Outcome.MINOR_DIFF);
-
-        // Single dimension: exactly at minor threshold
-        addClassifyCase("classify-minor-exact", 1,
-                new DimensionPair(1.0, 0, 1.05, 0),
-                profile, Outcome.MINOR_DIFF);
-
-        // Single dimension: just above minor (major diff)
-        addClassifyCase("classify-major-just-over-minor", 1,
-                new DimensionPair(1.0, 0, 1.0501, 0),
-                profile, Outcome.MAJOR_DIFF);
-
-        // Multiple dimensions: worst dimension decides
-        addClassifyCase("classify-worst-dimension-decides", 1,
-                new DimensionPair[]{
-                    new DimensionPair(1.0, 0, 1.0, 0),
-                    new DimensionPair(0.3, 0, 0.36, 0)
-                },
-                profile, Outcome.MAJOR_DIFF);
-
-        // Sigma widens tolerance: within agree because of sigma
-        addClassifyCase("classify-sigma-widens-agree", 1,
-                new DimensionPair(1.0, 0.02, 1.05, 0.02),
-                profile, Outcome.AGREE);
-
-        // Client below server (symmetric)
-        addClassifyCase("classify-client-below-server", 1,
-                new DimensionPair(1.0, 0, 0.98, 0),
-                profile, Outcome.AGREE);
-    }
-
-    private void addTolCase(String id, String rowName, int major, double ref, double sigmaServer,
-            double sigmaClient, double expectedTol) {
-        ToleranceProfile profile;
-        try {
-            profile = ToleranceProfile.loadBundled();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        ToleranceRow row = profile.row(rowName, major);
-        double computed = Tolerance.tol(ref, sigmaServer, sigmaClient, row);
-
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", id);
-        m.put("profile", "base");
-        m.put("row", rowName);
-        m.put("major", major);
-        m.put("ref", ref);
-        m.put("sigmaServer", sigmaServer);
-        m.put("sigmaClient", sigmaClient);
-        m.put("tol", computed);
-        vectors.add(m);
-    }
-
-    private void addWithinCase(String id, double diff, double tol, boolean expected) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", id);
-        m.put("diff", diff);
-        m.put("tol", tol);
-        m.put("within", expected);
-        vectors.add(m);
-    }
-
-    private void addClassifyCase(String id, int major, DimensionPair dim,
-            ToleranceProfile profile, Outcome expected) {
-        addClassifyCase(id, major, new DimensionPair[]{dim}, profile, expected);
-    }
-
-    private void addClassifyCase(String id, int major, DimensionPair[] dims,
-            ToleranceProfile profile, Outcome expected) {
-        List<DimensionPair> dimList = new ArrayList<>();
-        for (DimensionPair d : dims) {
-            dimList.add(d);
-        }
-        Outcome computed = Tolerance.classify(profile, major, dimList);
-
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", id);
-        m.put("major", major);
-
-        List<Map<String, Object>> dimsMaps = new ArrayList<>();
-        for (DimensionPair d : dims) {
-            Map<String, Object> dm = new LinkedHashMap<>();
-            dm.put("server", d.server);
-            dm.put("sigmaServer", d.sigmaServer);
-            dm.put("client", d.client);
-            dm.put("sigmaClient", d.sigmaClient);
-            dimsMaps.add(dm);
-        }
-        m.put("dims", dimsMaps);
-        m.put("outcome", computed.name());
-        vectors.add(m);
-    }
-
-    private void writeManifestAndFiles() throws IOException, NoSuchAlgorithmException {
-        Files.createDirectories(out);
-
-        // Write boundary cases file
-        ObjectNode boundaryNode = MAPPER.createObjectNode();
-        boundaryNode.put("description", "Boundary vectors for tolerance function: exactly at, just below and just above each threshold");
-        boundaryNode.put("tolEpsilon", EPSILON);
-
-        // Separate into different array types based on the id prefix
-        ArrayNode tolCases = boundaryNode.putArray("tol");
-        ArrayNode withinCases = boundaryNode.putArray("within");
-        ArrayNode classifyCases = boundaryNode.putArray("classify");
-
-        for (Map<String, Object> v : vectors) {
-            String id = (String) v.get("id");
-            ObjectNode node = MAPPER.valueToTree(v);
-
-            if (id.startsWith("rounding-")) {
-                withinCases.add(node);
-            } else if (id.startsWith("classify-")) {
-                classifyCases.add(node);
-            } else {
-                tolCases.add(node);
-            }
-        }
-
-        byte[] content = MAPPER.writer(PRETTY).writeValueAsBytes(boundaryNode);
-        Path boundaryFile = out.resolve("boundary-cases.json");
-        Files.write(boundaryFile, content);
-        files.put("boundary-cases.json", content);
-
-        // Create manifest
-        ObjectNode manifest = MAPPER.createObjectNode();
+        Map<String, Object> manifest = new LinkedHashMap<>();
+        manifest.put("vectorSet", "boundary");
         manifest.put("version", VERSION);
-
-        ArrayNode filesNode = manifest.putArray("files");
+        manifest.put("toleranceProfileVersion", profile.version());
+        List<Object> list = new ArrayList<>();
         for (Map.Entry<String, byte[]> e : files.entrySet()) {
-            ObjectNode f = filesNode.addObject();
+            Map<String, Object> f = new LinkedHashMap<>();
             f.put("path", e.getKey());
-            f.put("sha256", sha256(e.getValue()));
+            f.put("sha256", ConformanceVectorGenerator.sha256(e.getValue()));
             f.put("bytes", e.getValue().length);
+            list.add(f);
         }
-
-        byte[] manifestContent = MAPPER.writer(PRETTY).writeValueAsBytes(manifest);
-        Path manifestFile = out.resolve("manifest.json");
-        Files.write(manifestFile, manifestContent);
-
-        System.out.println("Generated boundary vectors to " + out);
-        System.out.println("Files: " + files.size() + " vectors: " + vectors.size());
+        manifest.put("files", list);
+        files.put("manifest.json", json(manifest));
+        Files.createDirectories(out);
+        for (Map.Entry<String, byte[]> e : files.entrySet()) {
+            Files.write(out.resolve(e.getKey()), e.getValue());
+        }
     }
 
-    static String sha256(byte[] data) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(data);
-        StringBuilder sb = new StringBuilder();
-        for (byte b : hash) {
-            sb.append(String.format("%02x", b));
+    // ---- threshold vectors -------------------------------------------------------------------------------
+
+    /** One term of the tolerance function made dominant: name, ref, sigmaServer, sigmaClient. */
+    private static final class Term {
+        final String name;
+        final double ref;
+        final double sigmaServer;
+        final double sigmaClient;
+
+        Term(String name, double ref, double sigmaServer, double sigmaClient) {
+            this.name = name;
+            this.ref = ref;
+            this.sigmaServer = sigmaServer;
+            this.sigmaClient = sigmaClient;
         }
-        return sb.toString();
+    }
+
+    private List<Term> terms(ToleranceRow row) {
+        List<Term> t = new ArrayList<>();
+        t.add(new Term("floor", 0.1, 0, 0));
+        t.add(new Term("relative", 10, 0, 0));
+        t.add(new Term("floor-relative-crossover", row.floorM / row.relFrac, 0, 0));
+        if (row.sigmaK == null) {
+            t.add(new Term("sigma-ignored", 0.1, 5, 5));
+        } else {
+            t.add(new Term("sigma", 0.1, 0.02, 0.02));
+            t.add(new Term("sigma-cap", 0.1, 1.0, 1.0));
+        }
+        return t;
+    }
+
+    private void thresholds(ArrayNode out) {
+        for (String rowName : ROWS) {
+            ToleranceRow row = profile.row(rowName, 1);
+            for (Term t : terms(row)) {
+                double tol = Tolerance.tol(t.ref, t.sigmaServer, t.sigmaClient, row);
+                String[] position = {"exact", "just-under", "just-over"};
+                double[] diff = {tol, tol - STEP, tol + STEP};
+                boolean[] intended = {true, true, false};
+                for (int i = 0; i < 3; i++) {
+                    boolean actual = Tolerance.withinTolerance(diff[i], tol);
+                    if (actual != intended[i]) {
+                        throw new IllegalStateException(rowName + "/" + t.name + "/" + position[i]
+                                + ": reference says " + actual + ", intended " + intended[i]);
+                    }
+                    ObjectNode c = out.addObject();
+                    c.put("id", rowName + "-" + t.name + "-" + position[i]);
+                    c.put("row", rowName);
+                    c.put("major", 1);
+                    c.put("term", t.name);
+                    c.put("ref", t.ref);
+                    c.put("sigmaServer", t.sigmaServer);
+                    c.put("sigmaClient", t.sigmaClient);
+                    c.put("tol", tol);
+                    c.put("diff", diff[i]);
+                    c.put("within", intended[i]);
+                }
+            }
+        }
+    }
+
+    private void rounding(ArrayNode out) {
+        Object[][] cases = {
+            {"rounding-exact", 0.02, 0.02, true},
+            {"rounding-below-half-unit-rounds-down-to-tol", 0.020004, 0.02, true},
+            {"rounding-above-half-unit-rounds-up-past-tol", 0.020006, 0.02, false},
+            {"rounding-one-unit-over", 0.02001, 0.02, false},
+            {"rounding-one-unit-under", 0.01999, 0.02, true},
+            {"rounding-zero-diff", 0.0, 0.02, true},
+        };
+        for (Object[] c : cases) {
+            boolean actual = Tolerance.withinTolerance((double) c[1], (double) c[2]);
+            if (actual != (boolean) c[3]) {
+                throw new IllegalStateException(c[0] + ": reference says " + actual);
+            }
+            ObjectNode n = out.addObject();
+            n.put("id", (String) c[0]);
+            n.put("diff", (double) c[1]);
+            n.put("tol", (double) c[2]);
+            n.put("within", (boolean) c[3]);
+        }
+    }
+
+    // ---- classification ----------------------------------------------------------------------------------
+
+    private void classifyAtThresholds(ArrayNode out) {
+        for (String rowName : new String[] {"agree", "minor"}) {
+            ToleranceRow row = profile.row(rowName, 1);
+            for (Term t : terms(row)) {
+                double tol = Tolerance.tol(t.ref, t.sigmaServer, t.sigmaClient, row);
+                // agree row: at threshold AGREE, just over MINOR_DIFF; minor row: at threshold MINOR_DIFF
+                // (it is beyond the agree tolerance of the same dimension), just over MAJOR_DIFF.
+                boolean agreeRow = rowName.equals("agree");
+                addClassify(out, rowName + "-" + t.name + "-exact", t, tol, agreeRow ? "AGREE" : "MINOR_DIFF");
+                addClassify(out, rowName + "-" + t.name + "-just-over", t, tol + STEP, agreeRow ? "MINOR_DIFF" : "MAJOR_DIFF");
+                if (agreeRow) {
+                    addClassify(out, rowName + "-" + t.name + "-client-below-server", t, -tol, "AGREE");
+                }
+            }
+        }
+    }
+
+    private void addClassify(ArrayNode out, String id, Term t, double signedDiff, String intended) {
+        ObjectNode d = MAPPER.createObjectNode();
+        d.put("server", t.ref);
+        d.put("sigmaServer", t.sigmaServer);
+        d.put("client", t.ref + signedDiff);
+        d.put("sigmaClient", t.sigmaClient);
+        addClassifyCase(out, id, intended, d);
+    }
+
+    private void classifyMultiDimension(ArrayNode out) {
+        // per-dimension, not pooled: the large dimension has the larger tolerance, the small one decides
+        addClassifyCase(out, "multi-all-dimensions-agree", "AGREE",
+                dim(0.3, 0, 0.319), dim(3.0, 0, 3.05), dim(0.2, 0, 0.2));
+        addClassifyCase(out, "multi-one-minor-dimension-decides", "MINOR_DIFF",
+                dim(0.3, 0, 0.3), dim(0.3, 0, 0.34));
+        addClassifyCase(out, "multi-one-major-dimension-decides", "MAJOR_DIFF",
+                dim(1.0, 0, 1.0), dim(0.3, 0, 0.36));
+        addClassifyCase(out, "multi-sigma-is-per-dimension", "MINOR_DIFF",
+                dim(0.5, 0.02, 0.02, 0.55), dim(0.5, 0, 0.53));
+    }
+
+    private static ObjectNode dim(double server, double sigmaServer, double client) {
+        return dim(server, sigmaServer, 0, client);
+    }
+
+    private static ObjectNode dim(double server, double sigmaServer, double sigmaClient, double client) {
+        ObjectNode d = MAPPER.createObjectNode();
+        d.put("server", server);
+        d.put("sigmaServer", sigmaServer);
+        d.put("client", client);
+        d.put("sigmaClient", sigmaClient);
+        return d;
+    }
+
+    private void addClassifyCase(ArrayNode out, String id, String intended, ObjectNode... dims) {
+        List<DimensionPair> list = new ArrayList<>();
+        for (ObjectNode d : dims) {
+            list.add(new DimensionPair(d.get("server").asDouble(), d.get("sigmaServer").asDouble(),
+                    d.get("client").asDouble(), d.get("sigmaClient").asDouble()));
+        }
+        String actual = Tolerance.classify(profile, 1, list).name();
+        if (!actual.equals(intended)) {
+            throw new IllegalStateException(id + ": reference says " + actual + ", intended " + intended);
+        }
+        ObjectNode c = out.addObject();
+        c.put("id", id);
+        c.put("major", 1);
+        ArrayNode a = c.putArray("dims");
+        for (ObjectNode d : dims) {
+            a.add(d);
+        }
+        c.put("outcome", intended);
+    }
+
+    // ---- association and NOT_COMPARABLE ---------------------------------------------------------------
+
+    private final class AssociationCases {
+        private final ArrayNode out;
+
+        AssociationCases(ArrayNode out) {
+            this.out = out;
+        }
+
+        private ObjectNode ctx() {
+            ObjectNode c = MAPPER.createObjectNode();
+            c.put("modelDeleted", false);
+            c.put("schemaSupported", true);
+            c.put("derivedDepthTier", "A");
+            c.put("serverState", "READY");
+            c.put("frameMapping", true);
+            return c;
+        }
+
+        private ObjectNode box(String id, double hy, double yaw, double cx) {
+            ObjectNode m = MAPPER.createObjectNode();
+            m.put("id", id);
+            m.put("mode", "OBJECT_BOX");
+            ArrayNode dims = m.putArray("dims");
+            dims.add(sv(0.4)).add(sv(0.6)).add(sv(2 * hy));
+            ObjectNode b = m.putObject("box");
+            b.putArray("center").add(cx).add(hy).add(0.0);
+            b.putArray("half").add(0.3).add(hy).add(0.2);
+            b.put("yaw", yaw);
+            return m;
+        }
+
+        private ObjectNode sv(double v) {
+            ObjectNode n = MAPPER.createObjectNode();
+            n.put("v", v);
+            n.put("s", 0.0);
+            return n;
+        }
+
+        private ObjectNode p2p(String id, double[] a, double[] b, double distance) {
+            ObjectNode m = MAPPER.createObjectNode();
+            m.put("id", id);
+            m.put("mode", "POINT_TO_POINT");
+            m.putArray("dims").add(sv(distance));
+            ArrayNode e = m.putArray("endpoints");
+            e.addArray().add(a[0]).add(a[1]).add(a[2]);
+            e.addArray().add(b[0]).add(b[1]).add(b[2]);
+            return m;
+        }
+
+        private ObjectNode plane(String id, double angleDeg, double offset) {
+            ObjectNode m = MAPPER.createObjectNode();
+            m.put("id", id);
+            m.put("mode", "PLANE_DISTANCE");
+            m.putArray("dims").add(sv(1.0));
+            ObjectNode p = m.putObject("plane");
+            p.putArray("normal").add(Math.sin(Math.toRadians(angleDeg))).add(Math.cos(Math.toRadians(angleDeg))).add(0.0);
+            p.put("offset", offset);
+            return m;
+        }
+
+        private ObjectNode dimMeasurement(String id, String mode, double... values) {
+            ObjectNode m = MAPPER.createObjectNode();
+            m.put("id", id);
+            m.put("mode", mode);
+            ArrayNode d = m.putArray("dims");
+            for (double v : values) {
+                d.add(sv(v));
+            }
+            return m;
+        }
+
+        private ArrayNode list(ObjectNode... n) {
+            ArrayNode a = MAPPER.createArrayNode();
+            for (ObjectNode o : n) {
+                a.add(o);
+            }
+            return a;
+        }
+
+        /** Adds a case; {@code expected} is {outcome, reasonCode, method, serverId} per hint. */
+        private void add(String id, String branch, ObjectNode ctx, ArrayNode hints, ArrayNode servers, String[]... expected) {
+            ArrayNode actual;
+            try {
+                actual = Association.decide(ctx, hints, servers, profile, 1);
+            } catch (RuntimeException e) {
+                throw new IllegalStateException(id, e);
+            }
+            ArrayNode exp = MAPPER.createArrayNode();
+            for (int i = 0; i < expected.length; i++) {
+                ObjectNode r = MAPPER.createObjectNode();
+                r.put("hint", hints.get(i).get("id").asText());
+                r.put("outcome", expected[i][0]);
+                r.put("reasonCode", expected[i][1]);
+                r.put("associationMethod", expected[i][2]);
+                r.put("serverMeasurementId", expected[i][3]);
+                exp.add(r);
+            }
+            if (!actual.equals(exp)) {
+                throw new IllegalStateException(id + ": reference says " + actual + ", intended " + exp);
+            }
+            ObjectNode c = out.addObject();
+            c.put("id", id);
+            c.put("branch", branch);
+            c.set("context", ctx);
+            c.set("hints", hints);
+            c.set("servers", servers);
+            c.set("expected", exp);
+        }
+
+        private String[] ok(String outcome, String method, String server) {
+            return new String[] {outcome, null, method, server};
+        }
+
+        private String[] nc(String reason) {
+            return new String[] {"NOT_COMPARABLE", reason, null, null};
+        }
+
+        void build() {
+            // reason codes (precedence: MODEL_DELETED, SCHEMA_UNSUPPORTED, TIER_C, SERVER_FAILED, then per hint)
+            ObjectNode h = box("h1", 0.5, 0, 0);
+            ObjectNode s = box("s1", 0.5, 0, 0);
+            ObjectNode deleted = ctx();
+            deleted.put("modelDeleted", true);
+            add("reason-model-deleted", "reason", deleted, list(h), list(s), nc("MODEL_DELETED"));
+            ObjectNode schema = ctx();
+            schema.put("schemaSupported", false);
+            add("reason-schema-unsupported", "reason", schema, list(h), list(s), nc("SCHEMA_UNSUPPORTED"));
+            ObjectNode tierC = ctx();
+            tierC.put("derivedDepthTier", "C");
+            add("reason-tier-c", "reason", tierC, list(h), list(s), nc("TIER_C"));
+            ObjectNode failed = ctx();
+            failed.put("serverState", "FAILED");
+            add("reason-server-failed", "reason", failed, list(h), list(), nc("SERVER_FAILED"));
+            add("reason-mode-mismatch", "reason", ctx(), list(h), list(p2p("s1", new double[] {0, 0, 0}, new double[] {1, 0, 0}, 1)), nc("MODE_MISMATCH"));
+            add("reason-no-association-no-servers", "reason", ctx(), list(h), list(), nc("NO_ASSOCIATION"));
+            add("reason-no-association-no-geometric-match", "reason", ctx(), list(h), list(box("s1", 0.5, 0, 5)), nc("NO_ASSOCIATION"));
+            ObjectNode pending = ctx();
+            pending.put("serverState", "PENDING");
+            add("outcome-pending", "reason", pending, list(h), list(), new String[] {"PENDING", null, null, null});
+            ObjectNode both = ctx();
+            both.put("modelDeleted", true);
+            both.put("serverState", "FAILED");
+            add("precedence-model-deleted-over-server-failed", "reason", both, list(h), list(), nc("MODEL_DELETED"));
+            ObjectNode tierCFailed = ctx();
+            tierCFailed.put("derivedDepthTier", "C");
+            tierCFailed.put("serverState", "FAILED");
+            add("precedence-tier-c-over-server-failed", "reason", tierCFailed, list(h), list(), nc("TIER_C"));
+
+            // branch 1: seeded, by construction (even when the dimensions disagree)
+            ObjectNode seeded = box("s1", 0.5, 0, 0);
+            seeded.put("seed", "h1");
+            add("seeded-agree", "SEEDED", ctx(), list(h), list(seeded, box("s2", 0.5, 0, 0)), ok("AGREE", "SEEDED", "s1"));
+            ObjectNode seededFar = box("s1", 0.9, 0, 0);
+            seededFar.put("seed", "h1");
+            add("seeded-can-be-major-diff", "SEEDED", ctx(), list(h), list(seededFar), ok("MAJOR_DIFF", "SEEDED", "s1"));
+
+            // branch 2: frame mapping available. Client box height 1.0 (y 0..1), server height H (y 0..H, same
+            // footprint): IoU = 1 / H, so H = 2 is exactly 0.5.
+            ObjectNode hb = box("h1", 0.5, 0, 0);
+            add("iou-exactly-0.5", "IOU", ctx(), list(hb), list(box("s1", 1.0, 0, 0)), ok("MAJOR_DIFF", "IOU", "s1"));
+            add("iou-just-over-0.5", "IOU", ctx(), list(hb), list(box("s1", 0.99998, 0, 0)), ok("MAJOR_DIFF", "IOU", "s1"));
+            add("iou-just-under-0.5", "IOU", ctx(), list(hb), list(box("s1", 1.00003, 0, 0)), nc("NO_ASSOCIATION"));
+            add("iou-yawed-identical-boxes", "IOU", ctx(), list(box("h1", 0.5, 0.7, 0)), list(box("s1", 0.5, 0.7, 0)), ok("AGREE", "IOU", "s1"));
+            add("iou-greedy-one-to-one-higher-score-wins", "IOU", ctx(),
+                    list(box("h1", 0.5, 0, 0), box("h2", 0.5, 0, 0.05)), list(box("s1", 0.5, 0, 0.05)),
+                    nc("NO_ASSOCIATION"), ok("AGREE", "IOU", "s1"));
+            add("iou-tie-broken-by-lower-server-id", "IOU", ctx(), list(box("h1", 0.5, 0, 0)),
+                    list(box("s2", 0.5, 0, 0), box("s1", 0.5, 0, 0)), ok("AGREE", "IOU", "s1"));
+
+            double[] a = {0, 0, 0};
+            double[] b = {1, 0, 0};
+            ObjectNode server = p2p("s1", a, b, 1.0);
+            add("p2p-endpoint-exactly-0.10", "GEOMETRIC", ctx(), list(p2p("h1", new double[] {0, 0.1, 0}, b, 1.005)), list(server), ok("AGREE", "GEOMETRIC", "s1"));
+            add("p2p-endpoint-just-under-0.10", "GEOMETRIC", ctx(), list(p2p("h1", new double[] {0, 0.09999, 0}, b, 1.005)), list(server), ok("AGREE", "GEOMETRIC", "s1"));
+            add("p2p-endpoint-just-over-0.10", "GEOMETRIC", ctx(), list(p2p("h1", new double[] {0, 0.10001, 0}, b, 1.005)), list(server), nc("NO_ASSOCIATION"));
+            add("p2p-either-endpoint-order", "GEOMETRIC", ctx(), list(p2p("h1", b, a, 1.0)), list(server), ok("AGREE", "GEOMETRIC", "s1"));
+            ObjectNode plane = plane("s1", 0, 0.5);
+            add("plane-normal-exactly-5-degrees", "GEOMETRIC", ctx(), list(plane("h1", 5, 0.5)), list(plane), ok("AGREE", "GEOMETRIC", "s1"));
+            add("plane-normal-just-over-5-degrees", "GEOMETRIC", ctx(), list(plane("h1", 5.00002, 0.5)), list(plane), nc("NO_ASSOCIATION"));
+            add("plane-offset-exactly-0.05", "GEOMETRIC", ctx(), list(plane("h1", 0, 0.55)), list(plane), ok("AGREE", "GEOMETRIC", "s1"));
+            add("plane-offset-just-over-0.05", "GEOMETRIC", ctx(), list(plane("h1", 0, 0.55002)), list(plane), nc("NO_ASSOCIATION"));
+
+            // branch 3: dimension-only (no frame mapping): unique qualifying candidate, never MAJOR_DIFF
+            ObjectNode noMap = ctx();
+            noMap.put("frameMapping", false);
+            ObjectNode dh = dimMeasurement("h1", "OBJECT_BOX", 0.4, 0.6, 1.0);
+            add("dimension-only-unique-agree", "DIMENSION_ONLY", noMap, list(dh),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.01), dimMeasurement("s2", "OBJECT_BOX", 0.8, 0.6, 1.0)),
+                    ok("AGREE", "DIMENSION_ONLY", "s1"));
+            add("dimension-only-unique-minor-diff", "DIMENSION_ONLY", noMap, list(dh),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.04)), ok("MINOR_DIFF", "DIMENSION_ONLY", "s1"));
+            // the reference value of the tolerance is the server value (1.0 m: minor tol 0.05)
+            add("dimension-only-exactly-at-minor-qualifies", "DIMENSION_ONLY", noMap,
+                    list(dimMeasurement("h1", "OBJECT_BOX", 0.4, 0.6, 1.05)),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.0)), ok("MINOR_DIFF", "DIMENSION_ONLY", "s1"));
+            add("dimension-only-just-over-minor-is-no-association-not-major-diff", "DIMENSION_ONLY", noMap,
+                    list(dimMeasurement("h1", "OBJECT_BOX", 0.4, 0.6, 1.05001)),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.0)), nc("NO_ASSOCIATION"));
+            add("dimension-only-two-candidates-is-no-association", "DIMENSION_ONLY", noMap, list(dh),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.0), dimMeasurement("s2", "OBJECT_BOX", 0.41, 0.6, 1.0)),
+                    nc("NO_ASSOCIATION"));
+            add("dimension-only-two-hints-one-server-is-no-association", "DIMENSION_ONLY", noMap,
+                    list(dh, dimMeasurement("h2", "OBJECT_BOX", 0.4, 0.6, 1.0)),
+                    list(dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.0)), nc("NO_ASSOCIATION"), nc("NO_ASSOCIATION"));
+            add("dimension-only-point-to-point", "DIMENSION_ONLY", noMap, list(dimMeasurement("h1", "POINT_TO_POINT", 1.0)),
+                    list(dimMeasurement("s1", "POINT_TO_POINT", 1.02)), ok("AGREE", "DIMENSION_ONLY", "s1"));
+        }
+    }
+
+    private static byte[] json(Object o) throws IOException {
+        return (MAPPER.writer(PRETTY).writeValueAsString(o) + "\n").getBytes(StandardCharsets.UTF_8);
     }
 }

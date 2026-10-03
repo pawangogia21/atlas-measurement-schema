@@ -1,0 +1,1609 @@
+{
+  "description" : "Association and NOT_COMPARABLE vectors (design 21.2): one per association branch (SEEDED, IOU, GEOMETRIC, DIMENSION_ONLY) and per reason code, with the geometric thresholds at exactly, just under and just over. Replayed against the reference implementation (reference/.../association/Association.java); the association is server-side, so Swift and Kotlin do not replay this file.",
+  "algorithmMajor" : 1,
+  "cases" : [ {
+    "id" : "reason-model-deleted",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : true,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "MODEL_DELETED",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-schema-unsupported",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "SCHEMA_UNSUPPORTED",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-tier-c",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "C",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "TIER_C",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-server-failed",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "FAILED",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "SERVER_FAILED",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-mode-mismatch",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "MODE_MISMATCH",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-no-association-no-servers",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "reason-no-association-no-geometric-match",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 5.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "outcome-pending",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "PENDING",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "PENDING",
+      "reasonCode" : null,
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "precedence-model-deleted-over-server-failed",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : true,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "FAILED",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "MODEL_DELETED",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "precedence-tier-c-over-server-failed",
+    "branch" : "reason",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "C",
+      "serverState" : "FAILED",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "TIER_C",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "seeded-agree",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      },
+      "seed" : "h1"
+    }, {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "seeded-can-be-major-diff",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.8,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.9, 0.0 ],
+        "half" : [ 0.3, 0.9, 0.2 ],
+        "yaw" : 0.0
+      },
+      "seed" : "h1"
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "MAJOR_DIFF",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-exactly-0.5",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 2.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 1.0, 0.0 ],
+        "half" : [ 0.3, 1.0, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "MAJOR_DIFF",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-just-over-0.5",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.99996,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.99998, 0.0 ],
+        "half" : [ 0.3, 0.99998, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "MAJOR_DIFF",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-just-under-0.5",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 2.00006,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 1.00003, 0.0 ],
+        "half" : [ 0.3, 1.00003, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "iou-yawed-identical-boxes",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.7
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.7
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-greedy-one-to-one-higher-score-wins",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.05, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.05, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-tie-broken-by-lower-server-id",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    }, {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "box" : {
+        "center" : [ 0.0, 0.5, 0.0 ],
+        "half" : [ 0.3, 0.5, 0.2 ],
+        "yaw" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-endpoint-exactly-0.10",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.005,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.1, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-endpoint-just-under-0.10",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.005,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.09999, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-endpoint-just-over-0.10",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.005,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.10001, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "p2p-either-endpoint-order",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 1.0, 0.0, 0.0 ], [ 0.0, 0.0, 0.0 ] ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "endpoints" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-normal-exactly-5-degrees",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.08715574274765817, 0.9961946980917455, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-normal-just-over-5-degrees",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.08715609048520231, 0.9961946676685913, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "plane-offset-exactly-0.05",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.55
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-offset-just-over-0.05",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : true
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.55002
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "plane" : {
+        "normal" : [ 0.0, 1.0, 0.0 ],
+        "offset" : 0.5
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "dimension-only-unique-agree",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.01,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.8,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "DIMENSION_ONLY",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "dimension-only-unique-minor-diff",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.04,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "MINOR_DIFF",
+      "reasonCode" : null,
+      "associationMethod" : "DIMENSION_ONLY",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "dimension-only-exactly-at-minor-qualifies",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.05,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "MINOR_DIFF",
+      "reasonCode" : null,
+      "associationMethod" : "DIMENSION_ONLY",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "dimension-only-just-over-minor-is-no-association-not-major-diff",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.05001,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "dimension-only-two-candidates-is-no-association",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.41,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "dimension-only-two-hints-one-server-is-no-association",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "dimension-only-point-to-point",
+    "branch" : "DIMENSION_ONLY",
+    "context" : {
+      "modelDeleted" : false,
+      "schemaSupported" : true,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "frameMapping" : false
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.02,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "DIMENSION_ONLY",
+      "serverMeasurementId" : "s1"
+    } ]
+  } ]
+}

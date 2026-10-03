@@ -1,8 +1,14 @@
 {
+  "vectorSet" : "boundary",
   "version" : "1.0.0",
+  "toleranceProfileVersion" : "1.0.0",
   "files" : [ {
+    "path" : "association-cases.json",
+    "sha256" : "2761123527090d97508a4b59bdbedc1d29c870506c625f59abb0f7482a1348eb",
+    "bytes" : 34931
+  }, {
     "path" : "boundary-cases.json",
-    "sha256" : "9844f4dd658aa674ad48e81102f7c9288fc5e65d636a8243828590fc90245efe",
-    "bytes" : 9885
+    "sha256" : "9fd2e317fe35062d508bab4fae1919ecca51cde0e4f9b4de6ddb4c9349d4ac8e",
+    "bytes" : 21668
   } ]
 }

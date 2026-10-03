@@ -86,11 +86,13 @@ import Testing
         let b = try boundary()
         let eps = num(b, "tolEpsilon")
         let base = try base()
-        for c in b["tol"] as! [[String: Any]] {
+        for c in b["threshold"] as! [[String: Any]] {
             let row = try base.row(c["row"] as! String, algorithmMajor: (c["major"] as! NSNumber).intValue)
             let t = try Tolerance.tol(ref: num(c, "ref"), sigmaServer: num(c, "sigmaServer"),
                                       sigmaClient: num(c, "sigmaClient"), row: row)
             #expect(abs(t - num(c, "tol")) <= eps, Comment(rawValue: c["id"] as! String))
+            #expect(Tolerance.withinTolerance(diff: num(c, "diff"), tol: t)
+                    == (c["within"] as! NSNumber).boolValue, Comment(rawValue: c["id"] as! String))
         }
     }
 

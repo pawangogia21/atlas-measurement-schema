@@ -71,10 +71,11 @@ class ToleranceTest {
     @Test
     fun boundaryTolCases() {
         val eps = boundary.get("tolEpsilon").asDouble()
-        for (c in boundary.get("tol")) {
+        for (c in boundary.get("threshold")) {
             val row = base.row(c.get("row").asText(), c.get("major").asInt())
             val t = Tolerance.tol(c.get("ref").asDouble(), c.get("sigmaServer").asDouble(), c.get("sigmaClient").asDouble(), row)
             assertTrue(abs(t - c.get("tol").asDouble()) <= eps, c.get("id").asText())
+            assertEquals(c.get("within").asBoolean(), Tolerance.withinTolerance(c.get("diff").asDouble(), t), c.get("id").asText())
         }
     }
 

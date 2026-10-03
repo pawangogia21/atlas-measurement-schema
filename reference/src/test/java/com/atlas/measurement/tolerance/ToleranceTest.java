@@ -125,10 +125,11 @@ class ToleranceTest {
     void boundaryTolCases() throws IOException {
         JsonNode b = boundary();
         ToleranceProfile base = ToleranceProfile.loadBundled();
-        for (JsonNode c : b.get("tol")) {
+        for (JsonNode c : b.get("threshold")) {
             ToleranceRow row = base.row(c.get("row").asText(), c.get("major").asInt());
             double t = Tolerance.tol(c.get("ref").asDouble(), c.get("sigmaServer").asDouble(), c.get("sigmaClient").asDouble(), row);
             assertThat(t).as(c.get("id").asText()).isCloseTo(c.get("tol").asDouble(), org.assertj.core.data.Offset.offset(b.get("tolEpsilon").asDouble()));
+            assertThat(Tolerance.withinTolerance(c.get("diff").asDouble(), t)).as(c.get("id").asText()).isEqualTo(c.get("within").asBoolean());
         }
     }
 

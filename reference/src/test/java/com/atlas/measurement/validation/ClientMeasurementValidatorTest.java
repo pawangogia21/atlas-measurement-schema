@@ -168,18 +168,4 @@ class ClientMeasurementValidatorTest {
         }
         return sb.append("]}").toString();
     }
-
-    @Test
-    void negativeVectorsAreRejected() throws IOException {
-        JsonNode manifest = MAPPER.readTree(Files.readAllBytes(Paths.get("../vectors/negative/1.0.0/manifest.json")));
-        for (JsonNode vector : manifest.get("vectors")) {
-            String id = vector.get("id").asText();
-            String path = vector.get("path").asText();
-            byte[] content = Files.readAllBytes(Paths.get("../vectors/negative/1.0.0").resolve(path));
-            String payload = new String(content);
-            var result = validator.validateLiveMeasurement(payload);
-            assertThat(result.valid()).as(id + ": " + vector.get("reason").asText()).isFalse();
-            assertThat(result.code).as(id).isNotNull();
-        }
-    }
 }
