@@ -91,10 +91,11 @@ class ReleasedVectorsTest {
             String kind = v.get("kind").asText();
             count++;
             if (kind.equals("batchItems")) {
-                List<ClientMeasurementValidator.Result> r = validator.validateBatchItems(payload);
-                assertThat(r).as(id).hasSize(v.get("expectedItems").size());
-                for (int i = 0; i < r.size(); i++) {
-                    assertThat(r.get(i).valid() ? "VALID" : "INVALID").as(id + "[" + i + "]").isEqualTo(v.get("expectedItems").get(i).asText());
+                ClientMeasurementValidator.BatchResult r = validator.validateBatchItems(payload);
+                assertThat(r.accepted()).as(id).isTrue();
+                assertThat(r.items).as(id).hasSize(v.get("expectedItems").size());
+                for (int i = 0; i < r.items.size(); i++) {
+                    assertThat(r.items.get(i).valid() ? "VALID" : r.items.get(i).code).as(id + "[" + i + "]").isEqualTo(v.get("expectedItems").get(i).asText());
                 }
                 continue;
             }
@@ -104,14 +105,17 @@ class ReleasedVectorsTest {
             assertThat(r.code).as(id).isEqualTo(v.get("expectedCode").asText()).isEqualTo("CLIENT_MEASUREMENT_INVALID");
             assertThat(String.join("\n", r.errors)).as(id).contains(v.get("expectedErrorContains").asText());
         }
-        assertThat(count).isGreaterThanOrEqualTo(50);
+        assertThat(count).isGreaterThanOrEqualTo(100);
     }
 
     @Test
     void negativeVectorsCoverTheRequiredFamilies() throws IOException {
         String ids = Files.readString(NEGATIVE.resolve("manifest.json"));
         for (String id : new String[] {"depth-9", "depth-100001", "keypoints-33", "wrong-trust", "unknown-field-top-level", "unknown-enum-mode",
-                "unknown-enum-scale-source", "missing-qualityFlags", "missing-dimensions", "batch-per-item-rejection", "batch-101-items"}) {
+                "unknown-enum-scale-source", "missing-qualityFlags", "missing-dimensions", "batch-per-item-rejection", "batch-101-items",
+                "value-1e999-overflows-a-double", "value-just-over-maximum", "algorithm-version-major-over-int", "duplicate-key-top-level",
+                "trailing-content-second-document", "body-over-256k-characters", "string-over-4096-characters", "plane-normal-zero-length",
+                "batch-item-depth-9", "batch-body-depth-33", "batch-item-schema-version-unsupported"}) {
             assertThat(ids).as(id).contains("\"" + id + "\"");
         }
     }

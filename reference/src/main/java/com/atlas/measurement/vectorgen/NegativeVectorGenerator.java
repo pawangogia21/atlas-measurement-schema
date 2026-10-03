@@ -26,7 +26,10 @@ import java.util.function.Consumer;
  * part is AT-17). Each vector is a mutation of a valid example. The generator fails if the reference validator
  * does not reject a vector or its error does not contain the recorded token, so every vector is rejected for
  * the reason it states. Kinds: {@code liveMeasurement}, {@code clientCapture}, {@code batch} (the whole request
- * is 422) and {@code batchItems} (200 with per-item results, expected list in {@code expectedItems}).
+ * is 422) and {@code batchItems} (a valid envelope: per-item results, the expected code of each item or
+ * {@code VALID} in {@code expectedItems}). Error tokens are the fixed texts of the validator (keyword and instance
+ * path, never a client value). Oversized-body vectors are built from whitespace or one long string so they stay
+ * small; the 21-million-character string of the security review is the same rule at a larger size.
  * Usage: {@code NegativeVectorGenerator <outDir>} (release layout vectors/negative/<version>/).
  */
 public final class NegativeVectorGenerator {
@@ -72,7 +75,7 @@ public final class NegativeVectorGenerator {
         Map<String, Object> manifest = new LinkedHashMap<>();
         manifest.put("vectorSet", "negative");
         manifest.put("version", VERSION);
-        manifest.put("description", "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems). A body nested deeper than 8 is refused as a whole before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack.");
+        manifest.put("description", "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).");
         manifest.put("vectors", vectors);
         List<Object> list = new ArrayList<>();
         for (Map.Entry<String, byte[]> e : files.entrySet()) {
@@ -98,14 +101,14 @@ public final class NegativeVectorGenerator {
             String field = f.asText();
             live("missing-" + field, "required field " + field + " is absent", field, n -> n.remove(field));
         }
-        live("unknown-field-top-level", "unknown top-level field (additionalProperties false)", "extra", n -> n.put("extra", 1));
-        live("unknown-field-nested-dimensions", "unknown field inside a dimension value", "extra",
+        live("unknown-field-top-level", "unknown top-level field (additionalProperties false)", "additionalProperties", n -> n.put("extra", 1));
+        live("unknown-field-nested-dimensions", "unknown field inside a dimension value", "additionalProperties",
                 n -> ((ObjectNode) n.get("dimensions").get("lengthM")).put("extra", 1));
-        live("unknown-field-nested-device", "unknown field inside device", "extra", n -> ((ObjectNode) n.get("device")).put("extra", "x"));
-        live("unknown-field-nested-frame-of-reference", "unknown field inside frameOfReference", "extra",
+        live("unknown-field-nested-device", "unknown field inside device", "additionalProperties", n -> ((ObjectNode) n.get("device")).put("extra", "x"));
+        live("unknown-field-nested-frame-of-reference", "unknown field inside frameOfReference", "additionalProperties",
                 n -> ((ObjectNode) n.get("frameOfReference")).put("extra", "x"));
-        live("unknown-field-nested-obb", "unknown field inside obb", "extra", n -> ((ObjectNode) n.get("obb")).put("extra", 1));
-        live("unknown-field-nested-keypoint", "unknown field inside a keypoint", "extra",
+        live("unknown-field-nested-obb", "unknown field inside obb", "additionalProperties", n -> ((ObjectNode) n.get("obb")).put("extra", 1));
+        live("unknown-field-nested-keypoint", "unknown field inside a keypoint", "additionalProperties",
                 n -> ((ObjectNode) n.get("overlay").get("keypoints").get(0)).put("extra", 1));
 
         // unknown enum symbols
@@ -153,6 +156,10 @@ public final class NegativeVectorGenerator {
                 "nested " + OVER_LIMIT_DEPTH + " levels deep (a parser must refuse it without exhausting its stack)",
                 "{\"x\":" + "[".repeat(OVER_LIMIT_DEPTH) + "]".repeat(OVER_LIMIT_DEPTH) + "}");
 
+        numericLimitVectors();
+        geometryVectors();
+        parserVectors();
+
         // not an object
         raw("not-json", "liveMeasurement", "not valid JSON", "the body is not JSON", "{\"schemaVersion\": ");
         raw("root-is-array", "liveMeasurement", "JSON object", "the document must be a JSON object", "[]");
@@ -175,6 +182,16 @@ public final class NegativeVectorGenerator {
         raw(id, "liveMeasurement", token, reason, n.toString());
     }
 
+    /** A mutation of the compact JSON text of the example (for a number a tree cannot hold, such as 1e999). */
+    private void liveText(String id, String reason, String token, java.util.function.UnaryOperator<String> mutation) throws IOException {
+        String text = example("live-measurement-object-box.json").toString();
+        String changed = mutation.apply(text);
+        if (changed.equals(text)) {
+            throw new IllegalStateException(id + ": the mutation did not change the example");
+        }
+        raw(id, "liveMeasurement", token, reason, changed);
+    }
+
     // ---- clientCapture ------------------------------------------------------------------------------------
 
     private void captureVectors() throws IOException {
@@ -186,7 +203,7 @@ public final class NegativeVectorGenerator {
         }
         ObjectNode unknown = example("client-capture.json");
         unknown.put("extra", true);
-        raw("capture-unknown-field", "clientCapture", "extra", "unknown field (additionalProperties false)", unknown.toString());
+        raw("capture-unknown-field", "clientCapture", "additionalProperties", "unknown field (additionalProperties false)", unknown.toString());
         ObjectNode tier = example("client-capture.json");
         tier.put("depthTier", "Z");
         raw("capture-unknown-enum-depth-tier", "clientCapture", "depthTier", "depthTier is not A, B, C or D", tier.toString());
@@ -202,10 +219,19 @@ public final class NegativeVectorGenerator {
         }
         raw("batch-101-items", "batch", "items", "the batch holds at most 100 items", over.append("]}").toString());
         raw("batch-empty", "batch", "items", "the batch holds at least one item", "{\"items\":[]}");
-        raw("batch-unknown-envelope-field", "batch", "x", "unknown field next to items", "{\"x\":1,\"items\":[" + good + "]}");
-        raw("batch-item-depth-9", "batch", "JSON depth above 8",
-                "an item nested 9 levels deep fails the whole request (the parser refuses it before materialising it)",
-                "{\"items\":[" + good + "," + example("live-measurement-point-to-point.json").set("x", nested(8)) + "]}");
+        raw("batch-unknown-envelope-field", "batch", "batch envelope", "unknown field next to items", "{\"x\":1,\"items\":[" + good + "]}");
+        raw("batch-body-depth-33", "batch", "JSON depth above 32",
+                "a body nested deeper than the transport ceiling of 32 is refused as a whole before it is materialised",
+                "{\"items\":[" + good + ",{\"x\":" + "[".repeat(40) + "]".repeat(40) + "}]}");
+        raw("batch-over-400k-characters", "batch", "document larger than",
+                "a batch body over 409600 characters is refused as a whole", "{\"items\":[]}" + " ".repeat(ClientMeasurementValidator.MAX_BATCH_CHARS));
+        batchItems("batch-item-depth-9", "an item nested 9 levels deep (within the transport ceiling) is INVALID on its own; the other items are processed",
+                "{\"items\":[" + good + "," + example("live-measurement-point-to-point.json").set("x", nested(8)) + "," + good + "]}",
+                "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID");
+        ObjectNode future = good.deepCopy();
+        future.put("schemaVersion", "2.0");
+        batchItems("batch-item-schema-version-unsupported", "an item with an unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED, not persisted (the Kit retries after an update)",
+                "{\"items\":[" + good + "," + future + "]}", "VALID", "CLIENT_SCHEMA_UNSUPPORTED");
 
         // a valid envelope: each item is judged on its own and a bad one does not fail the batch
         ObjectNode unknownField = good.deepCopy();
@@ -215,21 +241,138 @@ public final class NegativeVectorGenerator {
         ObjectNode other = good.deepCopy();
         other.put("clientMeasurementId", "9a0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d");
         String body = "{\"items\":[" + good + "," + unknownField + "," + other + "," + badEnum + "]}";
-        List<String> expected = List.of("VALID", "INVALID", "VALID", "INVALID");
-        List<Result> results = validator.validateBatchItems(body);
-        for (int i = 0; i < expected.size(); i++) {
-            if (results.get(i).valid() != expected.get(i).equals("VALID")) {
-                throw new IllegalStateException("batch-per-item-rejection: item " + i + " " + results.get(i).errors);
+        batchItems("batch-per-item-rejection", "valid envelope, items 2 and 4 are invalid: the batch is answered per item (INVALID) and the valid items are processed",
+                body, "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID");
+    }
+
+    /** A batchItems vector: {@code expected} is the code of each item, or VALID. The reference must agree. */
+    private void batchItems(String id, String reason, String body, String... expected) throws IOException {
+        ClientMeasurementValidator.BatchResult results = validator.validateBatchItems(body);
+        if (!results.accepted() || results.items.size() != expected.length) {
+            throw new IllegalStateException(id + ": request refused or wrong item count: " + results.request.errors);
+        }
+        for (int i = 0; i < expected.length; i++) {
+            String actual = results.items.get(i).valid() ? "VALID" : results.items.get(i).code;
+            if (!actual.equals(expected[i])) {
+                throw new IllegalStateException(id + ": item " + i + " is " + actual + ", intended " + expected[i] + " " + results.items.get(i).errors);
             }
         }
         Map<String, Object> v = new LinkedHashMap<>();
-        v.put("id", "batch-per-item-rejection");
+        v.put("id", id);
         v.put("kind", "batchItems");
-        v.put("path", "batch-per-item-rejection.json");
-        v.put("reason", "valid envelope, items 2 and 4 are invalid: the batch is answered per item (INVALID) and the valid items are processed");
-        v.put("expectedItems", expected);
+        v.put("path", id + ".json");
+        v.put("reason", reason);
+        v.put("expectedItems", List.of(expected));
         vectors.add(v);
-        files.put("batch-per-item-rejection.json", json(MAPPER.readTree(body)));
+        files.put(id + ".json", json(MAPPER.readTree(body)));
+    }
+
+    // ---- numeric limits (F1, F6, S8), geometry (F3), parser strictness and limits (S6, S7) -----------------------
+
+    private void numericLimitVectors() throws IOException {
+        // values the 25.3 NUMERIC(9,5) columns cannot hold, just over the maximum 9999.99999
+        live("value-over-maximum", "dimension value above 9999.99999 m does not fit NUMERIC(9,5)", "maximum",
+                n -> ((ObjectNode) n.get("dimensions").get("lengthM")).put("value", 10000));
+        liveText("value-just-over-maximum", "9999.99999 is the largest value, 10000.00001 is rejected", "maximum",
+                t -> t.replace("\"value\":0.602", "\"value\":10000.00001"));
+        live("sigma-over-maximum", "sigmaM above 9999.99999", "maximum", n -> ((ObjectNode) n.get("dimensions").get("lengthM")).put("sigmaM", 10000));
+        live("ci95-over-maximum", "ci95M above 9999.99999", "maximum", n -> ((ObjectNode) n.get("dimensions").get("lengthM")).put("ci95M", 10000));
+        live("value-1e308", "a huge finite value", "maximum", n -> ((ObjectNode) n.get("dimensions").get("lengthM")).put("value", 1e308));
+        liveText("value-1e999-overflows-a-double", "1e999 overflows a double to Infinity", "finiteNumber",
+                t -> t.replace("\"value\":0.602", "\"value\":1e999"));
+        liveText("value-negative-1e999", "-1e999 overflows a double to -Infinity", "finiteNumber",
+                t -> t.replace("\"value\":0.602", "\"value\":-1e999"));
+        liveText("yaw-1e999", "an overflowing number anywhere is rejected, not only in dimensions", "finiteNumber",
+                t -> t.replace("\"yawRad\":0.35", "\"yawRad\":1e999"));
+        live("half-extent-over-maximum", "obb.halfExtentsM above 9999.99999", "maximum",
+                n -> ((ArrayNode) n.get("obb").get("halfExtentsM")).set(0, MAPPER.getNodeFactory().numberNode(10000)));
+        live("world-coordinate-over-maximum", "world coordinates are within +-100000 m", "maximum",
+                n -> ((ObjectNode) n.get("obb")).putArray("centerWorld").add(0).add(0).add(100001));
+        live("algorithm-version-major-over-int", "algorithm_major is an INT column: 2147483648 does not fit", "algorithmVersion",
+                n -> n.put("algorithmVersion", "2147483648.0.0"));
+        live("algorithm-version-ten-digit-component", "version components stay below 10^9", "algorithmVersion", n -> n.put("algorithmVersion", "1.1000000000.0"));
+        live("algorithm-version-over-16-characters", "algorithmVersion is at most 16 characters", "algorithmVersion", n -> n.put("algorithmVersion", "999999999.999999999.9"));
+        ObjectNode capture = example("client-capture.json");
+        capture.put("algorithmVersion", "1.2.2147483648");
+        raw("capture-algorithm-version-patch-over-int", "clientCapture", "algorithmVersion", "algorithm_patch is an INT column", capture.toString());
+        live("epoch-over-int", "worldOriginEpoch is an INT column", "worldOriginEpoch",
+                n -> ((ObjectNode) n.get("frameOfReference")).put("worldOriginEpoch", 2147483648L));
+    }
+
+    private void geometryVectors() throws IOException {
+        pointToPoint("geometry-endpoints-on-object-box", "OBJECT_BOX derives its box from obb and carries no endpoints", "geometry",
+                n -> n.put("mode", "OBJECT_BOX"), true);
+        pointToPoint("geometry-plane-on-point-to-point", "POINT_TO_POINT does not carry a plane", "geometry",
+                n -> ((ObjectNode) n.get("geometry")).putObject("plane").put("offsetM", 0).putArray("normalWorld").add(0).add(1).add(0), false);
+        pointToPoint("geometry-three-endpoints", "endpointsWorld holds exactly two points", "endpointsWorld",
+                n -> ((ArrayNode) n.get("geometry").get("endpointsWorld")).addArray().add(0).add(0).add(0), false);
+        pointToPoint("geometry-unknown-field", "unknown field inside geometry", "additionalProperties",
+                n -> ((ObjectNode) n.get("geometry")).put("extra", 1), false);
+        pointToPoint("geometry-endpoint-coordinate-over-maximum", "endpoint coordinates are within +-100000 m", "maximum",
+                n -> ((ArrayNode) n.get("geometry").get("endpointsWorld").get(0)).set(0, MAPPER.getNodeFactory().numberNode(100001)), false);
+        plane("plane-normal-not-unit", "the plane normal must have unit length within 1e-3", "unitLength",
+                n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(0.9).add(0));
+        plane("plane-normal-zero-length", "a zero-length plane normal is not a plane", "unitLength",
+                n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(0).add(0));
+        plane("plane-normal-component-over-1", "a unit vector has components within -1..1", "maximum",
+                n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(1.5).add(0));
+        plane("plane-missing-offset", "a plane has normalWorld and offsetM", "offsetM", n -> ((ObjectNode) n.get("geometry").get("plane")).remove("offsetM"));
+        plane("plane-on-object-box-mode", "OBJECT_BOX does not carry a plane", "geometry",
+                n -> n.put("mode", "OBJECT_BOX").set("dimensions", example0("live-measurement-object-box.json").get("dimensions")));
+    }
+
+    private static ObjectNode example0(String name) {
+        try {
+            return example(name);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void pointToPoint(String id, String reason, String token, Consumer<ObjectNode> mutation, boolean boxDimensions) throws IOException {
+        ObjectNode n = example("live-measurement-point-to-point.json");
+        mutation.accept(n);
+        if (boxDimensions) {
+            n.set("dimensions", example("live-measurement-object-box.json").get("dimensions"));
+        }
+        raw(id, "liveMeasurement", token, reason, n.toString());
+    }
+
+    private void plane(String id, String reason, String token, Consumer<ObjectNode> mutation) throws IOException {
+        ObjectNode n = example("live-measurement-plane-distance.json");
+        mutation.accept(n);
+        raw(id, "liveMeasurement", token, reason, n.toString());
+    }
+
+    private void parserVectors() throws IOException {
+        String valid = example("live-measurement-object-box.json").toString();
+        String base = valid.substring(0, valid.length() - 1);
+        raw("duplicate-key-top-level", "liveMeasurement", "duplicate object key",
+                "the key confidence appears twice (first 0.87, last 0.5): parsers that keep the first and the last would disagree, so it is rejected",
+                base + ",\"confidence\":0.5}");
+        raw("duplicate-key-nested", "liveMeasurement", "duplicate object key", "a key repeated inside dimensions.lengthM",
+                valid.replace("\"lengthM\":{\"value\":0.602", "\"lengthM\":{\"value\":0.602,\"value\":9"));
+        raw("duplicate-key-hides-a-bad-value", "liveMeasurement", "duplicate object key",
+                "the first confidence (5) is invalid and the last is valid: a last-wins parser would accept it",
+                valid.replace("\"confidence\":0.87", "\"confidence\":5,\"confidence\":0.5"));
+        raw("trailing-content-second-document", "liveMeasurement", "trailing content", "a second JSON document follows the valid one", valid + " {\"evil\":1}");
+        raw("trailing-content-second-document-no-space", "liveMeasurement", "trailing content", "a second JSON document directly after the valid one", valid + "{}");
+        raw("trailing-content-garbage", "liveMeasurement", "not valid JSON", "garbage follows the valid document", valid + " xx");
+        raw("trailing-content-comma", "liveMeasurement", "not valid JSON", "a trailing comma after the document", valid + ",");
+        raw("empty-body", "liveMeasurement", "not valid JSON", "an empty body", "");
+        raw("whitespace-only-body", "liveMeasurement", "not valid JSON", "a body of whitespace only", "  \n ");
+        raw("nan-literal", "liveMeasurement", "not valid JSON", "NaN is not a JSON number", valid.replace("\"confidence\":0.87", "\"confidence\":NaN"));
+        raw("infinity-literal", "liveMeasurement", "not valid JSON", "Infinity is not a JSON number", valid.replace("\"confidence\":0.87", "\"confidence\":Infinity"));
+        raw("body-over-256k-characters", "liveMeasurement", "document larger than",
+                "a document over 262144 characters is refused before parsing (whitespace keeps the vector small)", valid + " ".repeat(ClientMeasurementValidator.MAX_DOCUMENT_CHARS));
+        raw("string-over-4096-characters", "liveMeasurement", "string value longer than", "a string value over 4096 characters (the 21-million-character case at a testable size)",
+                valid.replace("\"model\":\"iPhone15,3\"", "\"model\":\"" + "a".repeat(4097) + "\""));
+        raw("schema-version-over-4096-characters", "liveMeasurement", "string value longer than", "a schemaVersion of 4097 characters is refused, never echoed back",
+                valid.replace("\"schemaVersion\":\"1.0\"", "\"schemaVersion\":\"" + "9".repeat(4097) + "\""));
+        raw("number-over-32-characters", "liveMeasurement", "number longer than", "a number of 42 characters",
+                valid.replace("\"confidence\":0.87", "\"confidence\":0." + "1".repeat(40)));
+        raw("name-over-128-characters", "liveMeasurement", "name longer than", "an object key of 129 characters",
+                base + ",\"" + "k".repeat(129) + "\":1}");
     }
 
     // ---- plumbing -----------------------------------------------------------------------------------------

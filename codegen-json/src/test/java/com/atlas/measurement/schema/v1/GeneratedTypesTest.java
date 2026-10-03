@@ -26,7 +26,7 @@ class GeneratedTypesTest {
 
     @Test
     void validExamplesDeserializeAndRoundTrip() throws IOException {
-        for (String name : new String[] {"live-measurement-object-box.json", "live-measurement-point-to-point.json"}) {
+        for (String name : new String[] {"live-measurement-object-box.json", "live-measurement-point-to-point.json", "live-measurement-plane-distance.json"}) {
             LiveMeasurement m = MAPPER.readValue(example(name), LiveMeasurement.class);
             // 0 and 0.0 are the same JSON number: compare numerically
             assertThat(MAPPER.readTree(MAPPER.writeValueAsString(m)).equals(NUMERIC, MAPPER.readTree(example(name)))).as(name).isTrue();
@@ -72,5 +72,37 @@ class GeneratedTypesTest {
         ClientMeasurementsBatchRequest b = MAPPER.readValue("{\"items\":[" + item + "]}", ClientMeasurementsBatchRequest.class);
         assertThat(b.getItems()).hasSize(1);
         assertThat(b.getItems().get(0).getMode()).isEqualTo(LiveMeasurement.Mode.POINT_TO_POINT);
+    }
+
+    @Test
+    void geometryTypesFollowTheContract() throws IOException {
+        LiveMeasurement p2p = MAPPER.readValue(example("live-measurement-point-to-point.json"), LiveMeasurement.class);
+        assertThat(p2p.getGeometry().getEndpointsWorld()).hasSize(2);
+        assertThat(p2p.getGeometry().getPlane()).isNull();
+        LiveMeasurement plane = MAPPER.readValue(example("live-measurement-plane-distance.json"), LiveMeasurement.class);
+        assertThat(plane.getGeometry().getPlane().getNormalWorld()).containsExactly(0.0, 1.0, 0.0);
+        assertThat(plane.getGeometry().getPlane().getOffsetM()).isEqualTo(0.0);
+    }
+
+    @Test
+    void parserStrictnessMatchesTheIntakeValidator() throws IOException {
+        for (String id : new String[] {"duplicate-key-top-level", "duplicate-key-nested", "trailing-content-second-document", "trailing-content-garbage",
+                "value-1e999-overflows-a-double", "value-negative-1e999", "yaw-1e999", "nan-literal", "infinity-literal", "empty-body",
+                "string-over-4096-characters", "number-over-32-characters", "name-over-128-characters"}) {
+            String payload = Files.readString(NEGATIVE.resolve(id + ".json"));
+            assertThatThrownBy(() -> MAPPER.readValue(payload, LiveMeasurement.class)).as(id).isInstanceOf(java.io.IOException.class);
+        }
+        // the mapper serves single documents and batches: its document limit is the batch limit, 400 KiB
+        String oversizeBatch = Files.readString(NEGATIVE.resolve("batch-over-400k-characters.json"));
+        assertThatThrownBy(() -> MAPPER.readValue(oversizeBatch, ClientMeasurementsBatchRequest.class)).isInstanceOf(java.io.IOException.class);
+    }
+
+    @Test
+    void aNumberGivenAsAStringIsNotCoerced() throws IOException {
+        String valid = example("live-measurement-object-box.json");
+        assertThatThrownBy(() -> MAPPER.readValue(valid.replace("\"confidence\": 0.87", "\"confidence\": \"NaN\""), LiveMeasurement.class))
+                .isInstanceOf(JsonProcessingException.class);
+        assertThatThrownBy(() -> MAPPER.readValue(valid.replace("\"worldOriginEpoch\": 2", "\"worldOriginEpoch\": \"2\""), LiveMeasurement.class))
+                .isInstanceOf(JsonProcessingException.class);
     }
 }

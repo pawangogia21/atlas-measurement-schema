@@ -17,7 +17,7 @@
   "depthSource": "LIDAR",
   "obb": {
     "centerWorld": [0.12, 0.149, -0.85],
-    "halfExtentsM": [0.301, 0.1995, 0.149],
+    "halfExtentsM": [0.301, 0.149, 0.2005],
     "yawRad": 0.35,
     "supportPlaneY": 0.0
   },

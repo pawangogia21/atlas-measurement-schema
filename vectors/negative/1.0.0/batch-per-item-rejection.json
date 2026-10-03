@@ -13,6 +13,9 @@
         "ci95M" : 0.012
       }
     },
+    "geometry" : {
+      "endpointsWorld" : [ [ 0.1, 0.9, -1.2 ], [ 1.3, 0.9, -1.2 ] ]
+    },
     "confidence" : 0.55,
     "state" : "TRACKING",
     "qualityFlags" : [ ],
@@ -42,6 +45,9 @@
         "sigmaM" : 0.006,
         "ci95M" : 0.012
       }
+    },
+    "geometry" : {
+      "endpointsWorld" : [ [ 0.1, 0.9, -1.2 ], [ 1.3, 0.9, -1.2 ] ]
     },
     "confidence" : 0.55,
     "state" : "TRACKING",
@@ -74,6 +80,9 @@
         "ci95M" : 0.012
       }
     },
+    "geometry" : {
+      "endpointsWorld" : [ [ 0.1, 0.9, -1.2 ], [ 1.3, 0.9, -1.2 ] ]
+    },
     "confidence" : 0.55,
     "state" : "TRACKING",
     "qualityFlags" : [ ],
@@ -103,6 +112,9 @@
         "sigmaM" : 0.006,
         "ci95M" : 0.012
       }
+    },
+    "geometry" : {
+      "endpointsWorld" : [ [ 0.1, 0.9, -1.2 ], [ 1.3, 0.9, -1.2 ] ]
     },
     "confidence" : 0.55,
     "state" : "TRACKING",
