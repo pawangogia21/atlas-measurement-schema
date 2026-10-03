@@ -37,34 +37,34 @@ Server-side measurement association and NOT_COMPARABLE reason codes are defined 
 
 ### Decision inputs
 
-Context: whether the model is deleted, the schema version is supported, the depth tier is available, the server state (READY, PENDING, FAILED), and whether frame mapping is available.
+**Per hint:** the hint's own `sessionId` and `worldOriginEpoch` (for frame mapping), `schemaVersion` (for support check), claimed `depthTier`, `mode`, dimensions, and geometric data (box / endpoints / plane).
 
-Per hint: the hint's `mode`, dimensions, geometric data (box / endpoints / plane).
+**Per server measurement:** its `id`, `mode`, dimensions, geometric data, and optionally a `seedClientMeasurementId` (for seeded matching, which names the hint that seeded this server measurement).
 
-Per server measurement: its `id`, `mode`, dimensions, geometric data, and optionally a `seedClientMeasurementId` (for seeded matching).
+**Per model:** whether the model is deleted, the server measurement state (READY, PENDING, FAILED), and the server-derived `depthTier` (used only for `tierMismatch` analytics, never for the `TIER_C` reason code).
 
 ### Reason precedence (first match)
 
 1. `MODEL_DELETED` — the model is deleted.
 2. `SCHEMA_UNSUPPORTED` — the hint's schema version is not supported.
-3. `TIER_C` — the depth tier is C (lowest; future tiers may be defined).
+3. `TIER_C` — the hint's claimed depth tier is C (lowest; future tiers may be defined).
 4. `SERVER_FAILED` — the server measurement state is FAILED.
-5. `PENDING` — the server state is PENDING (a soft error; the hint can retry).
+5. `PENDING` — the server state is PENDING (outcome, not a reason; the hint can retry).
 6. Per-hint `MODE_MISMATCH` — no server measurements exist in the hint's mode.
-7. `NO_ASSOCIATION` — no suitable server measurement found (geometric and dimension-only branches exhausted).
+7. `NO_ASSOCIATION` — no suitable server measurement found (seeded, geometric and dimension-only branches exhausted).
 
 ### Association branches
 
-With one or more servers in the hint's mode, the rule tries:
+With one or more servers in the hint's mode, the rule tries (in order):
 
-1. **SEEDED**: a hint with a `seedClientMeasurementId` matches its seed server (if found) — associated by construction.
-2. **GEOMETRIC** (if frame mapping is available): match by geometric similarity (IoU ≥ 0.5, endpoint distance ≤ 0.10 m, normal angle ≤ 5 degrees, plane offset ≤ 0.05 m).
-3. **DIMENSION_ONLY** (no frame mapping): match by per-dimension tolerance (footprint-sorted and height for OBJECT_BOX, single distance otherwise).
+1. **SEEDED**: a server measurement with a `seedClientMeasurementId` that matches this hint's `clientMeasurementId` — associated by construction.
+2. **GEOMETRIC** (if frame mapping is available): match by geometric similarity (IoU ≥ 0.5, endpoint distance ≤ 0.10 m, normal angle ≤ 5 degrees, plane offset ≤ 0.05 m). Assignment is one-to-one greedy by descending score.
+3. **DIMENSION_ONLY** (if frame mapping is not available): match by per-dimension tolerance (footprint dimensions sorted ascending with height separate). Qualifies only if exactly one server measurement matches within the `minor` tolerance. If zero or more than one candidates qualify, the hint gets `NO_ASSOCIATION`. Both hints that are dimension-only paired to the same single server get `NO_ASSOCIATION`.
 
 ### Geometric thresholds (provisional)
 
 IoU 0.5, endpoint distance 0.10 m, normal angle 5 degrees, plane offset 0.05 m. These are provisional like the tolerance profile and a change is a new vector release. Geometry comparisons use the same 1e-5 m rounding as the tolerance function (`com.atlas.measurement.tolerance.Tolerance.units(double)`).
 
-### Shared server measurement
+### Shared server measurement (geometric branch only)
 
-If a server measurement is matched to one hint, it is taken and unavailable for other hints (no sharing). The result for other hints that would match it is NO_ASSOCIATION.
+In the **GEOMETRIC branch** (frame mapping available), if a server measurement is matched to one hint, it is taken and unavailable for other hints (one-to-one greedy assignment). The result for other hints that would match it is `NO_ASSOCIATION`. **In the DIMENSION_ONLY branch**, each hint is tested independently, and two hints that both qualify for the same single server both get `NO_ASSOCIATION` (to prevent a mis-association from creating a false `MAJOR_DIFF`).
