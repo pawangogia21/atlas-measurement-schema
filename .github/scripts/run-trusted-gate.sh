@@ -5,7 +5,8 @@
 # (the very change that introduces it) the working-tree copy runs and a warning says so.
 # Usage: run-trusted-gate.sh <gate-script-name> <baseline-ref-or-empty> [more args for the gate]
 #   e.g. run-trusted-gate.sh governance-gate.sh "$BASELINE"
-# The helper scripts a gate calls (resolve-baseline.sh) are taken from the baseline too.
+# The helper scripts a gate calls (resolve-baseline.sh) are taken from the baseline too. The gate jar
+# (tools/schema-gate/target) is built from the change under test by an earlier CI step; tools/schema-gate is CODEOWNERS-protected.
 set -euo pipefail
 NAME="${1:?usage: run-trusted-gate.sh <gate-script-name> <baseline-ref> [args]}"
 REF="${2:-}"
@@ -19,6 +20,12 @@ if [ -n "$BASELINE" ] && git cat-file -e "$BASELINE:.github/scripts/$NAME" 2>/de
   for f in "$NAME" resolve-baseline.sh; do
     git show "$BASELINE:.github/scripts/$f" > "$TRUSTED/.github/scripts/$f" 2>/dev/null || cp "$ROOT/.github/scripts/$f" "$TRUSTED/.github/scripts/$f"
     chmod +x "$TRUSTED/.github/scripts/$f"
+  done
+  # The gates locate the repository from their own path (avro-compat-gate.sh, json-schema-compat-gate.sh): give the baseline
+  # copy a root that is the real checkout seen through symlinks (everything but .github/, which holds the trusted scripts).
+  for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
+    [ -e "$entry" ] || continue
+    [ "$(basename "$entry")" = ".github" ] || ln -s "$entry" "$TRUSTED/$(basename "$entry")"
   done
   echo "Running $NAME from the baseline ($BASELINE), not from the change under test."
   GATE_REPO_ROOT="$ROOT" "$TRUSTED/.github/scripts/$NAME" "${BASELINE:-$REF}" "$@"
