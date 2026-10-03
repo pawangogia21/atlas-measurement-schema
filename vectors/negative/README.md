@@ -18,7 +18,7 @@ Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_I
 Every negative vector expects HTTP 422 with a `code` field; the `message` or top-level `errors` field contains the recorded error token (e.g. `"batch envelope must be {\"items\": [1..100 objects]}"`, or specific schema validation errors like `"required field timestamp is absent"`).
 
 - **JSON depth limit 8** (depth counts containers; root is depth 1): enforced while parsing before schema validation via Jackson's `maxNestingDepth`, so a deeply nested body is never materialized. The limit applies per `LiveMeasurement` item in a batch, not to the batch envelope itself. Test cases: `depth-9.json` (single item just over limit) and `batch-item-depth-9.json` (batch with one item at depth 9).
-- **Over-limit nesting**: `batch-item-depth-100001.json` tests stack-safe rejection of an item recursively nested 100001 levels deep — a consumer must refuse it without exhausting its stack.
+- **Over-limit nesting**: `depth-100001.json` tests stack-safe rejection of a payload recursively nested 100,001 levels deep — a consumer must refuse it without exhausting its stack.
 
 ## Per-item batch validation (`ClientMeasurementValidator.validateBatchItems`)
 
