@@ -168,16 +168,22 @@ These live in GitHub, not in the repository; the workflow depends on them:
 
 1. Environment `release` (Settings, Environments): required reviewers (not the person who pushes the tag), deployment tags restricted to `v*`; put `PUBLISH_ENABLED`, `SWIFT_REPO_TOKEN` and `KIT_DISPATCH_TOKEN` there as environment secrets, not as repository secrets.
 2. Tag ruleset (Settings, Rules) on `v*`: restrict creation to maintainers, block deletion and updates (a released tag is never moved).
-3. Branch ruleset on `main`: pull request required, code-owner review (`.github/CODEOWNERS`), required status check `build` and `swift`, dismiss stale approvals, no force push, no bypass for the change author.
+3. Environment `release`, deployment branches and tags: restrict to the branch `main`. A `workflow_run` workflow runs with `main` as its ref, so only `release.yml` can read the environment's secrets; a tag-triggered run (a possibly unreviewed `ci.yml`) cannot.
+3a. Branch ruleset on `main`: pull request required, code-owner review (`.github/CODEOWNERS`), required status check `build` and `swift`, dismiss stale approvals, no force push, no bypass for the change author.
 4. Packages: after the first publish, link each package to this repository (Package settings) and disallow overwriting a published version where the setting exists.
 5. Create `pawangogia21/atlas-measurement-schema-swift` (empty) before enabling the Swift step, or set `SWIFT_REPO_ENABLED=false`.
+
+### What the release controls do and do not guarantee
+
+`release.yml` makes the provenance check independent of the tagged commit's own files, but it is not a complete control by itself: the Maven build and deploy still execute the tagged commit's poms and `mvnw` (provenance proves that commit is on `main`), and a tag-triggered `ci.yml` of an unreviewed commit can request its own token permissions (for example `packages: write` for `GITHUB_TOKEN`, which GitHub does not let a repository cap). The controls that actually stop a malicious tag are in GitHub, not in this repository: the `release` environment (required reviewers, deployment restricted to `main`), the `v*` tag ruleset (who may create a release tag, no moves, no deletes) and the `main` ruleset with required code-owner review. Treat the workflow files as defence in depth, not as the boundary.
+
+Kit repositories that receive the `measurement-schema-released` dispatch (`atlas-measure-kit-ios`, `atlas-measure-kit-android`) must validate `client_payload.version` as strict semver (`^[0-9]+\.[0-9]+\.[0-9]+$`) before using it, and must never interpolate it into a `run:` script (pass it through `env:` instead).
 
 ### Tag and CI flow
 
 1. Merge to `main` first: a release is only built from a commit that is on `main` (the job fails otherwise). Create an annotated tag on that commit: `git tag -a v1.2.3 -m "v1.2.3"` and push it: `git push origin v1.2.3`. Only strict semver tags `v<major>.<minor>.<patch>` start the workflow (no pre-release suffix; leading zeros are rejected by `release-version.sh`).
-2. CI (`.github/workflows/ci.yml`) then:
-   - Builds all modules and runs all tests (Ubuntu; every module resolves dependencies from Maven Central) and generates and tests the Swift types (macOS).
-   - Waits for a reviewer of the `release` environment, then proves the tagged commit is an ancestor of `origin/main`.
+2. CI (`.github/workflows/ci.yml`) runs on the tag: builds all modules and runs all tests (Ubuntu; every module resolves dependencies from Maven Central), generates and tests the Swift types (macOS) and uploads the assembled Swift package (without `.build/`). When that run succeeds, `.github/workflows/release.yml` (a `workflow_run` workflow, so GitHub runs the copy on `main`, not the one in the tagged commit) then:
+   - Waits for a reviewer of the `release` environment, checks out the CI-verified commit by SHA (not by tag name), asserts HEAD equals that SHA and that the tag still points at it, and proves it is an ancestor of `origin/main` with `verify-tag-provenance.sh` taken from a checkout of `main`; the same provenance check runs again right before the first publish step.
    - If publishing is enabled: preflights the registry (a half-published version fails with the list of what exists; a fully published version is left untouched, so a re-run after a later failure is safe), publishes the Maven jars (types, reference, Kotlin, vectors, Avro codegen via `set-release-version.sh` and `mvn deploy`), pushes the Swift package content and then its tag `v<version>` (`.github/scripts/assemble-swift-package.sh`, `publish-swift-package.sh`; an existing tag with different content fails), and dispatches `measurement-schema-released` to the Kits.
    - A failed re-run can simply be re-run. A half-published Maven release must be cleaned up in GitHub Packages by hand, or the next patch version is released.
 
@@ -185,12 +191,16 @@ These live in GitHub, not in the repository; the workflow depends on them:
 
 Every vector set (conformance, boundary, negative) and the tolerance profile are immutable once released. A retune publishes a new version (e.g. `1.1.0`), never edits `1.0.0`.
 
-The governance gate (`.github/scripts/governance-gate.sh`, run in CI from the baseline's copy so a change cannot weaken it) governs these paths: `tolerance/<version>/`, `vectors/<set>/<version>/`, and as single files `algorithm-spec.md`, the rest of `tolerance/` and `vectors/`, `json-schema/**` and `avro/.enum-approvals` (README files are not governed). It enforces:
+The governance gate (`.github/scripts/governance-gate.sh`, run in CI from the baseline's copy, so editing the script in a change does not change the verdict on that change; this is not a guarantee, see "What actually protects the gates" below) governs these paths: `tolerance/<version>/`, `vectors/<set>/<version>/`, and as single files `algorithm-spec.md`, the rest of `tolerance/` and `vectors/`, `json-schema/**` and `avro/.enum-approvals` (README files are not governed). It enforces:
 
 - immutability: a released `tolerance/<v>/` or `vectors/<set>/<v>/` must keep its digest;
 - approval: a new artifact version or a changed governed file needs a line `<artifact> <version> <digest> <approved-by> <date> <ticket>` in `governance/qa-approvals.txt` (digest from `governance-gate.sh --digests`);
 - deletion: removing a released artifact needs a `RETIRE` line;
 - the approvals file is append-only: a baseline line may not be removed or edited.
+
+#### What actually protects the gates
+
+`ci.yml`, `run-trusted-gate.sh`, `resolve-baseline.sh` and the gate jar (`tools/schema-gate`) all come from the pull request itself, so a change can alter the way it is judged. Running the gate script from the baseline only removes the trivial route. The real control is `.github/CODEOWNERS` (which covers `.github/`, `tools/schema-gate/`, the build bootstrap, the governed paths, the module poms, `reference/`, `kotlin/`, `swift/`, `vectors-artifact/`, `codegen-json/` and `avro/*.avsc`) together with the `main` ruleset that requires a code-owner review. Without both, nothing here is a control.
 
 The approvals are read from the pull request head, and the `approved-by` field is free text, so the file records what was approved, not who approved it. Who may approve is restricted by `.github/CODEOWNERS` (governed paths, including `governance/`) together with the branch protection on `main` that requires a code-owner review.
 

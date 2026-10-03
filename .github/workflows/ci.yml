@@ -10,6 +10,7 @@ on:
     branches: [ main ]
 
 # AT-16 S9: nothing writes by default; a job widens this only for what it needs.
+# Releasing is NOT done here: release.yml (workflow_run on a successful CI run for a v* tag) publishes; see README.md.
 permissions:
   contents: read
 
@@ -56,8 +57,11 @@ jobs:
           echo "ref=$PUSH_BEFORE" >> "$GITHUB_OUTPUT"
         fi
 
-    # AT-16 S4: the three gates below run the BASELINE's copy of their script (run-trusted-gate.sh), so a change cannot
-    # weaken the gate it is judged by. The working tree is what they inspect.
+    # AT-16 S4: the three gates below run the BASELINE's copy of their script (run-trusted-gate.sh), so editing the gate
+    # script in a change does not change the verdict on that change. This is NOT a guarantee that a change cannot weaken the
+    # gates: ci.yml, run-trusted-gate.sh, resolve-baseline.sh and the gate jar (tools/schema-gate) all come from the change
+    # itself. The real control is .github/CODEOWNERS plus the main ruleset's required code-owner review (README.md).
+    # The working tree is what the gates inspect.
     - name: Avro backward-compatibility and enum-change gate (AT-2)
       env:
         BASELINE_REF: ${{ steps.baseline.outputs.ref }}
@@ -128,149 +132,7 @@ jobs:
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: swift-package
-        path: ${{ runner.temp }}/swift-package
-
-  publish:
-    # Release job (AT-16, design 31.10), for a tag v<major>.<minor>.<patch> only. What protects it (all documented in
-    # README.md, "Releasing"):
-    #   - environment `release`: required reviewers and a v* tag rule are configured by the repository owner in GitHub; the job
-    #     does not start, and no environment secret is readable, before a reviewer approves;
-    #   - the first steps prove the tagged commit is on main, before any secret is used;
-    #   - least privilege: Maven publishes with this job's GITHUB_TOKEN (packages: write), the Swift repository push and the
-    #     Kit dispatch each use their own fine-grained secret (SWIFT_REPO_TOKEN, KIT_DISPATCH_TOKEN), passed to the one step
-    #     that needs it, never to build code;
-    #   - the job is gated on the secret PUBLISH_ENABLED=true: while it is absent a tag run verifies provenance and publishes
-    #     nothing, loudly (job summary), exactly like AT-2's earlier deploy gate;
-    #   - fail closed: a missing Swift repository or token, a failed dispatch or an existing different release is a red job,
-    #     never a green half release. The explicit opt-outs are the repository variables SWIFT_REPO_ENABLED=false and
-    #     KIT_DISPATCH_ENABLED=false (until those repositories exist).
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [ build, swift ]
-    runs-on: ubuntu-latest
-    environment: release
-    concurrency:
-      group: release-publish
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      with:
-        # The provenance check below needs the whole history of main next to the tagged commit.
-        fetch-depth: 0
-        persist-credentials: false
-
-    - name: The tagged commit must be on main
-      run: ./.github/scripts/verify-tag-provenance.sh main
-
-    - name: Release version from the tag
-      id: version
-      env:
-        TAG: ${{ github.ref_name }}
-      run: echo "value=$(./.github/scripts/release-version.sh "$TAG")" >> "$GITHUB_OUTPUT"
-
-    - name: Check that publishing is enabled
-      id: gate
-      env:
-        PUBLISH_ENABLED: ${{ secrets.PUBLISH_ENABLED }}
-        VERSION: ${{ steps.version.outputs.value }}
-      run: |
-        if [ "$PUBLISH_ENABLED" = "true" ]; then
-          echo "enabled=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "enabled=false" >> "$GITHUB_OUTPUT"
-          echo "::warning::PUBLISH_ENABLED is not 'true': release v${VERSION} was verified but NOT published"
-          echo "### Release v${VERSION}: NOT published (secret PUBLISH_ENABLED is not 'true')" >> "$GITHUB_STEP_SUMMARY"
-        fi
-
-    - name: Set up JDK 21
-      if: steps.gate.outputs.enabled == 'true'
-      uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        # no dependency cache in the release job: it builds from Central only
-        # Populates ~/.m2/settings.xml with a <server id="github"> entry; its credentials are GITHUB_ACTOR and GITHUB_TOKEN.
-        server-id: github
-
-    - name: Preflight - which Maven artifacts of this version already exist
-      id: preflight
-      if: steps.gate.outputs.enabled == 'true'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ steps.version.outputs.value }}
-      # Fails for a half-published version; reports `complete` when a re-run follows a failure after the Maven step.
-      run: ./.github/scripts/release-preflight.sh "$VERSION"
-
-    - name: Publish the Maven artifacts to GitHub Packages (types, reference, Kotlin, vectors, Avro codegen)
-      if: steps.gate.outputs.enabled == 'true' && steps.preflight.outputs.maven_state == 'none'
-      env:
-        # Not the personal access token: this job's own token, scoped by `permissions: packages: write` to this repository.
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ steps.version.outputs.value }}
-      run: |
-        ./.github/scripts/set-release-version.sh "$VERSION"
-        # types first: the Kotlin artifact depends on it
-        for module in codegen-json reference kotlin vectors-artifact codegen; do
-          ./mvnw -f "$module/pom.xml" -B -DskipTests -Dmaven.javadoc.skip=true deploy
-        done
-
-    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      if: steps.gate.outputs.enabled == 'true' && vars.SWIFT_REPO_ENABLED != 'false'
-      with:
-        name: swift-package
-        path: swift-package
-
-    - name: Publish the Swift package (atlas-measurement-schema-swift, tag v<version>)
-      if: steps.gate.outputs.enabled == 'true' && vars.SWIFT_REPO_ENABLED != 'false'
-      env:
-        # Fine-grained token, Contents: write on atlas-measurement-schema-swift only.
-        SWIFT_REPO_TOKEN: ${{ secrets.SWIFT_REPO_TOKEN }}
-        VERSION: ${{ steps.version.outputs.value }}
-      # Fails closed (missing repository, bad token). The tag is created only after the content was pushed. Skipping this
-      # step on purpose is the repository variable SWIFT_REPO_ENABLED=false.
-      run: ./.github/scripts/publish-swift-package.sh swift-package "$VERSION"
-
-    - name: Trigger the Kits' CI (design 31.10)
-      if: steps.gate.outputs.enabled == 'true' && vars.KIT_DISPATCH_ENABLED != 'false'
-      env:
-        # Fine-grained token, Contents: write on the two Kit repositories only (repository_dispatch).
-        KIT_DISPATCH_TOKEN: ${{ secrets.KIT_DISPATCH_TOKEN }}
-        VERSION: ${{ steps.version.outputs.value }}
-        SWIFT_REPO_ENABLED: ${{ vars.SWIFT_REPO_ENABLED }}
-      run: |
-        kits=(atlas-measure-kit-android)
-        # the iOS Kit consumes the Swift package: nothing to tell it while that package is not published
-        if [ "$SWIFT_REPO_ENABLED" != "false" ]; then
-          kits+=(atlas-measure-kit-ios)
-        fi
-        ./.github/scripts/dispatch-kits.sh "$VERSION" "${kits[@]}"
-
-    - name: Release summary
-      if: steps.gate.outputs.enabled == 'true'
-      env:
-        VERSION: ${{ steps.version.outputs.value }}
-        MAVEN_STATE: ${{ steps.preflight.outputs.maven_state }}
-        SWIFT_REPO_ENABLED: ${{ vars.SWIFT_REPO_ENABLED }}
-        KIT_DISPATCH_ENABLED: ${{ vars.KIT_DISPATCH_ENABLED }}
-      run: |
-        {
-          echo "### Release v${VERSION}"
-          if [ "$MAVEN_STATE" = "complete" ]; then
-            echo "- Maven artifacts: already published by an earlier run, left untouched"
-          else
-            echo "- Maven artifacts: published"
-          fi
-          if [ "$SWIFT_REPO_ENABLED" = "false" ]; then
-            echo "- Swift package: SKIPPED on purpose (SWIFT_REPO_ENABLED=false), the release is incomplete"
-          else
-            echo "- Swift package: published (tag v${VERSION})"
-          fi
-          if [ "$KIT_DISPATCH_ENABLED" = "false" ]; then
-            echo "- Kit dispatch: SKIPPED on purpose (KIT_DISPATCH_ENABLED=false), the release is incomplete"
-          else
-            echo "- Kit dispatch: sent"
-          fi
-        } >> "$GITHUB_STEP_SUMMARY"
+        # the sources only: the SwiftPM build products (.build/) of the build check above are not part of the package
+        path: |
+          ${{ runner.temp }}/swift-package
+          !${{ runner.temp }}/swift-package/.build
