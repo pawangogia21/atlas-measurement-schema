@@ -20,6 +20,21 @@
         <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <resources>
             <resource>
@@ -27,14 +42,25 @@
                 <targetPath>vectors</targetPath>
                 <excludes>
                     <exclude>**/README.md</exclude>
+                    <exclude>manifest.json</exclude>
                 </excludes>
+            </resource>
+            <resource>
+                <!-- the release version replaces @project.version@ -->
+                <directory>${project.basedir}/../vectors</directory>
+                <targetPath>vectors</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>manifest.json</include>
+                </includes>
             </resource>
             <resource>
                 <directory>${project.basedir}/../tolerance</directory>
                 <targetPath>tolerance</targetPath>
                 <includes>
-                    <include>tolerance-profile.json</include>
+                    <include>*/tolerance-profile.json</include>
                     <include>tolerance-profile.schema.json</include>
+                    <include>manifest.json</include>
                 </includes>
             </resource>
             <resource>
@@ -42,6 +68,13 @@
                 <targetPath>json-schema</targetPath>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+        </plugins>
     </build>
 
     <distributionManagement>

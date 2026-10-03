@@ -57,7 +57,7 @@
                 <directory>${project.basedir}/../tolerance</directory>
                 <targetPath>tolerance</targetPath>
                 <includes>
-                    <include>tolerance-profile.json</include>
+                    <include>*/tolerance-profile.json</include>
                     <include>tolerance-profile.schema.json</include>
                 </includes>
             </resource>

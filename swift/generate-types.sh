@@ -17,3 +17,5 @@ OUT="$HERE/Sources/AtlasMeasurementSchema/Generated.swift"
 npx --yes "quicktype@$QUICKTYPE_VERSION" --src-lang schema --lang swift --access-level public --no-initializers \
   --src "$SCHEMAS/live-measurement.schema.json" --src "$SCHEMAS/client-capture.schema.json" -o "$OUT"
 echo "generated $OUT"
+# the bundled profiles and vectors (SwiftPM resources) are staged from the repository files in the same step
+"$HERE/stage-resources.sh"

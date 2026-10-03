@@ -35,28 +35,36 @@ class ToleranceTest {
     void profileMatchesItsSchemaAndHasVersion100() throws IOException {
         JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
                 .getSchema(ToleranceTest.class.getResourceAsStream("/tolerance/tolerance-profile.schema.json"));
-        assertThat(schema.validate(resource("/tolerance/tolerance-profile.json"))).isEmpty();
-        assertThat(ToleranceProfile.loadBundled().version()).isEqualTo("1.0.0");
+        assertThat(schema.validate(resource("/tolerance/1.0.0/tolerance-profile.json"))).isEmpty();
+        assertThat(ToleranceProfile.loadBundled("1.0.0").version()).isEqualTo("1.0.0");
+    }
+
+    @Test
+    void everyBundledProfileFolderHoldsItsOwnVersionAndOldVersionsStayLoadable() throws IOException {
+        ToleranceProfile p = ToleranceProfile.loadBundled("1.0.0");
+        assertThat(p.version()).isEqualTo("1.0.0");
+        assertThatThrownBy(() -> ToleranceProfile.loadBundled("9.9.9")).isInstanceOf(IOException.class);
+        assertThatThrownBy(() -> ToleranceProfile.loadBundled("../1.0.0")).isInstanceOf(IOException.class);
     }
 
     @Test
     void profileSchemaRejectsBadProfiles() throws IOException {
         JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
                 .getSchema(ToleranceTest.class.getResourceAsStream("/tolerance/tolerance-profile.schema.json"));
-        com.fasterxml.jackson.databind.node.ObjectNode p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/tolerance-profile.json");
+        com.fasterxml.jackson.databind.node.ObjectNode p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/1.0.0/tolerance-profile.json");
         p.put("extra", 1);
         assertThat(schema.validate(p)).isNotEmpty();
-        p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/tolerance-profile.json");
+        p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/1.0.0/tolerance-profile.json");
         ((com.fasterxml.jackson.databind.node.ArrayNode) p.get("rows")).remove(3);
         assertThat(schema.validate(p)).isNotEmpty();
-        p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/tolerance-profile.json");
+        p = (com.fasterxml.jackson.databind.node.ObjectNode) resource("/tolerance/1.0.0/tolerance-profile.json");
         ((com.fasterxml.jackson.databind.node.ObjectNode) p.get("overrides")).putObject("x1");
         assertThat(schema.validate(p)).isNotEmpty();
     }
 
     @Test
     void bundledProfileHoldsTheFourRowsOfDesign212() throws IOException {
-        ToleranceProfile p = ToleranceProfile.loadBundled();
+        ToleranceProfile p = ToleranceProfile.loadBundled("1.0.0");
         assertRow(p.row("accuracyGate", 1), 0.01, 0.02, null, null);
         assertRow(p.row("accuracyGateP95", 1), 0.025, 0.04, null, null);
         assertRow(p.row("agree", 1), 0.02, 0.02, 2.0, 0.10);
@@ -73,7 +81,7 @@ class ToleranceTest {
     @Test
     void smokeTolCases() throws IOException {
         JsonNode s = smoke();
-        ToleranceProfile base = ToleranceProfile.loadBundled();
+        ToleranceProfile base = ToleranceProfile.loadBundled("1.0.0");
         ToleranceProfile over = ToleranceProfile.parse(s.get("overrideProfile"));
         for (JsonNode c : s.get("tol")) {
             ToleranceProfile p = c.get("profile").asText().equals("base") ? base : over;
@@ -93,7 +101,7 @@ class ToleranceTest {
 
     @Test
     void smokeClassifyCases() throws IOException {
-        ToleranceProfile base = ToleranceProfile.loadBundled();
+        ToleranceProfile base = ToleranceProfile.loadBundled("1.0.0");
         for (JsonNode c : smoke().get("classify")) {
             List<Tolerance.DimensionPair> dims = new ArrayList<>();
             for (JsonNode d : c.get("dims")) {
@@ -107,11 +115,11 @@ class ToleranceTest {
 
     @Test
     void invalidInputsAreErrorsNotResults() throws IOException {
-        ToleranceRow agree = ToleranceProfile.loadBundled().row("agree", 1);
+        ToleranceRow agree = ToleranceProfile.loadBundled("1.0.0").row("agree", 1);
         assertThatThrownBy(() -> Tolerance.tol(1, -0.1, 0, agree)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> Tolerance.tol(Double.NaN, 0, 0, agree)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> Tolerance.tol(1, 0, Double.POSITIVE_INFINITY, agree)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ToleranceProfile.loadBundled().row("nope", 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ToleranceProfile.loadBundled("1.0.0").row("nope", 1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -124,7 +132,7 @@ class ToleranceTest {
     @Test
     void boundaryTolCases() throws IOException {
         JsonNode b = boundary();
-        ToleranceProfile base = ToleranceProfile.loadBundled();
+        ToleranceProfile base = ToleranceProfile.loadBundled("1.0.0");
         for (JsonNode c : b.get("threshold")) {
             ToleranceRow row = base.row(c.get("row").asText(), c.get("major").asInt());
             double t = Tolerance.tol(c.get("ref").asDouble(), c.get("sigmaServer").asDouble(), c.get("sigmaClient").asDouble(), row);
@@ -143,7 +151,7 @@ class ToleranceTest {
 
     @Test
     void boundaryClassifyCases() throws IOException {
-        ToleranceProfile base = ToleranceProfile.loadBundled();
+        ToleranceProfile base = ToleranceProfile.loadBundled("1.0.0");
         for (JsonNode c : boundary().get("classify")) {
             List<Tolerance.DimensionPair> dims = new ArrayList<>();
             for (JsonNode d : c.get("dims")) {
@@ -162,7 +170,7 @@ class ToleranceTest {
 
     @Test
     void invalidInputVectorsAreErrors() throws IOException {
-        ToleranceProfile base = ToleranceProfile.loadBundled();
+        ToleranceProfile base = ToleranceProfile.loadBundled("1.0.0");
         int n = 0;
         for (JsonNode c : boundary().get("invalid")) {
             String id = c.get("id").asText();
@@ -196,7 +204,7 @@ class ToleranceTest {
         // F1: (long) NaN was 0, so NaN compared as AGREE; +Infinity was MAJOR_DIFF
         ToleranceProfile p;
         try {
-            p = ToleranceProfile.loadBundled();
+            p = ToleranceProfile.loadBundled("1.0.0");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

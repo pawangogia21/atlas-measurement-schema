@@ -10,7 +10,11 @@
     <name>atlas-measurement-schema-kotlin</name>
     <description>Kotlin JVM 11 artifact (AT-16): the port of the tolerance function (reads tolerance-profile.json, verified
         against the same vectors as the Java reference and the Swift port) plus the generated types, which come in
-        transitively from atlas-measurement-schema-types (jsonschema2pojo, usable from Kotlin as they are).
+        transitively from atlas-measurement-schema-types (jsonschema2pojo, usable from Kotlin as they are). The artifact
+        carries every released tolerance profile as a resource (tolerance/&lt;version&gt;/tolerance-profile.json, selected by
+        ToleranceProfile.bundled(version)) and tolerance/manifest.json (version, sha256 per file, toleranceProfileVersion).
+        The vectors are the separate atlas-measurement-vectors artifact of the same version: a Kit declares it as a test
+        dependency and checks its vectors/manifest.json.
     </description>
 
     <properties>
@@ -49,6 +53,25 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../tolerance</directory>
+                <targetPath>tolerance</targetPath>
+                <includes>
+                    <include>*/tolerance-profile.json</include>
+                    <include>tolerance-profile.schema.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <!-- the release version replaces @project.version@ -->
+                <directory>${project.basedir}/../tolerance</directory>
+                <targetPath>tolerance</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>manifest.json</include>
+                </includes>
+            </resource>
+        </resources>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>

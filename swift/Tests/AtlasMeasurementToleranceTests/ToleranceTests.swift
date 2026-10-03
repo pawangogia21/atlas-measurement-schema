@@ -22,7 +22,7 @@ import Testing
     }
 
     private func base() throws -> ToleranceProfile {
-        try ToleranceProfile(contentsOf: Self.toleranceDir.appendingPathComponent("tolerance-profile.json"))
+        try ToleranceProfile.bundled(version: "1.0.0")
     }
 
     private func num(_ d: [String: Any], _ k: String) -> Double { (d[k] as! NSNumber).doubleValue }

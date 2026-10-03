@@ -60,7 +60,7 @@ class AssociationTest {
 
     @Test
     void decideRejectsANonFiniteDimension() throws IOException {
-        ToleranceProfile profile = ToleranceProfile.loadBundled();
+        ToleranceProfile profile = ToleranceProfile.loadBundled("1.0.0");
         com.fasterxml.jackson.databind.node.ObjectNode h = (com.fasterxml.jackson.databind.node.ObjectNode) json(
                 "{\"id\":\"h1\",\"mode\":\"POINT_TO_POINT\",\"schemaVersion\":\"1.0\",\"depthTier\":\"A\",\"sessionId\":\"s\",\"worldOriginEpoch\":1,\"dims\":[{\"v\":1.0,\"s\":0}]}");
         ((com.fasterxml.jackson.databind.node.ObjectNode) h.get("dims").get(0)).put("v", Double.NaN);

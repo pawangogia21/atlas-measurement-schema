@@ -40,6 +40,31 @@ class ReleasedVectorsTest {
     }
 
     @Test
+    void releaseManifestsAreByteIdenticalAndCoverTheBundledFiles(@TempDir Path tmp) throws IOException {
+        ReleaseManifestGenerator.generate(Paths.get(".."), tmp);
+        for (String name : new String[] {"tolerance/manifest.json", "vectors/manifest.json"}) {
+            assertThat(Files.readAllBytes(Paths.get("..").resolve(name))).as(name).isEqualTo(Files.readAllBytes(tmp.resolve(name)));
+        }
+        JsonNode tolerance = MAPPER.readTree(Paths.get("..", "tolerance", "manifest.json").toFile());
+        assertThat(tolerance.get("version").asText()).isEqualTo(ReleaseManifestGenerator.VERSION_PLACEHOLDER);
+        assertThat(tolerance.get("toleranceProfileVersion").asText()).isEqualTo(BoundaryVectorGenerator.PROFILE_VERSION);
+        for (JsonNode f : tolerance.get("files")) {
+            assertThat(ConformanceVectorGenerator.sha256(Files.readAllBytes(Paths.get("..", "tolerance").resolve(f.get("path").asText()))))
+                    .as(f.get("path").asText()).isEqualTo(f.get("sha256").asText());
+        }
+        // every bundled profile folder holds its own version
+        for (JsonNode v : tolerance.get("toleranceProfileVersions")) {
+            assertThat(ToleranceProfile.loadBundled(v.asText()).version()).isEqualTo(v.asText());
+        }
+        JsonNode vectors = MAPPER.readTree(Paths.get("..", "vectors", "manifest.json").toFile());
+        assertThat(vectors.get("files")).hasSize(3);
+        for (JsonNode f : vectors.get("files")) {
+            assertThat(ConformanceVectorGenerator.sha256(Files.readAllBytes(Paths.get("..", "vectors").resolve(f.get("path").asText()))))
+                    .as(f.get("path").asText()).isEqualTo(f.get("sha256").asText());
+        }
+    }
+
+    @Test
     void manifestHashesMatchTheFilesOnDisk() throws IOException {
         for (Path dir : List.of(BOUNDARY, NEGATIVE)) {
             JsonNode manifest = MAPPER.readTree(dir.resolve("manifest.json").toFile());
@@ -61,7 +86,7 @@ class ReleasedVectorsTest {
     @Test
     void associationVectorsReplay() throws IOException {
         JsonNode root = MAPPER.readTree(BOUNDARY.resolve("association-cases.json").toFile());
-        ToleranceProfile profile = ToleranceProfile.loadBundled();
+        ToleranceProfile profile = ToleranceProfile.loadBundled(MAPPER.readTree(BOUNDARY.resolve("manifest.json").toFile()).get("toleranceProfileVersion").asText());
         int branches = 0;
         for (JsonNode c : root.get("cases")) {
             assertThat(Association.decide(c.get("context"), c.get("hints"), c.get("servers"), profile, root.get("algorithmMajor").asInt()))

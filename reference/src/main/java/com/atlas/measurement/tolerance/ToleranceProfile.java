@@ -11,8 +11,10 @@ import java.util.Map;
 
 /** A parsed {@code tolerance-profile.json}. Thresholds come only from the file, never from constants. */
 public final class ToleranceProfile {
-    /** Classpath location of the profile bundled from the repository's tolerance/ folder. */
-    public static final String CLASSPATH_RESOURCE = "/tolerance/tolerance-profile.json";
+    /** Classpath location of one released profile, bundled from the repository's tolerance/&lt;version&gt;/ folders. */
+    public static String classpathResource(String version) {
+        return "/tolerance/" + version + "/tolerance-profile.json";
+    }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -26,12 +28,23 @@ public final class ToleranceProfile {
         this.overrides = overrides;
     }
 
-    public static ToleranceProfile loadBundled() throws IOException {
-        try (InputStream in = ToleranceProfile.class.getResourceAsStream(CLASSPATH_RESOURCE)) {
+    /**
+     * One released profile by version. Every released version stays bundled, so vectors released against 1.0.0 keep
+     * replaying against 1.0.0 after a retune publishes 1.1.0 (a vector manifest names its toleranceProfileVersion).
+     */
+    public static ToleranceProfile loadBundled(String version) throws IOException {
+        if (!version.matches("\\d+\\.\\d+\\.\\d+")) {
+            throw new IOException("not a profile version: " + version);
+        }
+        try (InputStream in = ToleranceProfile.class.getResourceAsStream(classpathResource(version))) {
             if (in == null) {
-                throw new IOException("missing classpath resource " + CLASSPATH_RESOURCE);
+                throw new IOException("missing classpath resource " + classpathResource(version));
             }
-            return parse(MAPPER.readTree(in));
+            ToleranceProfile profile = parse(MAPPER.readTree(in));
+            if (!profile.version().equals(version)) {
+                throw new IOException("profile folder " + version + " holds version " + profile.version());
+            }
+            return profile;
         }
     }
 

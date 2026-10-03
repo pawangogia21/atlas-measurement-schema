@@ -52,6 +52,26 @@ class ToleranceProfile private constructor(
 
         fun load(file: Path): ToleranceProfile = parse(mapper.readTree(Files.readAllBytes(file)))
 
+        /**
+         * A released profile by version, read from the artifact's own resources (tolerance/<version>/tolerance-profile.json).
+         * Every released version stays bundled, so vectors released against 1.0.0 keep replaying after a retune ships 1.1.0.
+         */
+        fun bundled(version: String): ToleranceProfile {
+            require(Regex("\\d+\\.\\d+\\.\\d+").matches(version)) { "not a profile version: $version" }
+            val stream = ToleranceProfile::class.java.getResourceAsStream("/tolerance/$version/tolerance-profile.json")
+                ?: throw IllegalArgumentException("no bundled tolerance profile $version")
+            val profile = stream.use { parse(mapper.readTree(it)) }
+            check(profile.version == version) { "profile folder $version holds version ${profile.version}" }
+            return profile
+        }
+
+        /** The versions bundled in this artifact, oldest first (from tolerance/manifest.json). */
+        fun bundledVersions(): List<String> {
+            val stream = ToleranceProfile::class.java.getResourceAsStream("/tolerance/manifest.json")
+                ?: throw IllegalStateException("missing tolerance/manifest.json")
+            return stream.use { mapper.readTree(it) }.required("toleranceProfileVersions").map { it.asText() }
+        }
+
         fun parse(root: JsonNode): ToleranceProfile {
             val rows = LinkedHashMap<String, ToleranceRow>()
             for (r in root.required("rows")) {

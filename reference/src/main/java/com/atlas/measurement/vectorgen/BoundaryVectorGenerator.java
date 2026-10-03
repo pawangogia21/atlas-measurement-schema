@@ -33,6 +33,8 @@ import java.util.TreeMap;
  */
 public final class BoundaryVectorGenerator {
     public static final String VERSION = "1.0.0";
+    /** The profile these vectors were released against; a retune is a new vector release against a new profile version. */
+    public static final String PROFILE_VERSION = "1.0.0";
     private static final double STEP = 1e-5;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final DefaultPrettyPrinter PRETTY = new DefaultPrettyPrinter()
@@ -47,7 +49,7 @@ public final class BoundaryVectorGenerator {
     }
 
     public static void generate(Path outDir) throws IOException {
-        new BoundaryVectorGenerator(ToleranceProfile.loadBundled()).run(outDir);
+        new BoundaryVectorGenerator(ToleranceProfile.loadBundled(PROFILE_VERSION)).run(outDir);
     }
 
     public static void main(String[] args) throws IOException {

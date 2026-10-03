@@ -1,0 +1,15 @@
+{
+  "manifest" : "tolerance",
+  "version" : "@project.version@",
+  "toleranceProfileVersion" : "1.0.0",
+  "toleranceProfileVersions" : [ "1.0.0" ],
+  "files" : [ {
+    "path" : "1.0.0/tolerance-profile.json",
+    "sha256" : "24e9ddf82c9cc7e0a0c5ca7cd219b9493d944b49c58a64c00f08da30491e697c",
+    "bytes" : 476
+  }, {
+    "path" : "tolerance-profile.schema.json",
+    "sha256" : "268bb9e7f3aea885184d7ed28bf0d11e4ebbb5b887eec99172d4580a209145cb",
+    "bytes" : 2922
+  } ]
+}

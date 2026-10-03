@@ -15,7 +15,7 @@ class ToleranceTest {
     private val smoke: JsonNode = ObjectMapper().readTree(Files.readAllBytes(toleranceDir.resolve("smoke-cases.json")))
     private val boundaryDir = Paths.get("..", "vectors", "boundary", "1.0.0")
     private val boundary: JsonNode = ObjectMapper().readTree(Files.readAllBytes(boundaryDir.resolve("boundary-cases.json")))
-    private val base = ToleranceProfile.load(toleranceDir.resolve("tolerance-profile.json"))
+    private val base = ToleranceProfile.bundled("1.0.0")
     private val over = ToleranceProfile.parse(smoke.get("overrideProfile"))
 
     @Test
