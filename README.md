@@ -117,9 +117,9 @@ Maven modules have separate `pom.xml` files and are built with `./mvnw`'s `-f` f
 
 # Build and test all modules
 ./mvnw -f reference/pom.xml clean verify       # Java reference: tolerance function, association, validators
-./mvnw -f codegen-json/pom.xml clean verify    # JSON Schema: Java types (Jackson + jsonschema2pojo)
+./mvnw -f codegen-json/pom.xml clean install   # JSON Schema: Java types (jsonschema2pojo); install, the Kotlin module needs the jar
 ./mvnw -f codegen/pom.xml clean verify         # Avro: Java types + Apicurio spike test
-./mvnw -f kotlin/pom.xml clean verify          # Kotlin: tolerance function port (needs the types jar: run codegen-json with `install` first)
+./mvnw -f kotlin/pom.xml clean verify          # Kotlin: tolerance function port
 ./mvnw -f vectors-artifact/pom.xml clean verify # Vectors: conformance, boundary, negative artifact jar
 ./mvnw -f tools/schema-gate/pom.xml clean verify # JSON Schema backward-compatibility gate
 (cd swift && swift test)                       # Swift tolerance function, vectors, generated types
