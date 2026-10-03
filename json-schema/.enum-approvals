@@ -1,0 +1,7 @@
+# JSON Schema compatibility events approved in the current change set (AT-16 sub-task L).
+# One key per line: <path relative to json-schema/>#<json-pointer>, e.g.
+#   v1/live-measurement.schema.json#/properties/state/enum
+# An enum or const change, or a change to allOf / anyOf / oneOf / if / then / else / not, fails the gate
+# (.github/scripts/json-schema-compat-gate.sh) unless its key is listed here in the same PR. Remove the entry once the
+# change has landed on main so a later, unrelated change is not silently approved. Adding an optional property needs no
+# entry; removals, new required properties, type changes and tightened bounds can never be approved here (bump the major).
