@@ -4,6 +4,6 @@
   "private": true,
   "description": "Pinned quicktype toolchain for swift/generate-types.sh (AT-16 S9): installed with npm ci --ignore-scripts from package-lock.json, whose integrity hashes pin every transitive dependency.",
   "dependencies": {
-    "quicktype": "23.0.170"
+    "quicktype": "26.0.0"
   }
 }
