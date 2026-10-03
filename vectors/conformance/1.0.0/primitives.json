@@ -1,0 +1,99 @@
+{
+  "description" : "Shared-math primitives of algorithm-spec.md. Integers and hex strings match exactly; floats per the manifest tolerances.",
+  "splitmix64" : [ {
+    "seed" : "0x0000000000000000",
+    "first8" : [ "0xe220a8397b1dcdaf", "0x6e789e6aa1b965f4", "0x06c45d188009454f", "0xf88bb8a8724c81ec", "0x1b39896a51a8749b", "0x53cb9f0c747ea2ea", "0x2c829abe1f4532e1", "0xc584133ac916ab3c" ]
+  }, {
+    "seed" : "0x0000000000000001",
+    "first8" : [ "0x910a2dec89025cc1", "0xbeeb8da1658eec67", "0xf893a2eefb32555e", "0x71c18690ee42c90b", "0x71bb54d8d101b5b9", "0xc34d0bff90150280", "0xe099ec6cd7363ca5", "0x85e7bb0f12278575" ]
+  }, {
+    "seed" : "0x9e3779b97f4a7c15",
+    "first8" : [ "0x6e789e6aa1b965f4", "0x06c45d188009454f", "0xf88bb8a8724c81ec", "0x1b39896a51a8749b", "0x53cb9f0c747ea2ea", "0x2c829abe1f4532e1", "0xc584133ac916ab3c", "0x3ee5789041c98ac3" ]
+  }, {
+    "seed" : "0xffffffffffffffff",
+    "first8" : [ "0xe4d971771b652c20", "0xe99ff867dbf682c9", "0x382ff84cb27281e9", "0x6d1db36ccba982d2", "0xb4a0472e578069ae", "0xd31dadbda438bb33", "0xf14f2cf802083fa5", "0x405da438a39e8064" ]
+  } ],
+  "windowSeed" : [ {
+    "windowIndex" : 0,
+    "firstOutput" : "0x6e789e6aa1b965f4"
+  }, {
+    "windowIndex" : 1,
+    "firstOutput" : "0xe99ff867dbf682c9"
+  }, {
+    "windowIndex" : 7,
+    "firstOutput" : "0xec779c3693f88501"
+  }, {
+    "windowIndex" : 123456789,
+    "firstOutput" : "0x8947c6fa355fec66"
+  } ],
+  "boundedInt" : [ {
+    "windowIndex" : 7,
+    "n" : 3,
+    "rejectionThreshold2pow64ModN" : "1",
+    "first16" : [ 2, 2, 2, 1, 2, 2, 1, 2, 0, 2, 2, 0, 2, 2, 2, 1 ]
+  }, {
+    "windowIndex" : 7,
+    "n" : 7,
+    "rejectionThreshold2pow64ModN" : "2",
+    "first16" : [ 2, 2, 6, 0, 1, 3, 6, 1, 1, 1, 0, 0, 6, 1, 1, 1 ]
+  }, {
+    "windowIndex" : 7,
+    "n" : 1000,
+    "rejectionThreshold2pow64ModN" : "616",
+    "first16" : [ 729, 509, 994, 479, 766, 631, 303, 592, 443, 105, 229, 805, 501, 452, 496, 976 ]
+  }, {
+    "windowIndex" : 7,
+    "n" : 2147483647,
+    "rejectionThreshold2pow64ModN" : "4",
+    "first16" : [ 1827126641, 287424778, 1751856033, 752596068, 2002042998, 56118792, 1745912544, 1392359023, 473657489, 532813422, 1966459339, 321876307, 2086132129, 666538032, 1638499480, 2081160744 ]
+  } ],
+  "lowerMedian" : [ {
+    "values" : [ 3.0, 1.0, 2.0, 1.0 ],
+    "position" : 3,
+    "value" : 1.0
+  }, {
+    "values" : [ 5.0 ],
+    "position" : 0,
+    "value" : 5.0
+  }, {
+    "values" : [ 2.0, 2.0, 2.0, 2.0, 2.0 ],
+    "position" : 2,
+    "value" : 2.0
+  }, {
+    "values" : [ 9.0, 8.0, 7.0, 6.0, 5.0, 4.0 ],
+    "position" : 3,
+    "value" : 6.0
+  }, {
+    "values" : [ 0.5, -1.5, 0.5, 2.5 ],
+    "position" : 0,
+    "value" : 0.5
+  } ],
+  "kahanSum" : [ {
+    "values" : [ 1.0E16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0E16 ],
+    "sum" : 10.0
+  }, {
+    "values" : [ 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ],
+    "sum" : 1.0
+  } ],
+  "jacobi3" : [ {
+    "matrix" : [ [ 4.0, 1.0, 0.5 ], [ 1.0, 3.0, 0.2 ], [ 0.5, 0.2, 2.0 ] ],
+    "sweeps" : 3,
+    "eigenvalues" : [ 4.721570077747949, 2.3983430193369975, 1.8800869029150529 ],
+    "eigenvectors" : [ [ 0.8388647614682249, 0.5095210652088142, 0.19155729188765627 ], [ -0.48194966042618037, 0.858797174672029, -0.17375827344454675 ], [ -0.2530423616352543, 0.05343872082877573, 0.965978191438211 ] ]
+  }, {
+    "matrix" : [ [ 2.0, 0.0, 0.0 ], [ 0.0, 2.0, 0.0 ], [ 0.0, 0.0, 1.0 ] ],
+    "sweeps" : 0,
+    "eigenvalues" : [ 2.0, 2.0, 1.0 ],
+    "eigenvectors" : [ [ 1.0, 0.0, 0.0 ], [ 0.0, 1.0, 0.0 ], [ 0.0, 0.0, 1.0 ] ]
+  }, {
+    "matrix" : [ [ 1.5, 0.0, 0.8 ], [ 0.0, 0.0, 0.0 ], [ 0.8, 0.0, 0.9 ] ],
+    "sweeps" : 1,
+    "eigenvalues" : [ 2.0544003745317534, 0.34559962546824685, 0.0 ],
+    "eigenvectors" : [ [ 0.8219256175556251, 0.0, 0.5695948377626013 ], [ -0.5695948377626013, 0.0, 0.8219256175556251 ], [ 0.0, 1.0, 0.0 ] ]
+  }, {
+    "matrix" : [ [ 0.0, 0.0, 0.0 ], [ 0.0, 0.0, 0.0 ], [ 0.0, 0.0, 0.0 ] ],
+    "sweeps" : 0,
+    "eigenvalues" : [ 0.0, 0.0, 0.0 ],
+    "eigenvectors" : [ [ 1.0, 0.0, 0.0 ], [ 0.0, 1.0, 0.0 ], [ 0.0, 0.0, 1.0 ] ]
+  } ]
+}

@@ -1,0 +1,821 @@
+{
+  "vectorSet" : "conformance",
+  "version" : "1.0.0",
+  "algorithmSpec" : "algorithm-spec.md (spec version 1.0)",
+  "scope" : "Tier A and shared math only. Adapters, platform depth resolution and confidence mapping and tier B algorithms are excluded.",
+  "fileFormats" : {
+    "depth.f32" : "Float32 little-endian, row-major, width*height values, metres; NaN is invalid.",
+    "confidence.f32" : "Float32 little-endian, row-major, normalised 0..1."
+  },
+  "tolerancePolicy" : "1 mm (and 0.002 rad) for noise-free scenes, 3 mm (and 0.006 rad) for noisy scenes; counts and enums match exactly (design 24 item 5).",
+  "vectors" : [ {
+    "id" : "P01-primitives",
+    "kind" : "primitives",
+    "category" : "noise-free",
+    "input" : "primitives.json",
+    "tolerances" : {
+      "splitmix64" : {
+        "match" : "exact"
+      },
+      "windowSeed" : {
+        "match" : "exact"
+      },
+      "boundedInt" : {
+        "match" : "exact"
+      },
+      "lowerMedian" : {
+        "match" : "exact"
+      },
+      "kahanSum.sum" : {
+        "match" : "abs",
+        "value" : 0.0,
+        "unit" : "none, bit-exact Float64"
+      },
+      "jacobi3.sweeps" : {
+        "match" : "exact"
+      },
+      "jacobi3.eigenvalues" : {
+        "match" : "abs",
+        "value" : 1.0E-9,
+        "unit" : "none"
+      },
+      "jacobi3.eigenvectors" : {
+        "match" : "abs",
+        "value" : 1.0E-9,
+        "unit" : "none"
+      }
+    }
+  }, {
+    "id" : "S01-box-60x40x30-64x48",
+    "kind" : "scene",
+    "category" : "noise-free",
+    "input" : "scenes/S01-box-60x40x30-64x48/input.json",
+    "expected" : "scenes/S01-box-60x40x30-64x48/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.002,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "S02-box-60x40x30-128x96",
+    "kind" : "scene",
+    "category" : "noise-free",
+    "input" : "scenes/S02-box-60x40x30-128x96/input.json",
+    "expected" : "scenes/S02-box-60x40x30-128x96/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.002,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "S03-box-30x20x10-64x48",
+    "kind" : "scene",
+    "category" : "noise-free",
+    "input" : "scenes/S03-box-30x20x10-64x48/input.json",
+    "expected" : "scenes/S03-box-30x20x10-64x48/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.002,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "S04-box-100x50x60-128x96",
+    "kind" : "scene",
+    "category" : "noise-free",
+    "input" : "scenes/S04-box-100x50x60-128x96/input.json",
+    "expected" : "scenes/S04-box-100x50x60-128x96/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.002,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.001,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "N01-box-60x40x30-64x48-seed1",
+    "kind" : "scene",
+    "category" : "noisy",
+    "input" : "scenes/N01-box-60x40x30-64x48-seed1/input.json",
+    "expected" : "scenes/N01-box-60x40x30-64x48-seed1/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.006,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "N02-box-60x40x30-128x96-seed4",
+    "kind" : "scene",
+    "category" : "noisy",
+    "input" : "scenes/N02-box-60x40x30-128x96-seed4/input.json",
+    "expected" : "scenes/N02-box-60x40x30-128x96-seed4/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.006,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "N03-box-30x20x10-64x48-seed3",
+    "kind" : "scene",
+    "category" : "noisy",
+    "input" : "scenes/N03-box-30x20x10-64x48-seed3/input.json",
+    "expected" : "scenes/N03-box-30x20x10-64x48-seed3/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.006,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "N04-box-100x50x60-128x96-seed2",
+    "kind" : "scene",
+    "category" : "noisy",
+    "input" : "scenes/N04-box-100x50x60-128x96-seed2/input.json",
+    "expected" : "scenes/N04-box-100x50x60-128x96-seed2/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.006,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "N05-box-60x40x30-64x48-dropouts",
+    "kind" : "scene",
+    "category" : "noisy",
+    "input" : "scenes/N05-box-60x40x30-64x48-dropouts/input.json",
+    "expected" : "scenes/N05-box-60x40x30-64x48-dropouts/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      },
+      "supportPlaneY" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.centerWorld[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.halfExtentsM[0..2]" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "obb.yawRad" : {
+        "match" : "abs",
+        "value" : 0.006,
+        "unit" : "rad, compared modulo pi"
+      },
+      "dimensions.lengthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.widthM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      },
+      "dimensions.heightM" : {
+        "match" : "abs",
+        "value" : 0.003,
+        "unit" : "m"
+      }
+    }
+  }, {
+    "id" : "D01-floor-only",
+    "kind" : "scene",
+    "category" : "degenerate",
+    "input" : "scenes/D01-floor-only/input.json",
+    "expected" : "scenes/D01-floor-only/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      }
+    }
+  }, {
+    "id" : "D02-all-invalid-depth",
+    "kind" : "scene",
+    "category" : "degenerate",
+    "input" : "scenes/D02-all-invalid-depth/input.json",
+    "expected" : "scenes/D02-all-invalid-depth/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      }
+    }
+  }, {
+    "id" : "D03-low-confidence",
+    "kind" : "scene",
+    "category" : "degenerate",
+    "input" : "scenes/D03-low-confidence/input.json",
+    "expected" : "scenes/D03-low-confidence/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      }
+    }
+  }, {
+    "id" : "D04-sparse-30-pixels",
+    "kind" : "scene",
+    "category" : "degenerate",
+    "input" : "scenes/D04-sparse-30-pixels/input.json",
+    "expected" : "scenes/D04-sparse-30-pixels/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      }
+    }
+  }, {
+    "id" : "D05-wall-only",
+    "kind" : "scene",
+    "category" : "degenerate",
+    "input" : "scenes/D05-wall-only/input.json",
+    "expected" : "scenes/D05-wall-only/expected.json",
+    "tolerances" : {
+      "status" : {
+        "match" : "exact"
+      },
+      "counts.validPixels" : {
+        "match" : "exact"
+      },
+      "counts.supportPlaneInliers" : {
+        "match" : "exact"
+      },
+      "counts.objectPoints" : {
+        "match" : "exact"
+      }
+    }
+  } ],
+  "files" : [ {
+    "path" : "primitives.json",
+    "sha256" : "bd9b3fba0e9e4dba011c1a90c93b29596825418e9246252fcc3ddc833e80b705",
+    "bytes" : 4076
+  }, {
+    "path" : "scenes/D01-floor-only/depth.f32",
+    "sha256" : "c7b173b61d25739ef3b6c71436f42b9627e8429185e5153892b82f6962bd74cf",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/D01-floor-only/expected.json",
+    "sha256" : "9208be40c766f68be2fecc265165c77918c86ee2abb4713c46adf449b43c8d05",
+    "bytes" : 132
+  }, {
+    "path" : "scenes/D01-floor-only/input.json",
+    "sha256" : "ac535edf118661ca12726c76f2bc3ab9867cd4df85b73af6f9d125b56e4d7c5e",
+    "bytes" : 560
+  }, {
+    "path" : "scenes/D02-all-invalid-depth/depth.f32",
+    "sha256" : "034b6bc7aeaae988938623092738e9c5c099177e5e2e8793e628673333cdfc14",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/D02-all-invalid-depth/expected.json",
+    "sha256" : "b18ac2d49b18e8654d0bb4fe2f4841024d927ae687128c51eecd797679651559",
+    "bytes" : 306
+  }, {
+    "path" : "scenes/D02-all-invalid-depth/input.json",
+    "sha256" : "8bdbabc28b3c4e49714dc5a9862fa6d54dfcd6f1e4782a9301d39137c8372d91",
+    "bytes" : 568
+  }, {
+    "path" : "scenes/D03-low-confidence/depth.f32",
+    "sha256" : "ab100db3f2d01b8f6e87628f6c61203e04f3a3c0c4a8fa3b016f3fbbc1fd64d5",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/D03-low-confidence/expected.json",
+    "sha256" : "b18ac2d49b18e8654d0bb4fe2f4841024d927ae687128c51eecd797679651559",
+    "bytes" : 306
+  }, {
+    "path" : "scenes/D03-low-confidence/input.json",
+    "sha256" : "ae75906198cf4c00947a3ccc933fd1e6c79216ae7862d255e5c279ebf1e7d0c2",
+    "bytes" : 610
+  }, {
+    "path" : "scenes/D04-sparse-30-pixels/depth.f32",
+    "sha256" : "564182bcc13d14872f6f9add8c82ca2c537005cf3879babb7da4566b717799f7",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/D04-sparse-30-pixels/expected.json",
+    "sha256" : "84c8d7ee0e8eb2236a0a1a146af760220a4368d44da2e281403b015e45bf6034",
+    "bytes" : 307
+  }, {
+    "path" : "scenes/D04-sparse-30-pixels/input.json",
+    "sha256" : "210c5a1e929d089ef0f1f6c3df2e6fa062550213a93db9860eb8164c42b66980",
+    "bytes" : 595
+  }, {
+    "path" : "scenes/D05-wall-only/depth.f32",
+    "sha256" : "5fa8c9eed1326f5e7f922b5d661a1fbee5e87bc0faa36557d48d57eacd484e4c",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/D05-wall-only/expected.json",
+    "sha256" : "cfd81ffcfb1143e049760bf675a4abfacd5d6f40e57080ade63805bb4273acb5",
+    "bytes" : 138
+  }, {
+    "path" : "scenes/D05-wall-only/input.json",
+    "sha256" : "82f2682d75a90a9e1c86a1a7b6910f72afeb99804efbd08e6421ebdb7bb95f5e",
+    "bytes" : 479
+  }, {
+    "path" : "scenes/N01-box-60x40x30-64x48-seed1/depth.f32",
+    "sha256" : "0713a29e9d4876fe60f86b3146816f86b98752592c56d8d552f114ae2565bfb2",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/N01-box-60x40x30-64x48-seed1/expected.json",
+    "sha256" : "4404d158013c15b983d86521d5f3cb62b30810dcc4b0c5acd3f99a36b2d64f22",
+    "bytes" : 596
+  }, {
+    "path" : "scenes/N01-box-60x40x30-64x48-seed1/input.json",
+    "sha256" : "4e64b5f74b7991381f3b573bc3e4ad7fbc8b7f2ab05b1550282d15fc180e5f99",
+    "bytes" : 577
+  }, {
+    "path" : "scenes/N02-box-60x40x30-128x96-seed4/depth.f32",
+    "sha256" : "0d8a69b992fe7cdacde7e54f4aeefc466339d8d4ad33cf441904c0c30707ae48",
+    "bytes" : 49152
+  }, {
+    "path" : "scenes/N02-box-60x40x30-128x96-seed4/expected.json",
+    "sha256" : "ac4bf4b6e83b860b5614de15790f6617fc1a05535b660d5ad3054aa1fcc99dba",
+    "bytes" : 603
+  }, {
+    "path" : "scenes/N02-box-60x40x30-128x96-seed4/input.json",
+    "sha256" : "d15cedaa3cd9740bc5d603694f0d818b4d8c6fc4d50da6683962d78c27c63408",
+    "bytes" : 580
+  }, {
+    "path" : "scenes/N03-box-30x20x10-64x48-seed3/depth.f32",
+    "sha256" : "54a1c1fd4809edca2fcfcce3a181dbf9bda6279596996157d35a500c962e4179",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/N03-box-30x20x10-64x48-seed3/expected.json",
+    "sha256" : "08ec6251b05542449ef4031f460f15a42d9231d33aacd5393b1645a3bada117f",
+    "bytes" : 606
+  }, {
+    "path" : "scenes/N03-box-30x20x10-64x48-seed3/input.json",
+    "sha256" : "b793322aa54b1d62d1a1a271af56d5c6ac4f64225f50e39e0d6acded7cabf92d",
+    "bytes" : 575
+  }, {
+    "path" : "scenes/N04-box-100x50x60-128x96-seed2/depth.f32",
+    "sha256" : "4b2d418a6a95fd52c7cebde5bc62cc2dc5f339159a4ce8effea99b41e6bede68",
+    "bytes" : 49152
+  }, {
+    "path" : "scenes/N04-box-100x50x60-128x96-seed2/expected.json",
+    "sha256" : "9af587ea7bf8210ea96d29aa0d6c99523f39176f88f92f6aea70d98b66e724ea",
+    "bytes" : 600
+  }, {
+    "path" : "scenes/N04-box-100x50x60-128x96-seed2/input.json",
+    "sha256" : "ea10282d1797ce6f00dccd4d21006bb99eb9d42b65a78336ab5595099634ba16",
+    "bytes" : 585
+  }, {
+    "path" : "scenes/N05-box-60x40x30-64x48-dropouts/confidence.f32",
+    "sha256" : "41beeb87cb54ccde80aadeba36f75f979d91268c350c2c6f525f00b31fb8b7b5",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/N05-box-60x40x30-64x48-dropouts/depth.f32",
+    "sha256" : "887bba49fcfa241e61e16a5808b73906f62ef1236d0d4c98fb30dc48d4c05134",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/N05-box-60x40x30-64x48-dropouts/expected.json",
+    "sha256" : "0bb9ca0fb7a7f4c6e8a9c23ceb103e0fa1f7a3f763c7bd2532aa453ca3187a45",
+    "bytes" : 598
+  }, {
+    "path" : "scenes/N05-box-60x40x30-64x48-dropouts/input.json",
+    "sha256" : "23315ee3baadba08cfd7191f045c58ca4402a87be203020098f1dfe15ef3f58c",
+    "bytes" : 626
+  }, {
+    "path" : "scenes/S01-box-60x40x30-64x48/depth.f32",
+    "sha256" : "ab100db3f2d01b8f6e87628f6c61203e04f3a3c0c4a8fa3b016f3fbbc1fd64d5",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/S01-box-60x40x30-64x48/expected.json",
+    "sha256" : "61b908eb822306141c594a1ea1a055e8a0f8dca466dda32724d80716b921a8bf",
+    "bytes" : 600
+  }, {
+    "path" : "scenes/S01-box-60x40x30-64x48/input.json",
+    "sha256" : "e364930f1e96cd7e4720e682c7c7839c3140bb22aa51e481072aaaf786838f76",
+    "bytes" : 575
+  }, {
+    "path" : "scenes/S02-box-60x40x30-128x96/depth.f32",
+    "sha256" : "5654e80f8d8dc1ab189e77b6e1db595b3c348839f25096ac783e5621cf425880",
+    "bytes" : 49152
+  }, {
+    "path" : "scenes/S02-box-60x40x30-128x96/expected.json",
+    "sha256" : "4d8ac26afdc443c740f6edd56a72c6cc69cec7df754e3478bf5ed39ec88b29db",
+    "bytes" : 602
+  }, {
+    "path" : "scenes/S02-box-60x40x30-128x96/input.json",
+    "sha256" : "8ccbcb0bbb525f138aed68e1b87b0498509336451f4b3acd9f6f453fbedd5627",
+    "bytes" : 577
+  }, {
+    "path" : "scenes/S03-box-30x20x10-64x48/depth.f32",
+    "sha256" : "8185eba30e170640b97e2c75d4c96b5d170541efc692a4860491b2c6403bdb75",
+    "bytes" : 12288
+  }, {
+    "path" : "scenes/S03-box-30x20x10-64x48/expected.json",
+    "sha256" : "b92b4b410be280675af86483efa39980dc6fb3acef33570e1ba8a691652947e1",
+    "bytes" : 605
+  }, {
+    "path" : "scenes/S03-box-30x20x10-64x48/input.json",
+    "sha256" : "c74f4673968292ba8725db9480c83426822d8f3831336463c149f99945958456",
+    "bytes" : 562
+  }, {
+    "path" : "scenes/S04-box-100x50x60-128x96/depth.f32",
+    "sha256" : "e86af26bcc69e585982957f8b87d8f39889f04d7043f5ac8273a275d5b050107",
+    "bytes" : 49152
+  }, {
+    "path" : "scenes/S04-box-100x50x60-128x96/expected.json",
+    "sha256" : "887b3f5e99fc3ef330624e143678a200c3e85380d05180d1ba9a5963025b7431",
+    "bytes" : 580
+  }, {
+    "path" : "scenes/S04-box-100x50x60-128x96/input.json",
+    "sha256" : "e808c0361b5ec33c5bdf3d8f2a63c81d1819208eca23cbf70293779b1eba6829",
+    "bytes" : 571
+  } ]
+}

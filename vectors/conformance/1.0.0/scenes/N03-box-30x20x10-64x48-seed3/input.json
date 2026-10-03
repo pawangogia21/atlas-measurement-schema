@@ -1,0 +1,18 @@
+{
+  "description" : "S03 with seeded Gaussian depth noise, sigma = sigmaZ(z), seed 3.",
+  "category" : "noisy",
+  "width" : 64,
+  "height" : 48,
+  "depthFile" : "depth.f32",
+  "confidence" : {
+    "constant" : 1.0
+  },
+  "depthIntrinsics" : {
+    "fx" : 57.6,
+    "fy" : 57.6,
+    "cx" : 31.5,
+    "cy" : 23.5
+  },
+  "poseCameraToWorldRowMajor" : [ 0.9635179096299405, -0.19996916812873025, 0.177892016741205, 0.2, 0.0, 0.6646594254945416, 0.747146470313061, 1.1, -0.26764386378609456, -0.719889005263429, 0.6404112602683381, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+  "windowIndex" : 1
+}

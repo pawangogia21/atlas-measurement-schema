@@ -1,0 +1,18 @@
+{
+  "description" : "Floor only, no object: status NO_OBJECT.",
+  "category" : "degenerate",
+  "width" : 64,
+  "height" : 48,
+  "depthFile" : "depth.f32",
+  "confidence" : {
+    "constant" : 1.0
+  },
+  "depthIntrinsics" : {
+    "fx" : 57.6,
+    "fy" : 57.6,
+    "cx" : 31.5,
+    "cy" : 23.5
+  },
+  "poseCameraToWorldRowMajor" : [ 0.9980525784828886, 0.03928909191215803, -0.048450158311150925, 0.0, -0.0, 0.7767151247249702, 0.629852058044962, 1.3, 0.06237828615518054, -0.6286254705945284, 0.7752025329784148, 0.4, 0.0, 0.0, 0.0, 1.0 ],
+  "windowIndex" : 1
+}

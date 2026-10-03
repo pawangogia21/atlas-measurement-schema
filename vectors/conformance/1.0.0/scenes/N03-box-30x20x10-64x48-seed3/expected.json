@@ -1,0 +1,25 @@
+{
+  "status" : "OK",
+  "counts" : {
+    "validPixels" : 3072,
+    "supportPlaneInliers" : 2964,
+    "objectPoints" : 108
+  },
+  "supportPlaneY" : -1.03231454E-4,
+  "obb" : {
+    "centerWorld" : [ -0.048909962, 0.053863008, -0.8984851 ],
+    "halfExtentsM" : [ 0.15081097, 0.05396624, 0.10201594 ],
+    "yawRad" : -0.6401093
+  },
+  "dimensions" : {
+    "lengthM" : 0.30162194,
+    "widthM" : 0.20403188,
+    "heightM" : 0.10793248
+  },
+  "truth" : {
+    "note" : "Analytic ground truth of the rendered box. Informational, never compared.",
+    "lengthM" : 0.3,
+    "widthM" : 0.2,
+    "heightM" : 0.1
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status" : "INSUFFICIENT_POINTS",
+  "counts" : {
+    "validPixels" : 0,
+    "supportPlaneInliers" : 0,
+    "objectPoints" : 0
+  },
+  "truth" : {
+    "note" : "Analytic ground truth of the rendered box. Informational, never compared.",
+    "lengthM" : 0.6,
+    "widthM" : 0.4,
+    "heightM" : 0.3
+  }
+}

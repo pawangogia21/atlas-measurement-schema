@@ -1,0 +1,8 @@
+{
+  "status" : "NO_SUPPORT_PLANE",
+  "counts" : {
+    "validPixels" : 3072,
+    "supportPlaneInliers" : 192,
+    "objectPoints" : 0
+  }
+}
