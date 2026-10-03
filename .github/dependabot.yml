@@ -1,0 +1,11 @@
+# AT-16 S9: actions are pinned to commit SHAs and quicktype to a lockfile; Dependabot proposes the bumps as reviewed pull requests.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /swift/quicktype
+    schedule:
+      interval: weekly
