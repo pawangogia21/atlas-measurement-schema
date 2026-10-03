@@ -4,15 +4,15 @@
   "toleranceProfileVersion" : "1.0.0",
   "files" : [ {
     "path" : "boundary/1.0.0/manifest.json",
-    "sha256" : "ccfdf33cc5deb30f50bea68c12dcf5c4ca0938865d5316721ded19b0b8f89c16",
-    "bytes" : 404
+    "sha256" : "8c6f2cbdcfd562064bc05eb080fe02be9818275d02663c43e3389303f14459af",
+    "bytes" : 405
   }, {
     "path" : "conformance/1.0.0/manifest.json",
     "sha256" : "745b764000d349c43315c047e0ee45270195d2a81f28c4fe7683b941f166760f",
     "bytes" : 23040
   }, {
     "path" : "negative/1.0.0/manifest.json",
-    "sha256" : "bd1dbc1c059cc15e071d9308fa7dd6add31c24ce455fbf44f93a049ef6414524",
-    "bytes" : 49052
+    "sha256" : "725e6719dcaf99ed41f2ffb1febb05ea1aadf0717efee40dcd3ca89f6a697367",
+    "bytes" : 59891
   } ]
 }

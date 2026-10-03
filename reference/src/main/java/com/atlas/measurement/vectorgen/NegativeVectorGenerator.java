@@ -27,7 +27,9 @@ import java.util.function.Consumer;
  * does not reject a vector or its error does not contain the recorded token, so every vector is rejected for
  * the reason it states. Kinds: {@code liveMeasurement}, {@code clientCapture}, {@code batch} (the whole request
  * is 422) and {@code batchItems} (a valid envelope: per-item results, the expected code of each item or
- * {@code VALID} in {@code expectedItems}). Error tokens are the fixed texts of the validator (keyword and instance
+ * {@code VALID} in {@code expectedItems}, and the text each invalid item's errors must contain in
+ * {@code expectedItemErrorContains}) and {@code hintsComplete} (the {@code clientMeasurements} array of
+ * {@code uploads/complete}: never rejects the upload, see {@code validateCompleteHints}). Error tokens are the fixed texts of the validator (keyword and instance
  * path, never a client value). Oversized-body vectors are built from whitespace or one long string so they stay
  * small; the 21-million-character string of the security review is the same rule at a larger size.
  * Usage: {@code NegativeVectorGenerator <outDir>} (release layout vectors/negative/<version>/).
@@ -75,7 +77,7 @@ public final class NegativeVectorGenerator {
         Map<String, Object> manifest = new LinkedHashMap<>();
         manifest.put("vectorSet", "negative");
         manifest.put("version", VERSION);
-        manifest.put("description", "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).");
+        manifest.put("description", "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems, and the text each invalid item's errors must contain in expectedItemErrorContains) and kind hintsComplete (the clientMeasurements array of uploads/complete: the upload is never rejected, a body-level violation drops all hints and an item-level one only that item, with the warning CLIENT_HINTS_DROPPED in expectedWarnings). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).");
         manifest.put("vectors", vectors);
         List<Object> list = new ArrayList<>();
         for (Map.Entry<String, byte[]> e : files.entrySet()) {
@@ -227,11 +229,11 @@ public final class NegativeVectorGenerator {
                 "a batch body over 409600 characters is refused as a whole", "{\"items\":[]}" + " ".repeat(ClientMeasurementValidator.MAX_BATCH_CHARS));
         batchItems("batch-item-depth-9", "an item nested 9 levels deep (within the transport ceiling) is INVALID on its own; the other items are processed",
                 "{\"items\":[" + good + "," + example("live-measurement-point-to-point.json").set("x", nested(8)) + "," + good + "]}",
-                "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID");
+                items("VALID", "CLIENT_MEASUREMENT_INVALID", "VALID"), items("", "JSON depth above 8", ""));
         ObjectNode future = good.deepCopy();
         future.put("schemaVersion", "2.0");
         batchItems("batch-item-schema-version-unsupported", "an item with an unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED, not persisted (the Kit retries after an update)",
-                "{\"items\":[" + good + "," + future + "]}", "VALID", "CLIENT_SCHEMA_UNSUPPORTED");
+                "{\"items\":[" + good + "," + future + "]}", items("VALID", "CLIENT_SCHEMA_UNSUPPORTED"), items("", "schemaVersion is not supported"));
 
         // a valid envelope: each item is judged on its own and a bad one does not fail the batch
         ObjectNode unknownField = good.deepCopy();
@@ -242,29 +244,123 @@ public final class NegativeVectorGenerator {
         other.put("clientMeasurementId", "9a0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d");
         String body = "{\"items\":[" + good + "," + unknownField + "," + other + "," + badEnum + "]}";
         batchItems("batch-per-item-rejection", "valid envelope, items 2 and 4 are invalid: the batch is answered per item (INVALID) and the valid items are processed",
-                body, "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID");
+                body, items("VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID"),
+                items("", "additionalProperties at $", "", "enum at $.depthTier"));
+        hintsCompleteVectors(good);
     }
 
-    /** A batchItems vector: {@code expected} is the code of each item, or VALID. The reference must agree. */
-    private void batchItems(String id, String reason, String body, String... expected) throws IOException {
+    private static String[] items(String... values) {
+        return values;
+    }
+
+    /**
+     * A batchItems vector: {@code expected} is the code of each item, or VALID; {@code tokens} the text each invalid item's
+     * errors must contain ("" for a valid item), so an item is rejected for the stated reason and not for another one that
+     * happens to hold too. The reference must agree with both.
+     */
+    private void batchItems(String id, String reason, String body, String[] expected, String[] tokens) throws IOException {
         ClientMeasurementValidator.BatchResult results = validator.validateBatchItems(body);
-        if (!results.accepted() || results.items.size() != expected.length) {
+        if (!results.accepted() || results.items.size() != expected.length || tokens.length != expected.length) {
             throw new IllegalStateException(id + ": request refused or wrong item count: " + results.request.errors);
         }
-        for (int i = 0; i < expected.length; i++) {
-            String actual = results.items.get(i).valid() ? "VALID" : results.items.get(i).code;
-            if (!actual.equals(expected[i])) {
-                throw new IllegalStateException(id + ": item " + i + " is " + actual + ", intended " + expected[i] + " " + results.items.get(i).errors);
-            }
-        }
+        checkItems(id, results.items, expected, tokens);
         Map<String, Object> v = new LinkedHashMap<>();
         v.put("id", id);
         v.put("kind", "batchItems");
         v.put("path", id + ".json");
         v.put("reason", reason);
         v.put("expectedItems", List.of(expected));
+        v.put("expectedItemErrorContains", List.of(tokens));
         vectors.add(v);
         files.put(id + ".json", json(MAPPER.readTree(body)));
+    }
+
+    private static void checkItems(String id, List<Result> actualItems, String[] expected, String[] tokens) {
+        for (int i = 0; i < expected.length; i++) {
+            Result r = actualItems.get(i);
+            String actual = r.valid() ? "VALID" : r.code;
+            if (!actual.equals(expected[i])) {
+                throw new IllegalStateException(id + ": item " + i + " is " + actual + ", intended " + expected[i] + " " + r.errors);
+            }
+            if (!String.join("\n", r.errors).contains(tokens[i])) {
+                throw new IllegalStateException(id + ": item " + i + " has no error containing '" + tokens[i] + "': " + r.errors);
+            }
+        }
+    }
+
+    // ---- uploads/complete: clientMeasurements (validateCompleteHints) ---------------------------------------------
+
+    /**
+     * The upload itself is never rejected for bad hints: a body-level violation drops all hints, an item-level one only that
+     * item, and either way the response is 202 VALIDATING with CLIENT_HINTS_DROPPED.
+     */
+    private void hintsCompleteVectors(ObjectNode good) throws IOException {
+        ObjectNode badEnum = good.deepCopy();
+        badEnum.put("depthTier", "E");
+        ObjectNode future = good.deepCopy();
+        future.put("schemaVersion", "2.0");
+        ObjectNode deep = good.deepCopy();
+        deep.set("x", nested(8));
+        String fifty = "[" + "{},".repeat(49) + "{}]";
+        String[] fiftyCodes = new String[50];
+        String[] fiftyTokens = new String[50];
+        java.util.Arrays.fill(fiftyCodes, "CLIENT_MEASUREMENT_INVALID");
+        java.util.Arrays.fill(fiftyTokens, "required at $");
+        hintsComplete("hints-complete-all-valid", "valid hints: nothing is dropped and there is no warning",
+                "[" + good + "]", null, items("VALID"), items(""));
+        hintsComplete("hints-complete-empty-array", "an empty clientMeasurements array is fine: nothing to drop, no warning", "[]", null, items(), items());
+        hintsComplete("hints-complete-item-dropped", "one invalid item is dropped on its own, the others are kept, the upload is accepted with CLIENT_HINTS_DROPPED",
+                "[" + good + "," + badEnum + "," + good + "]", null, items("VALID", "CLIENT_MEASUREMENT_INVALID", "VALID"), items("", "enum at $.depthTier", ""));
+        hintsComplete("hints-complete-item-schema-unsupported", "an item with an unsupported schemaVersion is dropped with CLIENT_SCHEMA_UNSUPPORTED",
+                "[" + future + "]", null, items("CLIENT_SCHEMA_UNSUPPORTED"), items("schemaVersion is not supported"));
+        hintsComplete("hints-complete-item-depth-9", "an item nested 9 levels deep is dropped on its own (the body is within the transport ceiling of 32)",
+                "[" + good + "," + deep + "]", null, items("VALID", "CLIENT_MEASUREMENT_INVALID"), items("", "JSON depth above 8"));
+        hintsComplete("hints-complete-item-not-an-object", "an array element that is not an object is dropped", "[1]", null,
+                items("CLIENT_MEASUREMENT_INVALID"), items("batch item must be a JSON object"));
+        hintsComplete("hints-complete-50-items", "50 items is the limit: the body is accepted and each item is judged on its own", fifty, null, fiftyCodes, fiftyTokens);
+        hintsComplete("hints-complete-51-items", "51 items: a body-level violation, all hints are dropped, the upload is still accepted",
+                "[" + "{},".repeat(50) + "{}]", "at most 50", items(), items());
+        hintsComplete("hints-complete-not-an-array", "clientMeasurements that is not an array: all hints are dropped", "{\"a\":1}", "must be an array", items(), items());
+        hintsComplete("hints-complete-body-depth-33", "a body nested deeper than the transport ceiling of 32: all hints are dropped",
+                "[" + good + ",{\"x\":" + "[".repeat(40) + "]".repeat(40) + "}]", "JSON depth above 32", items(), items());
+        hintsComplete("hints-complete-duplicate-key", "a duplicate object key anywhere: all hints are dropped",
+                "[" + good.toString().replaceFirst("\\{", "{\"mode\":\"x\",") + "]", "duplicate object key", items(), items());
+        hintsComplete("hints-complete-not-json", "not JSON: all hints are dropped, the upload is still accepted", "[", "not valid JSON", items(), items());
+    }
+
+    /**
+     * A hintsComplete vector: the payload is the clientMeasurements array. {@code requestToken} is the text of the body-level error
+     * when all hints are dropped (null: the body is accepted and each item is judged on its own).
+     */
+    private void hintsComplete(String id, String reason, String body, String requestToken, String[] expected, String[] tokens) throws IOException {
+        ClientMeasurementValidator.HintsResult r = validator.validateCompleteHints(body);
+        boolean allDropped = requestToken != null;
+        if (r.allDropped() != allDropped || (allDropped && !String.join("\n", r.request.errors).contains(requestToken))) {
+            throw new IllegalStateException(id + ": body-level result differs from the intended one: " + r.request.errors);
+        }
+        if (r.items.size() != expected.length || tokens.length != expected.length) {
+            throw new IllegalStateException(id + ": wrong item count " + r.items.size());
+        }
+        checkItems(id, r.items, expected, tokens);
+        boolean dropped = allDropped || java.util.Arrays.stream(expected).anyMatch(e -> !e.equals("VALID"));
+        if (!r.warnings().equals(dropped ? List.of(ClientMeasurementValidator.WARNING_HINTS_DROPPED) : List.of())) {
+            throw new IllegalStateException(id + ": warnings " + r.warnings());
+        }
+        Map<String, Object> v = new LinkedHashMap<>();
+        v.put("id", id);
+        v.put("kind", "hintsComplete");
+        v.put("path", id + ".json");
+        v.put("reason", reason);
+        v.put("expectedUploadRejected", false);
+        v.put("expectedAllHintsDropped", allDropped);
+        if (allDropped) {
+            v.put("expectedRequestErrorContains", requestToken);
+        }
+        v.put("expectedItems", List.of(expected));
+        v.put("expectedItemErrorContains", List.of(tokens));
+        v.put("expectedWarnings", r.warnings());
+        vectors.add(v);
+        files.put(id + ".json", (body + "\n").getBytes(StandardCharsets.UTF_8));
     }
 
     // ---- numeric limits (F1, F6, S8), geometry (F3), parser strictness and limits (S6, S7) -----------------------
@@ -312,6 +408,8 @@ public final class NegativeVectorGenerator {
                 n -> ((ArrayNode) n.get("geometry").get("endpointsWorld").get(0)).set(0, MAPPER.getNodeFactory().numberNode(100001)), false);
         plane("plane-normal-not-unit", "the plane normal must have unit length within 1e-3", "unitLength",
                 n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(0.9).add(0));
+        plane("plane-normal-length-0.9989", "the plane normal length may differ from 1 by at most 1e-3: 0.9989 is just outside (0.9991 is accepted, see the examples)", "unitLength",
+                n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(0.9989).add(0));
         plane("plane-normal-zero-length", "a zero-length plane normal is not a plane", "unitLength",
                 n -> ((ObjectNode) n.get("geometry").get("plane")).putArray("normalWorld").add(0).add(0).add(0));
         plane("plane-normal-component-over-1", "a unit vector has components within -1..1", "maximum",

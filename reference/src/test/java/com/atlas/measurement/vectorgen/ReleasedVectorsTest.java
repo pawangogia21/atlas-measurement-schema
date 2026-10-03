@@ -118,10 +118,20 @@ class ReleasedVectorsTest {
             if (kind.equals("batchItems")) {
                 ClientMeasurementValidator.BatchResult r = validator.validateBatchItems(payload);
                 assertThat(r.accepted()).as(id).isTrue();
-                assertThat(r.items).as(id).hasSize(v.get("expectedItems").size());
-                for (int i = 0; i < r.items.size(); i++) {
-                    assertThat(r.items.get(i).valid() ? "VALID" : r.items.get(i).code).as(id + "[" + i + "]").isEqualTo(v.get("expectedItems").get(i).asText());
+                assertItems(id, r.items, v);
+                continue;
+            }
+            if (kind.equals("hintsComplete")) {
+                ClientMeasurementValidator.HintsResult r = validator.validateCompleteHints(payload);
+                assertThat(v.get("expectedUploadRejected").asBoolean()).as(id).isFalse();
+                assertThat(r.allDropped()).as(id).isEqualTo(v.get("expectedAllHintsDropped").asBoolean());
+                if (r.allDropped()) {
+                    assertThat(String.join("\n", r.request.errors)).as(id).contains(v.get("expectedRequestErrorContains").asText());
                 }
+                assertItems(id, r.items, v);
+                List<String> warnings = new java.util.ArrayList<>();
+                v.get("expectedWarnings").forEach(w -> warnings.add(w.asText()));
+                assertThat(r.warnings()).as(id).isEqualTo(warnings);
                 continue;
             }
             ClientMeasurementValidator.Result r = kind.equals("clientCapture") ? validator.validateClientCapture(payload)
@@ -133,6 +143,17 @@ class ReleasedVectorsTest {
         assertThat(count).isGreaterThanOrEqualTo(100);
     }
 
+    /** Each item's code and, so that it is rejected for the stated reason and not another one, the text of its errors. */
+    private static void assertItems(String id, List<ClientMeasurementValidator.Result> items, JsonNode v) {
+        assertThat(items).as(id).hasSize(v.get("expectedItems").size());
+        assertThat(v.get("expectedItemErrorContains")).as(id).hasSize(items.size());
+        for (int i = 0; i < items.size(); i++) {
+            ClientMeasurementValidator.Result item = items.get(i);
+            assertThat(item.valid() ? "VALID" : item.code).as(id + "[" + i + "]").isEqualTo(v.get("expectedItems").get(i).asText());
+            assertThat(String.join("\n", item.errors)).as(id + "[" + i + "] error text").contains(v.get("expectedItemErrorContains").get(i).asText());
+        }
+    }
+
     @Test
     void negativeVectorsCoverTheRequiredFamilies() throws IOException {
         String ids = Files.readString(NEGATIVE.resolve("manifest.json"));
@@ -140,7 +161,8 @@ class ReleasedVectorsTest {
                 "unknown-enum-scale-source", "missing-qualityFlags", "missing-dimensions", "batch-per-item-rejection", "batch-101-items",
                 "value-1e999-overflows-a-double", "value-just-over-maximum", "algorithm-version-major-over-int", "duplicate-key-top-level",
                 "trailing-content-second-document", "body-over-256k-characters", "string-over-4096-characters", "plane-normal-zero-length",
-                "batch-item-depth-9", "batch-body-depth-33", "batch-item-schema-version-unsupported"}) {
+                "batch-item-depth-9", "batch-body-depth-33", "batch-item-schema-version-unsupported", "plane-normal-length-0.9989",
+                "hints-complete-item-dropped", "hints-complete-51-items", "hints-complete-50-items", "hints-complete-not-an-array", "hints-complete-body-depth-33"}) {
             assertThat(ids).as(id).contains("\"" + id + "\"");
         }
     }

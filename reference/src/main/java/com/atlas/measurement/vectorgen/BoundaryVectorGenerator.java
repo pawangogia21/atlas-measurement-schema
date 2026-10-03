@@ -36,6 +36,9 @@ public final class BoundaryVectorGenerator {
     /** The profile these vectors were released against; a retune is a new vector release against a new profile version. */
     public static final String PROFILE_VERSION = "1.0.0";
     private static final double STEP = 1e-5;
+    /** The largest magnitude in metres that tol, within and classify accept; STEP above it is an error (fixed here, not read from the reference). */
+    private static final double LIMIT = 1_000_000.0;
+    private static final double JUST_OVER_LIMIT = 1_000_000.00001;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final DefaultPrettyPrinter PRETTY = new DefaultPrettyPrinter()
             .withObjectIndenter(new DefaultIndenter("  ", "\n"));
@@ -124,6 +127,8 @@ public final class BoundaryVectorGenerator {
         t.add(new Term("floor", 0.1, 0, 0));
         t.add(new Term("relative", 10, 0, 0));
         t.add(new Term("floor-relative-crossover", row.floorM / row.relFrac, 0, 0));
+        // the largest reference the function accepts (Tolerance.MAX_ABS_METRES): valid; just above it is in the invalid cases
+        t.add(new Term("reference-at-the-1e6-m-limit", LIMIT, 0, 0));
         if (row.sigmaK == null) {
             t.add(new Term("sigma-ignored", 0.1, 5, 5));
         } else {
@@ -171,6 +176,10 @@ public final class BoundaryVectorGenerator {
             {"rounding-one-unit-over", 0.02001, 0.02, false},
             {"rounding-one-unit-under", 0.01999, 0.02, true},
             {"rounding-zero-diff", 0.0, 0.02, true},
+            // the 1e6 m limit is inclusive: a difference or a tolerance of exactly 1e6 m is valid (just above it is an error)
+            {"limit-difference-exactly-1e6-m-is-within-a-tolerance-of-1e6-m", LIMIT, LIMIT, true},
+            {"limit-difference-exactly-1e6-m-is-beyond-a-small-tolerance", LIMIT, 0.02, false},
+            {"limit-tolerance-exactly-1e6-m", 0.5, LIMIT, true},
         };
         for (Object[] c : cases) {
             boolean actual = Tolerance.withinTolerance((double) c[1], (double) c[2]);
@@ -214,6 +223,15 @@ public final class BoundaryVectorGenerator {
             withinError(out, "within-tol-" + names[i], 0.02, b);
             tolError(out, "tol-ref-" + names[i], b, 0, 0);
         }
+        // the 1e6 m limit: just above it is an error for every function that converts to units (the exact limit is valid, see the
+        // thresholds, the within cases and classify-difference-exactly-1e6-m)
+        withinError(out, "within-diff-just-over-1e6-m", JUST_OVER_LIMIT, LIMIT);
+        withinError(out, "within-diff-just-below-minus-1e6-m", -JUST_OVER_LIMIT, LIMIT);
+        withinError(out, "within-tol-just-over-1e6-m", 0.5, JUST_OVER_LIMIT);
+        tolError(out, "tol-ref-just-over-1e6-m", JUST_OVER_LIMIT, 0, 0);
+        tolError(out, "tol-ref-just-below-minus-1e6-m", -JUST_OVER_LIMIT, 0, 0);
+        classifyError(out, "classify-server-just-over-1e6-m", dim(JUST_OVER_LIMIT, 0, 0, JUST_OVER_LIMIT));
+        classifyError(out, "classify-difference-just-over-1e6-m", dim(0.0, 0, 0, JUST_OVER_LIMIT));
         classifyError(out, "classify-negative-sigma-server", dim(1.0, -0.001, 0, 1.0));
         classifyError(out, "classify-negative-sigma-client", dim(1.0, 0, -0.001, 1.0));
         classifyError(out, "classify-one-bad-dimension-among-good-ones", dim(1.0, 0, 0, 1.0), dim(0.3, 0, 0, Double.NaN));
@@ -311,6 +329,9 @@ public final class BoundaryVectorGenerator {
                 dim(0.3, 0, 0.3), dim(0.3, 0, 0.34));
         addClassifyCase(out, "multi-one-major-dimension-decides", "MAJOR_DIFF",
                 dim(1.0, 0, 1.0), dim(0.3, 0, 0.36));
+        // the 1e6 m limit is inclusive for the reference and for the difference
+        addClassifyCase(out, "classify-reference-exactly-1e6-m", "AGREE", dim(LIMIT, 0, LIMIT));
+        addClassifyCase(out, "classify-difference-exactly-1e6-m", "MAJOR_DIFF", dim(0.0, 0, LIMIT));
         addClassifyCase(out, "multi-sigma-is-per-dimension", "MINOR_DIFF",
                 dim(0.5, 0.02, 0.02, 0.55), dim(0.5, 0, 0.53));
     }
@@ -546,6 +567,7 @@ public final class BoundaryVectorGenerator {
             geometric();
             dimensionOnly();
             perHint();
+            pinned();
         }
 
         private void reasons() {
@@ -718,6 +740,105 @@ public final class BoundaryVectorGenerator {
             add("dimension-only-skips-a-server-taken-by-a-geometric-match", "DIMENSION_ONLY", ctx(),
                     list(hint(box("h1", 0.5, 0, 0)), with(hint(box("h2", 0.5, 0, 5)), "worldOriginEpoch", 2)),
                     list(box("s1", 0.5, 0, 0)), ok("AGREE", "IOU", "s1"), nc("NO_ASSOCIATION"));
+        }
+
+        /** A non-square box: footprint 1.2 x 0.4 (obb half-extents x 0.6, z 0.2), height 1.0, resting on y = 0, at (cx, cz) turned by yaw. */
+        private ObjectNode wide(String id, double cx, double cz, double yaw) {
+            return wideAt(id, cx, 0.5, cz, yaw);
+        }
+
+        private ObjectNode wideAt(String id, double cx, double cy, double cz, double yaw) {
+            ObjectNode m = MAPPER.createObjectNode();
+            m.put("id", id);
+            m.put("mode", "OBJECT_BOX");
+            m.putArray("dims").add(sv(1.2)).add(sv(0.4)).add(sv(1.0));
+            obb(m, new double[] {cx, cy, cz}, new double[] {0.6, 0.5, 0.2}, yaw);
+            return m;
+        }
+
+        /** The same measurement without its geometry (what a server measurement may lack). */
+        private ObjectNode withoutGeometry(ObjectNode m) {
+            ObjectNode c = m.deepCopy();
+            c.remove("obb");
+            c.remove("geometry");
+            return c;
+        }
+
+        /**
+         * AT-16 review pass 2 (R3): cases that pin what survived the first vectors. IoU values are known from the geometry (equal
+         * heights, so the volume IoU is the footprint IoU: two 1.2 x 0.4 rectangles shifted by 0.2 along x overlap in 1.0 x 0.4,
+         * IoU 0.4 / (0.96 - 0.4) = 0.714; shifted by 0.2 along z in 1.2 x 0.2, IoU 0.24 / 0.72 = 0.333; the yawed pairs below were
+         * computed with a polygon clip and checked against a 900 x 900 grid integration, 0.618 and 0.302), so a port that swaps the
+         * axes or reverses the yaw sense lands on the other side of 0.5 and the outcome changes.
+         */
+        private void pinned() {
+            ObjectNode ctx = ctx();
+            // axis order: x is the first half-extent, z the third
+            add("iou-wide-boxes-shifted-0.2-along-x-qualify", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(wide("s1", 0.2, 0, 0)), ok("AGREE", "IOU", "s1"));
+            add("iou-wide-boxes-shifted-0.2-along-z-do-not-qualify", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(wide("s1", 0, 0.2, 0)), nc("NO_ASSOCIATION"));
+            // yaw sense: yaw turns the footprint about +Y (x' = x cos + z sin, z' = -x sin + z cos); both boxes share a yaw of 0.7 and the
+            // second is offset by (0.2, -0.15) (IoU 0.618); with a yaw of 0.6 and 0.7 and the offset (0.15, 0.15) the IoU is 0.302
+            add("iou-yawed-0.7-offset-qualifies-only-with-the-documented-yaw-sense", "IOU", ctx, list(hint(wide("h1", 0, 0, 0.7))), list(wide("s1", 0.2, -0.15, 0.7)),
+                    ok("AGREE", "IOU", "s1"));
+            add("iou-yawed-0.6-0.7-offset-does-not-qualify-only-with-the-documented-yaw-sense", "IOU", ctx, list(hint(wide("h1", 0, 0, 0.6))),
+                    list(wide("s1", 0.15, 0.15, 0.7)), nc("NO_ASSOCIATION"));
+            // vertical overlap: identical footprints, the heights do not overlap (apart, and touching), so the IoU is 0
+            add("iou-identical-footprint-vertically-apart", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(wideAt("s1", 0, 2.0, 0, 0)), nc("NO_ASSOCIATION"));
+            add("iou-identical-footprint-vertically-touching", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(wideAt("s1", 0, 1.5, 0, 0)), nc("NO_ASSOCIATION"));
+            // ties: equal scores, hints [h2, h1] against one server: the lower hint id wins whatever the input order
+            add("iou-tie-broken-by-lower-hint-id", "IOU", ctx, list(hint(wide("h2", 0, 0, 0)), hint(wide("h1", 0, 0, 0))), list(wide("s1", 0, 0, 0)),
+                    nc("NO_ASSOCIATION"), ok("AGREE", "IOU", "s1"));
+
+            // a server without geometry is not offered to a geometric hint (and is no fallback to dimensions)
+            ObjectNode bareBox = withoutGeometry(wide("s0", 0, 0, 0));
+            add("iou-server-without-geometry-is-skipped", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(bareBox, wide("s1", 0, 0, 0)), ok("AGREE", "IOU", "s1"));
+            add("iou-only-a-server-without-geometry-is-no-association", "IOU", ctx, list(hint(wide("h1", 0, 0, 0))), list(bareBox), nc("NO_ASSOCIATION"));
+            double[] a = {0, 0, 0};
+            double[] b = {1, 0, 0};
+            ObjectNode bareLine = withoutGeometry(p2p("s0", a, b, 1.0));
+            add("p2p-server-without-geometry-is-skipped", "GEOMETRIC", ctx, list(hint(p2p("h1", a, b, 1.0))), list(bareLine, p2p("s1", a, b, 1.0)), ok("AGREE", "GEOMETRIC", "s1"));
+            add("p2p-only-a-server-without-geometry-is-no-association", "GEOMETRIC", ctx, list(hint(p2p("h1", a, b, 1.0))), list(bareLine), nc("NO_ASSOCIATION"));
+            ObjectNode barePlane = withoutGeometry(plane("s0", 0, 0.5));
+            add("plane-server-without-geometry-is-skipped", "GEOMETRIC", ctx, list(hint(plane("h1", 0, 0.5))), list(barePlane, plane("s1", 0, 0.5)), ok("AGREE", "GEOMETRIC", "s1"));
+            add("plane-only-a-server-without-geometry-is-no-association", "GEOMETRIC", ctx, list(hint(plane("h1", 0, 0.5))), list(barePlane), nc("NO_ASSOCIATION"));
+
+            // a server taken by a SEEDED hint is unavailable to the hints that follow, in the geometric branch and in dimension-only
+            ObjectNode seededServer = box("s1", 0.5, 0, 0);
+            seededServer.put("seed", "h1");
+            add("seeded-server-is-unavailable-to-a-geometric-hint", "SEEDED", ctx, list(hint(box("h1", 0.5, 0, 0)), hint(box("h2", 0.5, 0, 0))), list(seededServer),
+                    ok("AGREE", "SEEDED", "s1"), nc("NO_ASSOCIATION"));
+            add("seeded-server-is-skipped-and-the-next-geometric-match-is-used", "SEEDED", ctx,
+                    list(hint(box("h1", 0.5, 0, 0)), hint(box("h2", 0.5, 0, 0))), list(seededServer, box("s2", 0.5, 0, 0.05)),
+                    ok("AGREE", "SEEDED", "s1"), ok("AGREE", "IOU", "s2"));
+            ObjectNode seededDims = dimMeasurement("s1", "OBJECT_BOX", 0.4, 0.6, 1.0);
+            seededDims.put("seed", "h1");
+            ObjectNode noMap = noMapping();
+            add("seeded-server-is-unavailable-to-a-dimension-only-hint", "SEEDED", noMap,
+                    list(hint(dimMeasurement("h1", "OBJECT_BOX", 0.4, 0.6, 1.0)), hint(dimMeasurement("h2", "OBJECT_BOX", 0.4, 0.6, 1.0))), list(seededDims),
+                    ok("AGREE", "SEEDED", "s1"), nc("NO_ASSOCIATION"));
+            add("seeded-server-is-skipped-so-the-dimension-only-candidate-is-unique", "SEEDED", noMap,
+                    list(hint(dimMeasurement("h1", "OBJECT_BOX", 0.4, 0.6, 1.0)), hint(dimMeasurement("h2", "OBJECT_BOX", 0.4, 0.6, 1.0))),
+                    list(seededDims, dimMeasurement("s2", "OBJECT_BOX", 0.4, 0.6, 1.0)),
+                    ok("AGREE", "SEEDED", "s1"), ok("AGREE", "DIMENSION_ONLY", "s2"));
+
+            // the score of a qualifying pair decides a contest for one server: the better pair wins, not the lower hint id
+            ObjectNode line = p2p("s1", a, b, 1.0);
+            add("p2p-nearer-endpoints-win-over-the-lower-hint-id", "GEOMETRIC", ctx,
+                    list(hint(p2p("h1", new double[] {0, 0.08, 0}, b, 1.0032)), hint(p2p("h2", new double[] {0, 0.02, 0}, b, 1.0002))), list(line),
+                    nc("NO_ASSOCIATION"), ok("AGREE", "GEOMETRIC", "s1"));
+            add("p2p-both-endpoints-0.08-away-qualify-the-larger-distance-decides", "GEOMETRIC", ctx,
+                    list(hint(p2p("h1", new double[] {0, 0.08, 0}, new double[] {1, 0.08, 0}, 1.0))), list(line), ok("AGREE", "GEOMETRIC", "s1"));
+            add("p2p-endpoints-0.06-and-0.12-away-do-not-qualify-the-larger-distance-decides", "GEOMETRIC", ctx,
+                    list(hint(p2p("h1", new double[] {0, 0.06, 0}, new double[] {1, 0.12, 0}, 1.0018))), list(line), nc("NO_ASSOCIATION"));
+            ObjectNode flat = plane("s1", 0, 0.5);
+            add("plane-smaller-offset-difference-wins-over-the-lower-hint-id", "GEOMETRIC", ctx,
+                    list(hint(plane("h1", 0, 0.54)), hint(plane("h2", 0, 0.505))), list(flat), nc("NO_ASSOCIATION"), ok("AGREE", "GEOMETRIC", "s1"));
+            add("plane-smaller-angle-wins-over-the-lower-hint-id", "GEOMETRIC", ctx,
+                    list(hint(plane("h1", 4, 0.5)), hint(plane("h2", 0.5, 0.5))), list(flat), nc("NO_ASSOCIATION"), ok("AGREE", "GEOMETRIC", "s1"));
+            // the larger of the two relative errors scores the pair: h1 4 degrees and 0.01 m (0.8 and 0.2 of the limits) scores 0.6, h2 2 degrees
+            // and 0.03 m (0.4 and 0.6) scores 0.7
+            add("plane-score-is-the-larger-relative-error", "GEOMETRIC", ctx,
+                    list(hint(plane("h1", 4, 0.51)), hint(plane("h2", 2, 0.53))), list(flat), nc("NO_ASSOCIATION"), ok("AGREE", "GEOMETRIC", "s1"));
         }
 
         /** F2: the frame mapping, schema and tier are per hint. */

@@ -101,6 +101,39 @@
     "diff" : 0.01001,
     "within" : false
   }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.0,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 19999.99999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.00001,
+    "within" : false
+  }, {
     "id" : "accuracyGate-sigma-ignored-exact",
     "row" : "accuracyGate",
     "major" : 1,
@@ -233,6 +266,39 @@
     "diff" : 0.02501,
     "within" : false
   }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 40000.0,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 39999.99999,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 40000.00001,
+    "within" : false
+  }, {
     "id" : "accuracyGateP95-sigma-ignored-exact",
     "row" : "accuracyGateP95",
     "major" : 1,
@@ -363,6 +429,39 @@
     "sigmaClient" : 0.0,
     "tol" : 0.02,
     "diff" : 0.02001,
+    "within" : false
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.0,
+    "within" : true
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 19999.99999,
+    "within" : true
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.00001,
     "within" : false
   }, {
     "id" : "agree-sigma-exact",
@@ -530,6 +629,39 @@
     "diff" : 0.050010000000000006,
     "within" : false
   }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 50000.0,
+    "within" : true
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 49999.99999,
+    "within" : true
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 50000.00001,
+    "within" : false
+  }, {
     "id" : "minor-sigma-exact",
     "row" : "minor",
     "major" : 1,
@@ -626,6 +758,21 @@
     "diff" : 0.0,
     "tol" : 0.02,
     "within" : true
+  }, {
+    "id" : "limit-difference-exactly-1e6-m-is-within-a-tolerance-of-1e6-m",
+    "diff" : 1000000.0,
+    "tol" : 1000000.0,
+    "within" : true
+  }, {
+    "id" : "limit-difference-exactly-1e6-m-is-beyond-a-small-tolerance",
+    "diff" : 1000000.0,
+    "tol" : 0.02,
+    "within" : false
+  }, {
+    "id" : "limit-tolerance-exactly-1e6-m",
+    "diff" : 0.5,
+    "tol" : 1000000.0,
+    "within" : true
   } ],
   "classify" : [ {
     "id" : "agree-floor-exact",
@@ -714,6 +861,36 @@
       "server" : 1.0,
       "sigmaServer" : 0.0,
       "client" : 0.98,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1020000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1020000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 980000.0,
       "sigmaClient" : 0.0
     } ],
     "outcome" : "AGREE"
@@ -838,6 +1015,26 @@
     } ],
     "outcome" : "MAJOR_DIFF"
   }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1050000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1050000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
     "id" : "minor-sigma-exact",
     "major" : 1,
     "dims" : [ {
@@ -924,6 +1121,26 @@
       "server" : 0.3,
       "sigmaServer" : 0.0,
       "client" : 0.36,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "classify-reference-exactly-1e6-m",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "classify-difference-exactly-1e6-m",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.0,
       "sigmaClient" : 0.0
     } ],
     "outcome" : "MAJOR_DIFF"
@@ -1207,6 +1424,64 @@
     "ref" : 1.0E300,
     "sigmaServer" : 0.0,
     "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-just-over-1e6-m",
+    "op" : "within",
+    "diff" : 1000000.00001,
+    "tol" : 1000000.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-just-below-minus-1e6-m",
+    "op" : "within",
+    "diff" : -1000000.00001,
+    "tol" : 1000000.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-just-over-1e6-m",
+    "op" : "within",
+    "diff" : 0.5,
+    "tol" : 1000000.00001,
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-just-over-1e6-m",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1000000.00001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-just-below-minus-1e6-m",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : -1000000.00001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-just-over-1e6-m",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.00001,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-difference-just-over-1e6-m",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.00001,
+      "sigmaClient" : 0.0
+    } ],
     "expect" : "ERROR"
   }, {
     "id" : "classify-negative-sigma-server",

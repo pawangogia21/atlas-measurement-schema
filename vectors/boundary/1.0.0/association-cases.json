@@ -4207,5 +4207,1548 @@
       "associationMethod" : null,
       "serverMeasurementId" : null
     } ]
+  }, {
+    "id" : "iou-wide-boxes-shifted-0.2-along-x-qualify",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.2, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-wide-boxes-shifted-0.2-along-z-do-not-qualify",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.2 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "iou-yawed-0.7-offset-qualifies-only-with-the-documented-yaw-sense",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.7
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.2, 0.5, -0.15 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.7
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-yawed-0.6-0.7-offset-does-not-qualify-only-with-the-documented-yaw-sense",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.6
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.15, 0.5, 0.15 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.7
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "iou-identical-footprint-vertically-apart",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 2.0, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "iou-identical-footprint-vertically-touching",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 1.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "iou-tie-broken-by-lower-hint-id",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    }, {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h2",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-server-without-geometry-is-skipped",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "iou-only-a-server-without-geometry-is-no-association",
+    "branch" : "IOU",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.6, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 1.2,
+        "s" : 0.0
+      }, {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "p2p-server-without-geometry-is-skipped",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-only-a-server-without-geometry-is-no-association",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "plane-server-without-geometry-is-skipped",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-only-a-server-without-geometry-is-no-association",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s0",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "seeded-server-is-unavailable-to-a-geometric-hint",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      },
+      "seed" : "h1"
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    }, {
+      "hint" : "h2",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "seeded-server-is-skipped-and-the-next-geometric-match-is-used",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.0, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      },
+      "seed" : "h1"
+    }, {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "obb" : {
+        "centerWorld" : [ 0.05, 0.5, 0.0 ],
+        "halfExtentsM" : [ 0.3, 0.5, 0.2 ],
+        "yawRad" : 0.0
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "IOU",
+      "serverMeasurementId" : "s2"
+    } ]
+  }, {
+    "id" : "seeded-server-is-unavailable-to-a-dimension-only-hint",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : false
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "seed" : "h1"
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    }, {
+      "hint" : "h2",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "seeded-server-is-skipped-so-the-dimension-only-candidate-is-unique",
+    "branch" : "SEEDED",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : false
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    }, {
+      "id" : "h2",
+      "mode" : "OBJECT_BOX",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "seed" : "h1"
+    }, {
+      "id" : "s2",
+      "mode" : "OBJECT_BOX",
+      "dims" : [ {
+        "v" : 0.4,
+        "s" : 0.0
+      }, {
+        "v" : 0.6,
+        "s" : 0.0
+      }, {
+        "v" : 1.0,
+        "s" : 0.0
+      } ]
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "SEEDED",
+      "serverMeasurementId" : "s1"
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "DIMENSION_ONLY",
+      "serverMeasurementId" : "s2"
+    } ]
+  }, {
+    "id" : "p2p-nearer-endpoints-win-over-the-lower-hint-id",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0032,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.08, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0002,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.02, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-both-endpoints-0.08-away-qualify-the-larger-distance-decides",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.08, 0.0 ], [ 1.0, 0.08, 0.0 ] ]
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "p2p-endpoints-0.06-and-0.12-away-do-not-qualify-the-larger-distance-decides",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "POINT_TO_POINT",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0018,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.06, 0.0 ], [ 1.0, 0.12, 0.0 ] ]
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "POINT_TO_POINT",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "endpointsWorld" : [ [ 0.0, 0.0, 0.0 ], [ 1.0, 0.0, 0.0 ] ]
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    } ]
+  }, {
+    "id" : "plane-smaller-offset-difference-wins-over-the-lower-hint-id",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.54
+        }
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.505
+        }
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-smaller-angle-wins-over-the-lower-hint-id",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0697564737441253, 0.9975640502598242, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.008726535498373935, 0.9999619230641713, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
+  }, {
+    "id" : "plane-score-is-the-larger-relative-error",
+    "branch" : "GEOMETRIC",
+    "context" : {
+      "modelDeleted" : false,
+      "derivedDepthTier" : "A",
+      "serverState" : "READY",
+      "scan" : {
+        "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+        "worldOriginEpoch" : 1,
+        "transformToCanonical" : true
+      }
+    },
+    "hints" : [ {
+      "id" : "h1",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0697564737441253, 0.9975640502598242, 0.0 ],
+          "offsetM" : 0.51
+        }
+      }
+    }, {
+      "id" : "h2",
+      "mode" : "PLANE_DISTANCE",
+      "schemaVersion" : "1.0",
+      "depthTier" : "A",
+      "sessionId" : "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "worldOriginEpoch" : 1,
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.03489949670250097, 0.9993908270190958, 0.0 ],
+          "offsetM" : 0.53
+        }
+      }
+    } ],
+    "servers" : [ {
+      "id" : "s1",
+      "mode" : "PLANE_DISTANCE",
+      "dims" : [ {
+        "v" : 1.0,
+        "s" : 0.0
+      } ],
+      "geometry" : {
+        "plane" : {
+          "normalWorld" : [ 0.0, 1.0, 0.0 ],
+          "offsetM" : 0.5
+        }
+      }
+    } ],
+    "expected" : [ {
+      "hint" : "h1",
+      "outcome" : "NOT_COMPARABLE",
+      "reasonCode" : "NO_ASSOCIATION",
+      "associationMethod" : null,
+      "serverMeasurementId" : null
+    }, {
+      "hint" : "h2",
+      "outcome" : "AGREE",
+      "reasonCode" : null,
+      "associationMethod" : "GEOMETRIC",
+      "serverMeasurementId" : "s1"
+    } ]
   } ]
 }

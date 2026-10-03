@@ -34,6 +34,7 @@ class ClientMeasurementValidatorTest {
         assertThat(validator.validateLiveMeasurement(example("live-measurement-object-box.json").toString()).valid()).isTrue();
         assertThat(validator.validateLiveMeasurement(example("live-measurement-point-to-point.json").toString()).valid()).isTrue();
         assertThat(validator.validateLiveMeasurement(example("live-measurement-plane-distance.json").toString()).valid()).isTrue();
+        assertThat(validator.validateLiveMeasurement(example("live-measurement-plane-normal-0.9991.json").toString()).valid()).isTrue();
         assertThat(validator.validateClientCapture(example("client-capture.json").toString()).valid()).isTrue();
     }
 

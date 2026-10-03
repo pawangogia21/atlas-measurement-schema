@@ -1,7 +1,7 @@
 {
   "vectorSet" : "negative",
   "version" : "1.0.0",
-  "description" : "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).",
+  "description" : "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems, and the text each invalid item's errors must contain in expectedItemErrorContains) and kind hintsComplete (the clientMeasurements array of uploads/complete: the upload is never rejected, a body-level violation drops all hints and an item-level one only that item, with the warning CLIENT_HINTS_DROPPED in expectedWarnings). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).",
   "vectors" : [ {
     "id" : "missing-schemaVersion",
     "kind" : "liveMeasurement",
@@ -523,6 +523,14 @@
     "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
     "expectedErrorContains" : "unitLength"
   }, {
+    "id" : "plane-normal-length-0.9989",
+    "kind" : "liveMeasurement",
+    "path" : "plane-normal-length-0.9989.json",
+    "reason" : "the plane normal length may differ from 1 by at most 1e-3: 0.9989 is just outside (0.9991 is accepted, see the examples)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unitLength"
+  }, {
     "id" : "plane-normal-zero-length",
     "kind" : "liveMeasurement",
     "path" : "plane-normal-zero-length.json",
@@ -823,19 +831,147 @@
     "kind" : "batchItems",
     "path" : "batch-item-depth-9.json",
     "reason" : "an item nested 9 levels deep (within the transport ceiling) is INVALID on its own; the other items are processed",
-    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID" ]
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID" ],
+    "expectedItemErrorContains" : [ "", "JSON depth above 8", "" ]
   }, {
     "id" : "batch-item-schema-version-unsupported",
     "kind" : "batchItems",
     "path" : "batch-item-schema-version-unsupported.json",
     "reason" : "an item with an unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED, not persisted (the Kit retries after an update)",
-    "expectedItems" : [ "VALID", "CLIENT_SCHEMA_UNSUPPORTED" ]
+    "expectedItems" : [ "VALID", "CLIENT_SCHEMA_UNSUPPORTED" ],
+    "expectedItemErrorContains" : [ "", "schemaVersion is not supported" ]
   }, {
     "id" : "batch-per-item-rejection",
     "kind" : "batchItems",
     "path" : "batch-per-item-rejection.json",
     "reason" : "valid envelope, items 2 and 4 are invalid: the batch is answered per item (INVALID) and the valid items are processed",
-    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID" ]
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "", "additionalProperties at $", "", "enum at $.depthTier" ]
+  }, {
+    "id" : "hints-complete-all-valid",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-all-valid.json",
+    "reason" : "valid hints: nothing is dropped and there is no warning",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID" ],
+    "expectedItemErrorContains" : [ "" ],
+    "expectedWarnings" : [ ]
+  }, {
+    "id" : "hints-complete-empty-array",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-empty-array.json",
+    "reason" : "an empty clientMeasurements array is fine: nothing to drop, no warning",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ ]
+  }, {
+    "id" : "hints-complete-item-dropped",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-dropped.json",
+    "reason" : "one invalid item is dropped on its own, the others are kept, the upload is accepted with CLIENT_HINTS_DROPPED",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID" ],
+    "expectedItemErrorContains" : [ "", "enum at $.depthTier", "" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-schema-unsupported",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-schema-unsupported.json",
+    "reason" : "an item with an unsupported schemaVersion is dropped with CLIENT_SCHEMA_UNSUPPORTED",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_SCHEMA_UNSUPPORTED" ],
+    "expectedItemErrorContains" : [ "schemaVersion is not supported" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-depth-9",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-depth-9.json",
+    "reason" : "an item nested 9 levels deep is dropped on its own (the body is within the transport ceiling of 32)",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "", "JSON depth above 8" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-not-an-object",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-not-an-object.json",
+    "reason" : "an array element that is not an object is dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "batch item must be a JSON object" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-50-items",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-50-items.json",
+    "reason" : "50 items is the limit: the body is accepted and each item is judged on its own",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-51-items",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-51-items.json",
+    "reason" : "51 items: a body-level violation, all hints are dropped, the upload is still accepted",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "at most 50",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-not-an-array",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-not-an-array.json",
+    "reason" : "clientMeasurements that is not an array: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "must be an array",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-body-depth-33",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-body-depth-33.json",
+    "reason" : "a body nested deeper than the transport ceiling of 32: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "JSON depth above 32",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-duplicate-key",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-duplicate-key.json",
+    "reason" : "a duplicate object key anywhere: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "duplicate object key",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-not-json",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-not-json.json",
+    "reason" : "not JSON: all hints are dropped, the upload is still accepted",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "not valid JSON",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
   } ],
   "files" : [ {
     "path" : "algorithm-version-major-over-int.json",
@@ -1006,6 +1142,54 @@
     "sha256" : "5c186f97addd98db586083d60fe42fe4743d947e05394c6f8f7f6b29fe14811e",
     "bytes" : 1256
   }, {
+    "path" : "hints-complete-50-items.json",
+    "sha256" : "a643302872e8735efb74ed465c73e694eec75b45d38d989ce751db3fb51bffe1",
+    "bytes" : 152
+  }, {
+    "path" : "hints-complete-51-items.json",
+    "sha256" : "9c8733f156c96a9e521a23aca299a623d6f70d36da4892aa0113a5fb21bb184f",
+    "bytes" : 155
+  }, {
+    "path" : "hints-complete-all-valid.json",
+    "sha256" : "8527ab874faccb0b65a21a51443b2ac575c591c9bc93869c373d53de4aa7d6f8",
+    "bytes" : 649
+  }, {
+    "path" : "hints-complete-body-depth-33.json",
+    "sha256" : "73dad959972f401473b579fe7148dfd59c6515e5ceb2a65a42408ce661fa44ee",
+    "bytes" : 736
+  }, {
+    "path" : "hints-complete-duplicate-key.json",
+    "sha256" : "d38d833e42fab793ee49a415598d55bf75468aaf5718ef426ce0792b33b2ee13",
+    "bytes" : 660
+  }, {
+    "path" : "hints-complete-empty-array.json",
+    "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "bytes" : 3
+  }, {
+    "path" : "hints-complete-item-depth-9.json",
+    "sha256" : "b68778d5d162cc2b0c23b64eb9eb217b596528fed43159426452518758ce6c58",
+    "bytes" : 1350
+  }, {
+    "path" : "hints-complete-item-dropped.json",
+    "sha256" : "63ae9f94f98f5a511f0106ad4b713457c776ad71d54d63c0b3c59f6202d090e9",
+    "bytes" : 1943
+  }, {
+    "path" : "hints-complete-item-not-an-object.json",
+    "sha256" : "acc07b62f23f458923737c4cd4a66bd05d1e71eb4f384003baaf2dcc760d6349",
+    "bytes" : 4
+  }, {
+    "path" : "hints-complete-item-schema-unsupported.json",
+    "sha256" : "ecf1dfcd385543ba2a96660178e30af297340160a6615ea893603cab12d6596b",
+    "bytes" : 649
+  }, {
+    "path" : "hints-complete-not-an-array.json",
+    "sha256" : "e346432021b04179518d9614f3560ccd71354a4ee101ddcb893d6959a9d6301c",
+    "bytes" : 8
+  }, {
+    "path" : "hints-complete-not-json.json",
+    "sha256" : "95d2b1934931691669cc35a87619518015336213dda0a60fe1b09f9b8e3e993d",
+    "bytes" : 2
+  }, {
     "path" : "infinity-literal.json",
     "sha256" : "501c24aa77b06c619ef42c56271df247da023847cdc569e358dc43023cbe2d2f",
     "bytes" : 1260
@@ -1109,6 +1293,10 @@
     "path" : "plane-normal-component-over-1.json",
     "sha256" : "f5ed065f4a0e68593a4fe4c144000c1ccb5df7b631196718fec0d98261e63330",
     "bytes" : 639
+  }, {
+    "path" : "plane-normal-length-0.9989.json",
+    "sha256" : "5a9c10ce35aab9a2f89386adf7112b3831b23625d8a43132aa8acd5b52d46f69",
+    "bytes" : 642
   }, {
     "path" : "plane-normal-not-unit.json",
     "sha256" : "7c82d4def1708a50d6da2956742fb0bec9a8d4adaf42a8888e614e2e2dc9ce31",

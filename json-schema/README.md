@@ -7,7 +7,7 @@ The client contract of the Measure Kits (design 17.3, 25.2, 25.3). Draft 2020-12
 | `v1/live-measurement.schema.json` | One `LiveMeasurement` (an item of `clientMeasurements` or of a batch) |
 | `v1/client-capture.schema.json` | The `clientCapture` object of `POST /api/v1/models/uploads` |
 | `v1/client-measurements-batch.schema.json` | The body of `POST /api/v1/client-measurements:batch` (1 to 100 items) |
-| `v1/examples/` | Valid examples; the base for the negative vectors |
+| `v1/examples/` | Valid examples; the base for the negative vectors (`live-measurement-plane-normal-0.9991.json` is a normal just inside the 1e-3 unit-length tolerance) |
 
 ## Rules the schema enforces
 
