@@ -5,9 +5,14 @@
 #   vectors-<set>      <v>   vectors/<set>/<v>/                 any set folder (conformance, boundary, negative, a new one)
 #   file               <path> every other tracked file of: algorithm-spec.md, tolerance/, vectors/, json-schema/ (schemas,
 #                            examples, .enum-approvals) and avro/.enum-approvals; README.md files are documentation, not governed
-# digest = sha256 of the sorted "<path in the artifact>:<mode>:<sha256 of the content>" lines, listed with `git ls-files` (the
-# index) for the working tree and `git ls-tree` for a ref: untracked files never count, a symlink counts as its target, the
-# executable bit counts. Rules, against the baseline (resolve-baseline.sh: the merge-base with the PR target; the previous release
+# digest = sha256 of the sorted "<path in the artifact>:<mode>:<sha256 of the content>" lines, listed NUL-separated with
+# `git ls-files -z` (the index) for the working tree and `git ls-tree -z` for a ref: untracked files never count, the executable
+# bit counts, a path with a control character or a space is hashed byte for byte (hex) so that no name can hide a change.
+# The current tree must also be clean of the path tricks the digest cannot judge, each a FAIL: a symlink or gitlink under a
+# governed path (a link's content lives outside the digest), a path with a control character or a space under a governed path,
+# a path that is only a different case of a governed one (Vectors/, Tolerance/, Json-Schema/, vectors/Negative/ next to
+# vectors/negative/: they collide on a case-insensitive checkout and CODEOWNERS does not match them), and a governance/
+# qa-approvals.txt that is missing, a symlink or not a regular tracked file. Rules, against the baseline (resolve-baseline.sh: the merge-base with the PR target; the previous release
 # tag or origin/main for a tag build):
 #   1. Immutability: a versioned artifact (tolerance-profile, vectors-*) that exists at the baseline must have the same digest: a
 #      retune is 1.1.0 in a new folder, never an edit of 1.0.0.
@@ -23,7 +28,7 @@
 # review from the code owner). The gate script itself is run from the baseline by run-trusted-gate.sh, so a change cannot weaken
 # the gate it is judged by. GOVERNANCE_APPROVALS (a different approvals file, for local checks and the selftest) is ignored when
 # GITHUB_ACTIONS is set.
-# Usage: governance-gate.sh <baseline-git-ref> | --digests
+# Usage: governance-gate.sh <baseline-git-ref> | --digests | --digests-ref <git-ref>
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -37,21 +42,28 @@ SEMVER='^[0-9]+\.[0-9]+\.[0-9]+$'
 sha() { shasum -a 256 | cut -d' ' -f1; }
 git_() { git -C "$REPO_ROOT" "$@"; }
 
-# "<mode> <path>" for every tracked file of the tree at $1 (a git ref, or WORKTREE for the index)
+# NUL-separated "<mode> <path>" records of every tracked file of the tree at $1 (a git ref, or WORKTREE for the index)
 records() {
+  local rec
   if [ "$1" = WORKTREE ]; then
-    git_ ls-files -s -z | while IFS= read -r -d '' rec; do printf '%s %s\n' "${rec%% *}" "${rec#*$'\t'}"; done
+    git_ ls-files -s -z
   else
-    git_ ls-tree -r -z --full-tree "$1" | while IFS= read -r -d '' rec; do printf '%s %s\n' "${rec%% *}" "${rec#*$'\t'}"; done
-  fi
+    git_ ls-tree -r -z --full-tree "$1"
+  fi | while IFS= read -r -d '' rec; do printf '%s %s\0' "${rec%% *}" "${rec#*$'\t'}"; done
 }
 
-# sha256 of the content of a tracked file; a symlink is its target
+# a path or name that is safe to print and to put in a space-separated line; anything else is its bytes in hex
+enc() {
+  case "$1" in
+    *[[:cntrl:][:space:]]*) printf 'x-%s' "$(printf '%s' "$1" | od -An -v -tx1 | tr -d ' \n')" ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
+# sha256 of the content of a tracked regular file
 content_sha() { # ref mode path
   if [ "$1" = WORKTREE ]; then
-    if [ "$2" = 120000 ]; then
-      printf '%s' "$(readlink "$REPO_ROOT/$3")" | sha
-    elif [ -f "$REPO_ROOT/$3" ]; then
+    if [ -f "$REPO_ROOT/$3" ] && [ ! -L "$REPO_ROOT/$3" ]; then
       sha < "$REPO_ROOT/$3"
     else
       echo MISSING
@@ -66,30 +78,72 @@ classify() {
   local p="$1" dir v set
   case "$p" in
     */README.md) return 0 ;;
-    algorithm-spec.md | avro/.enum-approvals | json-schema/* ) echo "file $p -" ;;
+    algorithm-spec.md | avro/.enum-approvals | json-schema/* ) echo "file $(enc "$p") -" ;;
     tolerance/*)
       dir="${p#tolerance/}"
       v="${dir%%/*}"
-      if [[ "$dir" == */* && "$v" =~ $SEMVER ]]; then echo "tolerance-profile $v ${dir#*/}"; else echo "file $p -"; fi
+      if [[ "$dir" == */* && "$v" =~ $SEMVER ]]; then echo "tolerance-profile $v $(enc "${dir#*/}")"; else echo "file $(enc "$p") -"; fi
       ;;
     vectors/*)
       dir="${p#vectors/}"
       set="${dir%%/*}"
       dir="${dir#*/}"
       v="${dir%%/*}"
-      if [[ "$p" == vectors/*/*/* && "$v" =~ $SEMVER ]]; then echo "vectors-$set $v ${dir#*/}"; else echo "file $p -"; fi
+      if [[ "$p" == vectors/*/*/* && "$v" =~ $SEMVER ]]; then echo "vectors-$(enc "$set") $v $(enc "${dir#*/}")"; else echo "file $(enc "$p") -"; fi
       ;;
     *) return 0 ;;
   esac
 }
 
+# the current tree must not hold what the digest cannot judge (see the header); exits 1 with one line per offender
+check_paths() {
+  local tmp rec mode path lower bad=0 dir collisions
+  tmp="$(mktemp)"
+  records WORKTREE > "$tmp"
+  : > "$tmp.dirs"
+  while IFS= read -r -d '' rec; do
+    mode="${rec%% *}"
+    path="${rec#* }"
+    lower="$(printf '%s' "$path" | LC_ALL=C tr 'A-Z' 'a-z')"
+    case "$lower" in
+      tolerance/* | vectors/* | json-schema/* | algorithm-spec.md | avro/.enum-approvals | governance/qa-approvals.txt) ;;
+      *) continue ;;
+    esac
+    case "$path" in
+      tolerance/* | vectors/* | json-schema/* | algorithm-spec.md | avro/.enum-approvals | governance/qa-approvals.txt) ;;
+      *) echo "FAIL: $(enc "$path") differs only in case from a governed path (it collides with it on a case-insensitive checkout and CODEOWNERS does not match it)" >&2; bad=1; continue ;;
+    esac
+    case "$path" in
+      *[[:cntrl:][:space:]]*) echo "FAIL: governed path $(enc "$path") has a control character or a space in its name" >&2; bad=1; continue ;;
+    esac
+    case "$mode" in
+      100644 | 100755) ;;
+      120000) echo "FAIL: governed path $path is a symlink (its content lives outside the digest)" >&2; bad=1 ;;
+      *) echo "FAIL: governed path $path has git mode $mode (only regular files are governed)" >&2; bad=1 ;;
+    esac
+    # every directory prefix and the path itself, lower-cased next to the original, to find case collisions between tracked paths
+    dir="$path"
+    while [ -n "$dir" ]; do
+      printf '%s\t%s\n' "$(printf '%s' "$dir" | LC_ALL=C tr 'A-Z' 'a-z')" "$dir" >> "$tmp.dirs"
+      case "$dir" in */*) dir="${dir%/*}" ;; *) dir="" ;; esac
+    done
+  done < "$tmp"
+  collisions="$(LC_ALL=C sort -u "$tmp.dirs" | awk -F'\t' '{c[$1]++} END {for (k in c) if (c[k] > 1) print k}')"
+  rm -f "$tmp" "$tmp.dirs"
+  if [ -n "$collisions" ]; then
+    echo "FAIL: tracked paths that differ only in case: $(echo "$collisions" | tr '\n' ' ')" >&2
+    bad=1
+  fi
+  [ "$bad" -eq 0 ] || { echo "Governance gate: FAIL" >&2; exit 1; }
+}
+
 # "<artifact> <version> <digest>" lines for the tree at $1
 artifacts() {
-  local ref="$1" mode path c artifact version rel
-  records "$ref" | while read -r mode path; do
-    case "$path" in
-      *" "*) case "$path" in algorithm-spec.md | avro/.enum-approvals | json-schema/* | tolerance/* | vectors/*) echo "unsupported governed path with a space: $path" >&2; exit 1 ;; esac ;;
-    esac
+  local ref="$1" rec mode path c artifact version rel
+  [ "$ref" != WORKTREE ] || check_paths
+  records "$ref" | while IFS= read -r -d '' rec; do
+    mode="${rec%% *}"
+    path="${rec#* }"
     c="$(classify "$path")"
     [ -n "$c" ] || continue
     read -r artifact version rel <<< "$c"
@@ -116,6 +170,10 @@ if [ "${1:-}" = "--digests" ]; then
   artifacts WORKTREE
   exit 0
 fi
+if [ "${1:-}" = "--digests-ref" ] && [ $# -eq 2 ]; then # the digests of a ref, without the path checks (selftest, forensics)
+  artifacts "$2"
+  exit 0
+fi
 
 if [ $# -lt 1 ]; then
   echo "Usage: governance-gate.sh <baseline-git-ref> | --digests" >&2
@@ -133,6 +191,14 @@ else
   echo "Baseline '$1' does not resolve - every governed artifact needs an approval and nothing counts as released."
 fi
 CURRENT="$(artifacts WORKTREE)"
+
+# the approvals file is a regular tracked file of this repository, not a link to a file outside governance/
+approvals_mode="$(git_ ls-files -s -- governance/qa-approvals.txt | cut -d' ' -f1)"
+if { [ "$approvals_mode" != 100644 ] && [ "$approvals_mode" != 100755 ]; } || [ -L "$REPO_ROOT/governance/qa-approvals.txt" ]; then
+  echo "FAIL: governance/qa-approvals.txt must be a regular tracked file (git mode '${approvals_mode:-untracked}', symlink: $([ -L "$REPO_ROOT/governance/qa-approvals.txt" ] && echo yes || echo no))" >&2
+  echo "Governance gate: FAIL" >&2
+  exit 1
+fi
 
 fail=0
 # an approval line: <artifact> <version> <digest or RETIRE> <approved-by> <yyyy-mm-dd> <ticket>

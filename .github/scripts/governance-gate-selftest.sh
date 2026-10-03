@@ -36,6 +36,11 @@ expect() { # expect <pass|fail> <description> <gate args...>
   [ "$got" = "$want" ] || { echo "SELFTEST FAIL: $what (wanted $want, got $got)"; "$GATE" "$@" || true; exit 1; }
   echo "ok: $what"
 }
+expect_msg() { # expect_msg <text that the failure must name> <description> <gate args...>: red for that reason, not for a missing approval
+  local text="$1" what="$2" out; shift 2
+  if out="$("$GATE" "$@" 2>&1)"; then echo "SELFTEST FAIL: $what (wanted fail, got pass)"; exit 1; fi
+  case "$out" in *"$text"*) echo "ok: $what" ;; *) echo "SELFTEST FAIL: $what (failed, but not for '$text')"; echo "$out"; exit 1 ;; esac
+}
 digest() { "$GATE" --digests | awk -v a="$1" -v v="$2" '$1==a && $2==v {print $3}'; }
 approve() { echo "$1 $2 $(digest "$1" "$2") qaAgent 2026-10-03 AT-16" >> governance/qa-approvals.txt; }
 
@@ -112,14 +117,62 @@ echo junk > vectors/boundary/1.0.0/.DS_Store
 echo junk > vectors/boundary/1.0.0/untracked.json
 [ "$(digest vectors-boundary 1.0.0)" = "$before" ] || { echo "SELFTEST FAIL: an untracked file changed the digest"; exit 1; }
 echo "ok: untracked files do not change the digest"
-ln -s cases.json vectors/boundary/1.0.0/link.json && git add vectors/boundary/1.0.0/link.json
-[ "$(digest vectors-boundary 1.0.0)" != "$before" ] || { echo "SELFTEST FAIL: a tracked symlink did not change the digest"; exit 1; }
-echo "ok: a tracked symlink changes the digest"
 fresh
 before="$(digest vectors-boundary 1.0.0)"
 chmod +x vectors/boundary/1.0.0/cases.json && git add -A
 [ "$(digest vectors-boundary 1.0.0)" != "$before" ] || { echo "SELFTEST FAIL: the executable bit did not change the digest"; exit 1; }
 echo "ok: the executable bit changes the digest"
+
+# AT-16 security R3: what the digest cannot judge fails the gate, and every name is hashed byte for byte
+fresh
+ln -s cases.json vectors/boundary/1.0.0/link.json && git add vectors/boundary/1.0.0/link.json
+expect_msg "is a symlink" "a tracked symlink under a governed vector folder" HEAD
+fresh
+ln -s ../../docs/x.json vectors/boundary/1.0.0/link.json && git add vectors/boundary/1.0.0/link.json
+if "$GATE" --digests >/dev/null 2>&1; then echo "SELFTEST FAIL: --digests accepted a symlink under a governed path"; exit 1; fi
+echo "ok: --digests refuses a symlink under a governed path (no digest to approve)"
+fresh
+ln -s ../../tolerance/smoke-cases.json json-schema/v1/link.json && git add -A
+expect_msg "is a symlink" "a tracked symlink under json-schema/" HEAD
+fresh
+rm vectors/README.md && ln -s ../algorithm-spec.md vectors/README.md && git add -A
+expect_msg "is a symlink" "a README symlink under a governed path (its target is served by the artifacts)" HEAD
+fresh
+git update-index --add --cacheinfo 160000,"$(git rev-parse HEAD)",vectors/boundary/1.0.0/submodule
+expect_msg "git mode 160000" "a gitlink (submodule) under a governed path" HEAD
+fresh
+printf 'a\n' > "$(printf 'vectors/boundary/1.0.0/a\nb.json')" && git add -A
+expect_msg "control character or a space" "a governed file name with a newline" HEAD
+fresh
+printf 'a' > "vectors/boundary/1.0.0/a.json " && git add -A
+expect_msg "control character or a space" "a governed file name with a trailing space" HEAD
+for variant in 'vectors/boundary/1.0.0/a.json:Vectors/boundary/1.0.0/a.json' 'x:Tolerance/1.0.0/a.json' 'x:Json-Schema/v1/a.json' \
+               'x:vectors/Negative/1.0.0/a.json' 'x:vectors/boundary/1.0.0/Cases.json' 'x:Algorithm-Spec.md' 'x:AVRO/.enum-approvals'; do
+  fresh
+  git update-index --add --cacheinfo 100644,"$(echo '{}' | git hash-object -w --stdin)","${variant#*:}"
+  expect_msg "differ" "a case variant of a governed path (${variant#*:})" HEAD
+done
+# the names hash byte for byte: two contents of a file with a newline or a trailing space in its name give two digests
+fresh
+nl="$(printf 'vectors/boundary/1.0.0/a\nb.json')"; sp="vectors/boundary/1.0.0/c.json "
+printf 'one' > "$nl" && printf 'one' > "$sp" && git add -A && git commit -q -m one
+printf 'two' > "$nl" && printf 'two' > "$sp" && git commit -qam two
+[ "$("$GATE" --digests-ref HEAD~1 | awk '$1=="vectors-boundary"{print $3}')" != "$("$GATE" --digests-ref HEAD | awk '$1=="vectors-boundary"{print $3}')" ] \
+  || { echo "SELFTEST FAIL: a changed file with a newline or trailing space in its name left the digest unchanged"; exit 1; }
+echo "ok: a file with a newline or a trailing space in its name is hashed (content change changes the digest)"
+# the approvals file is a regular tracked file
+fresh
+rm governance/qa-approvals.txt && ln -s "$T/elsewhere-approvals.txt" governance/qa-approvals.txt && echo '# x' > "$T/elsewhere-approvals.txt" && git add -A
+expect_msg "is a symlink" "governance/qa-approvals.txt replaced by a symlink" HEAD
+fresh
+git rm -q --cached governance/qa-approvals.txt
+expect_msg "regular tracked file" "governance/qa-approvals.txt untracked" HEAD
+fresh
+git rm -q governance/qa-approvals.txt
+expect_msg "regular tracked file" "governance/qa-approvals.txt missing" HEAD
+fresh
+git update-index --add --cacheinfo 100644,"$(echo '# x' | git hash-object -w --stdin)",Governance/QA-Approvals.txt
+expect_msg "differs only in case" "a case variant of the approvals file" HEAD
 
 # the approvals file is append-only and its override is ignored in CI
 fresh
