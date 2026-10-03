@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "description": "Measurement schema tolerance profile v1.0.0: thresholds for the AGREE/MINOR_DIFF/MAJOR_DIFF classification and accuracy gates. See design section 21.2 and AT-16.",
+  "rows": [
+    {
+      "name": "accuracyGate",
+      "purpose": "QA, Kit release gate (median)",
+      "description": "Tolerance threshold for measuring median accuracy during QA and Kit release.",
+      "floorM": 0.01,
+      "relFrac": 0.02,
+      "sigmaK": null,
+      "sigmaCapM": null
+    },
+    {
+      "name": "accuracyGateP95",
+      "purpose": "QA gate (P95)",
+      "description": "Tolerance threshold for measuring P95 accuracy during QA.",
+      "floorM": 0.025,
+      "relFrac": 0.04,
+      "sigmaK": null,
+      "sigmaCapM": null
+    },
+    {
+      "name": "agree",
+      "purpose": "Comparison classification: AGREE outcome",
+      "description": "Threshold for classifying a client-server measurement pair as AGREE. The per-dimension difference must be <= tol(server, agree).",
+      "floorM": 0.02,
+      "relFrac": 0.02,
+      "sigmaK": 2,
+      "sigmaCapM": 0.10
+    },
+    {
+      "name": "minor",
+      "purpose": "Comparison classification: MINOR_DIFF outcome",
+      "description": "Threshold for classifying a pair as MINOR_DIFF. MAJOR_DIFF is assigned if the difference exceeds tol(server, minor).",
+      "floorM": 0.05,
+      "relFrac": 0.05,
+      "sigmaK": 3,
+      "sigmaCapM": 0.15
+    }
+  ],
+  "overrides": {},
+  "notes": {
+    "algorithm": "tol(ref, profile) = max(floorM, relFrac * ref, min(sigmaK * combinedSigma, sigmaCapM))",
+    "combinedSigma": "sqrt(sigmaServer^2 + sigmaClient^2); if sigmaK is null, the sigma term is omitted from max()",
+    "comparison": "Values are compared in metres rounded to 1e-5 with <=",
+    "association": "See design section 21.2 for association rules (seeded, IoU, geometric, dimension-only)",
+    "versioning": "Profile versions are immutable. A threshold retune publishes a new version (e.g. 1.1.0), never edits 1.0.0. Every measurement_comparison row stores tolerance_profile_version."
+  }
+}
