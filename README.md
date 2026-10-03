@@ -78,9 +78,9 @@ how to approve an intentional enum change.
     <version>0.0.1-SNAPSHOT</version>
   </dependency>
   ```
-- **GitHub Packages (once the `GH_PACKAGES_TOKEN` repository secret is configured):** CI publishes
-  the same artifact with `mvn deploy` after a successful build on `main` (see
-  `codegen/pom.xml`'s `<distributionManagement>`); the publish step is skipped, not failed, while
+- **GitHub Packages (once the `PUBLISH_ENABLED` secret of the `release` environment is `true`):** CI publishes
+  the same artifact with `mvn deploy` for a release tag `v<major>.<minor>.<patch>` (see
+  `codegen/pom.xml`'s `<distributionManagement>` and "Release procedure" below); the publish steps are skipped, not failed, while
   the secret is absent. Once published, add this repository's GitHub Packages Maven registry to the
   consuming project's `settings.xml`/`pom.xml` `<repositories>` and use the same dependency
   coordinates as above with the released version.
@@ -135,24 +135,38 @@ under the root), built with `./mvnw`'s `-f` flag:
 
 One annotated git tag `v<major>.<minor>.<patch>` drives every published artifact: Java jars (generated types, reference, Kotlin, vectors, Avro codegen), the Swift package, and Kit notifications.
 
-### Publishing gate
+### Publishing gate and credentials
 
-Publishing is gated on the `GH_PACKAGES_TOKEN` repository secret:
+Publishing is gated on the `PUBLISH_ENABLED` secret of the `release` environment (`true` enables it). While it is not `true`, a tag run still verifies the tagged commit and publishes nothing, loudly (warning plus job summary). One credential per trust domain, nothing shared:
 
-- The token must have `write:packages` scope plus `repo` access (to read the Swift repo and to dispatch Kit CI jobs).
-- Without the token, the build succeeds and publishes nothing (no failure).
-- Artifacts are published to GitHub Packages (Maven: `https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema`; Swift: separate repo `pawangogia21/atlas-measurement-schema-swift`).
+| Step | Credential | Scope |
+|---|---|---|
+| Maven jars to GitHub Packages | the job's own `GITHUB_TOKEN` (`permissions: packages: write`) | this repository's packages only; no secret to configure |
+| Push to `atlas-measurement-schema-swift` | `SWIFT_REPO_TOKEN`, fine-grained PAT (or GitHub App token) | that one repository, `Contents: read and write` |
+| `repository_dispatch` to the Kits | `KIT_DISPATCH_TOKEN`, fine-grained PAT (or GitHub App token) | `atlas-measure-kit-ios` and `atlas-measure-kit-android` only, `Contents: read and write` |
+
+Artifacts: Maven `https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema`; Swift: separate repo `pawangogia21/atlas-measurement-schema-swift`. Set an expiry on both fine-grained tokens and rotate them.
+
+The release fails closed. The only deliberate skips are the repository variables `SWIFT_REPO_ENABLED=false` (the Swift repository does not exist yet) and `KIT_DISPATCH_ENABLED=false` (the Kit repositories are not ready); the job summary then says the release is incomplete.
+
+### One-time GitHub setup (repository owner, before the first tag)
+
+These live in GitHub, not in the repository; the workflow depends on them:
+
+1. Environment `release` (Settings, Environments): required reviewers (not the person who pushes the tag), deployment tags restricted to `v*`; put `PUBLISH_ENABLED`, `SWIFT_REPO_TOKEN` and `KIT_DISPATCH_TOKEN` there as environment secrets, not as repository secrets.
+2. Tag ruleset (Settings, Rules) on `v*`: restrict creation to maintainers, block deletion and updates (a released tag is never moved).
+3. Branch ruleset on `main`: pull request required, code-owner review (`.github/CODEOWNERS`), required status check `build` and `swift`, dismiss stale approvals, no force push, no bypass for the change author.
+4. Packages: after the first publish, link each package to this repository (Package settings) and disallow overwriting a published version where the setting exists.
+5. Create `pawangogia21/atlas-measurement-schema-swift` (empty) before enabling the Swift step, or set `SWIFT_REPO_ENABLED=false`.
 
 ### Tag and CI flow
 
-1. Create an annotated tag: `git tag -a v1.2.3 -m "v1.2.3"` and push it: `git push origin v1.2.3`.
-2. CI (`.github/workflows/ci.yml`) detects the tag and:
-   - Builds all modules and runs all tests (Ubuntu).
-   - Generates and tests Swift types (macOS).
-   - If the `GH_PACKAGES_TOKEN` is configured, publishes:
-     - All Maven jars: types, reference, Kotlin, vectors, Avro codegen (via `set-release-version.sh` and `mvn deploy`).
-     - Swift package to `atlas-measurement-schema-swift` repo with tag `v<version>` (`.github/scripts/assemble-swift-package.sh`).
-     - Dispatches `measurement-schema-released` events to both Kits (`atlas-measure-kit-ios` and `atlas-measure-kit-android`) with the version payload.
+1. Merge to `main` first: a release is only built from a commit that is on `main` (the job fails otherwise). Create an annotated tag on that commit: `git tag -a v1.2.3 -m "v1.2.3"` and push it: `git push origin v1.2.3`. Only exact `v<major>.<minor>.<patch>` tags start the workflow.
+2. CI (`.github/workflows/ci.yml`) then:
+   - Builds all modules and runs all tests (Ubuntu; every module resolves dependencies from Maven Central) and generates and tests the Swift types (macOS).
+   - Waits for a reviewer of the `release` environment, then proves the tagged commit is an ancestor of `origin/main`.
+   - If publishing is enabled: preflights the registry (a half-published version fails with the list of what exists; a fully published version is left untouched, so a re-run after a later failure is safe), publishes the Maven jars (types, reference, Kotlin, vectors, Avro codegen via `set-release-version.sh` and `mvn deploy`), pushes the Swift package content and then its tag `v<version>` (`.github/scripts/assemble-swift-package.sh`, `publish-swift-package.sh`; an existing tag with different content fails), and dispatches `measurement-schema-released` to the Kits.
+   - A failed re-run can simply be re-run. A half-published Maven release must be cleaned up in GitHub Packages by hand, or the next patch version is released.
 
 ### Vector and tolerance-profile releases
 
@@ -160,7 +174,7 @@ Every vector set (conformance, boundary, negative) and the tolerance profile are
 
 ### Artifacts published per tag
 
-With a release tag and the token configured:
+With a release tag and publishing enabled:
 
 | Artifact | Coordinates | Consumers |
 |---|---|---|

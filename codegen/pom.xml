@@ -165,7 +165,7 @@
     </build>
 
     <!-- GitHub Packages Maven registry (Open point 4 default). CI publishes here once the
-         GH_PACKAGES_TOKEN repository secret exists (see .github/workflows/ci.yml); until then,
+         the release workflow is enabled (see .github/workflows/ci.yml, README.md "Release procedure"); until then,
          consumers use `./mvnw -f codegen/pom.xml install` into their local ~/.m2 (see README.md). -->
     <distributionManagement>
         <repository>

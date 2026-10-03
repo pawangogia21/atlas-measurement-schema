@@ -1,0 +1,22 @@
+# AT-16 S4: the governed paths need a review from their code owner, so that the QA approval lines, the vectors, the tolerance
+# profile, the contract and the gates are not approved by the account that changes them. This only has effect with the branch
+# ruleset on main "require review from Code Owners" (see README.md, "One-time GitHub setup").
+#
+# PLACEHOLDER OWNER: @pawangogia21 is the repository owner, used until a dedicated QA user or team exists. Replace it with that
+# team (for example @pawangogia21/qa-approvers) in this file; GitHub also needs the owner to have write access, and the author
+# of a change cannot approve their own pull request, so a second account or a team is what makes this control real.
+
+# approvals, vectors, tolerance profile, contract, specification
+/governance/                    @pawangogia21
+/vectors/                       @pawangogia21
+/tolerance/                     @pawangogia21
+/json-schema/                   @pawangogia21
+/algorithm-spec.md              @pawangogia21
+/avro/.enum-approvals           @pawangogia21
+
+# CI, the gate scripts (.github/scripts/*), the gate code they run, and the build bootstrap
+/.github/                       @pawangogia21
+/tools/schema-gate/             @pawangogia21
+/mvnw                           @pawangogia21
+/mvnw.cmd                       @pawangogia21
+/swift/quicktype/               @pawangogia21
