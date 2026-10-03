@@ -14,3 +14,22 @@
 # The file is append-only: a line present at the baseline may not be removed or edited. The line is added by the QA approver
 # after review, in the same PR as the change. The approver field is free text: who may add a line is enforced by CODEOWNERS and a
 # required code-owner review on governance/ (repository settings), not by this file.
+file algorithm-spec.md 9bdfee4b61949aec27b76eeae8d9320620e39ab54a08e55bdfa8d9fa58892e60 qaAgent 2026-10-03 AT-16
+file avro/.enum-approvals 8d4c5dd7f66bbbc0314ad254798da7e4ab90675e65f2e2f2590ba69f9bc114ac qaAgent 2026-10-03 AT-16
+file json-schema/.enum-approvals 730d45a73a7c5d289add0c79f89df9ac63ab323c0229d27736b40f1a2acca7bb qaAgent 2026-10-03 AT-16
+file json-schema/v1/client-capture.schema.json 822220ac1cfad43d85b4eb830a68ab1c9c8d2e9a4bd7d223eebdd592b726a912 qaAgent 2026-10-03 AT-16
+file json-schema/v1/client-measurements-batch.schema.json beae50e6c993459eb1558cd610e6f94166b3b9f74f98d984a1b4e0b705b70e6f qaAgent 2026-10-03 AT-16
+file json-schema/v1/examples/client-capture.json 766465d6bdd6194525f2057aaeecc5970161a32d46aad020ad8d9b7d61202c37 qaAgent 2026-10-03 AT-16
+file json-schema/v1/examples/live-measurement-object-box.json 4776cb7cbd8d2def97bacc1ac05e6d6fedda3b9991c4d3422ed9a81800bd947f qaAgent 2026-10-03 AT-16
+file json-schema/v1/examples/live-measurement-plane-distance.json 688ee7cf6cfdcdf2a94c6651bff97d1cd7e5d0e1008947fbbd7dfefb13d925e6 qaAgent 2026-10-03 AT-16
+file json-schema/v1/examples/live-measurement-plane-normal-0.9991.json 9f3c7a4fe7f6620fde50660a3d13a2bef204c07dc6f6dcb1673b108ecb160b37 qaAgent 2026-10-03 AT-16
+file json-schema/v1/examples/live-measurement-point-to-point.json cbf692f8b2256d70c9a767fc3e7732af7e96f5f735d9cec9dc1a16438210d81b qaAgent 2026-10-03 AT-16
+file json-schema/v1/live-measurement.schema.json 8574072aba8edbcb1b66f6c6e330e973b4b7fbd407321f7e96ded4a70e0f3c46 qaAgent 2026-10-03 AT-16
+file tolerance/manifest.json 6c11a6daf086ebd41909522706c07ea7822c719d9272a68ef5e22f37198782a1 qaAgent 2026-10-03 AT-16
+file tolerance/smoke-cases.json a6c7a46d7b7f49d306abc8668888642d4019174f0333ece00fab1ae30b2e8861 qaAgent 2026-10-03 AT-16
+file tolerance/tolerance-profile.schema.json 25b31a647ac13212aecc0a2979728218753f5d76b29a3069132013a1840d8546 qaAgent 2026-10-03 AT-16
+file vectors/manifest.json 4db17037293b8fb3ce1ad113f3a6ede4f615ab448778b078a7d7457decd37834 qaAgent 2026-10-03 AT-16
+tolerance-profile 1.0.0 9264e1fa22f32af2f27afbe81313aa3796b68b8d45c59e9fc428f41a98821708 qaAgent 2026-10-03 AT-16
+vectors-boundary 1.0.0 225847e217971c0899dffd1a62bb28b1482a34e2b0c0f821e4fc61dcb160d423 qaAgent 2026-10-03 AT-16
+vectors-conformance 1.0.0 6f76d47116e0402062aac9f1d98d3939c34144cccdcacc7616101cd0200b4934 qaAgent 2026-10-03 AT-16
+vectors-negative 1.0.0 634db710a4b862d31deda8d5db5b6cc4e9e16e083ab4800db899f9d5cd5c6b1a qaAgent 2026-10-03 AT-16
