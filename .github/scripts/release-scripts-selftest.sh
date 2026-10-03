@@ -34,12 +34,23 @@ expect_fail "a shallow checkout fails the provenance check (cannot prove anythin
 cat > "$T/stub.py" <<'PY'
 import http.server, os, sys
 PRESENT = set(filter(None, os.environ.get("STUB_PRESENT", "").split(",")))
+NOJAR = set(filter(None, os.environ.get("STUB_NOJAR", "").split(",")))
+REDIRECT = os.environ.get("STUB_REDIRECT") == "1"
+PORT = sys.argv[1]
 class H(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path.startswith("/blob/"):
+            # the "storage host" (localhost, not 127.0.0.1): the registry token must not arrive here
+            self.send_response(403 if self.headers.get("Authorization") else 200); self.end_headers(); return
         if self.headers.get("Authorization") is None:
             self.send_response(401); self.end_headers(); return
         art = self.path.rsplit("/", 1)[-1]
-        self.send_response(200 if any(art.startswith(p + "-") for p in PRESENT) else 404); self.end_headers()
+        hit = any(art.startswith(p + "-") for p in PRESENT) and not (art.endswith(".jar") and any(art.startswith(p + "-") for p in NOJAR))
+        if hit and REDIRECT:
+            self.send_response(302); self.send_header("Location", "http://localhost:%s/blob/%s" % (PORT, art)); self.end_headers(); return
+        if os.environ.get("STUB_CODE") and hit:
+            self.send_response(int(os.environ["STUB_CODE"])); self.end_headers(); return
+        self.send_response(200 if hit else 404); self.end_headers()
     def do_POST(self):
         self.rfile.read(int(self.headers.get("Content-Length", 0)))
         bad = self.path.split("/")[3] == os.environ.get("STUB_BAD_KIT", "-")
@@ -48,9 +59,9 @@ class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
 http.server.HTTPServer(("127.0.0.1", int(sys.argv[1])), H).serve_forever()
 PY
-start_stub() { # port present bad-kit
+start_stub() { # port present bad-kit [nojar]; STUB_REDIRECT / STUB_CODE come from the environment
   stop_stub
-  STUB_PRESENT="$2" STUB_BAD_KIT="${3:--}" python3 "$T/stub.py" "$1" & STUB_PID=$!
+  STUB_PRESENT="$2" STUB_BAD_KIT="${3:--}" STUB_NOJAR="${4:-}" python3 "$T/stub.py" "$1" & STUB_PID=$!
   for _ in 1 2 3 4 5 6 7 8 9 10; do curl -s -o /dev/null "http://127.0.0.1:$1/" && break; sleep 0.3; done
 }
 PORT=$((20000 + RANDOM % 20000))
@@ -66,6 +77,24 @@ start_stub "$PORT" "atlas-measurement-schema-types,atlas-measurement-schema-refe
 "$SCRIPTS/release-preflight.sh" 9.9.9 >/dev/null
 grep -qx 'maven_state=complete' "$T/gho" || fail "preflight: everything published must give complete"
 ok "preflight: everything published -> complete (re-run skips the deploy)"
+ALL_ARTIFACTS="atlas-measurement-schema-types,atlas-measurement-schema-reference,atlas-measurement-schema-kotlin,atlas-measurement-vectors,atlas-measurement-schema-codegen"
+# a run that died between the pom and the jar of one module must not read as complete
+start_stub "$PORT" "$ALL_ARTIFACTS" - "atlas-measurement-schema-kotlin"
+expect_fail "preflight: a pom without its jar is not complete" "$SCRIPTS/release-preflight.sh" 9.9.9
+grep -q 'half published' "$T/out" || fail "preflight: a missing jar must read as half published"
+ok "preflight: a missing jar reads as half published"
+# a 302 to another host is followed, and the Authorization header does not travel to that host (the stub answers 403 if it does)
+: > "$T/gho"; STUB_REDIRECT=1 start_stub "$PORT" "$ALL_ARTIFACTS"
+"$SCRIPTS/release-preflight.sh" 9.9.9 >/dev/null || fail "preflight: a 302 to the object must be followed"
+grep -qx 'maven_state=complete' "$T/gho" || fail "preflight: redirected objects must read as complete"
+ok "preflight: a 302 is followed and the token is not forwarded cross-host"
+: > "$T/gho"; STUB_REDIRECT=1 start_stub "$PORT" ""
+"$SCRIPTS/release-preflight.sh" 9.9.9 >/dev/null
+grep -qx 'maven_state=none' "$T/gho" || fail "preflight: redirect stub with nothing published must give none"
+STUB_CODE=500 start_stub "$PORT" "$ALL_ARTIFACTS"
+expect_fail "preflight: an unexpected status (500) fails closed" "$SCRIPTS/release-preflight.sh" 9.9.9
+STUB_CODE=403 start_stub "$PORT" "$ALL_ARTIFACTS"
+expect_fail "preflight: an unexpected status (403) fails closed" "$SCRIPTS/release-preflight.sh" 9.9.9
 start_stub "$PORT" "atlas-measurement-schema-types"
 expect_fail "preflight: a half-published release fails with a message" "$SCRIPTS/release-preflight.sh" 9.9.9
 grep -q 'half published' "$T/out" || fail "preflight: the message must name the problem"
