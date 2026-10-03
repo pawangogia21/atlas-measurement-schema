@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.example/measurement/v1/client-capture.schema.json",
+  "title": "clientCapture",
+  "description": "Optional clientCapture object of POST /api/v1/models/uploads (design 25.2), schema 1.0. A client claim; the server derives anything that influences a trusted number. Unknown fields are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["appVersion", "kitVersion", "algorithmVersion", "schemaVersion", "depthTier", "depthSource", "device", "sessionId"],
+  "properties": {
+    "appVersion": { "type": "string", "minLength": 1, "maxLength": 32 },
+    "kitVersion": { "type": "string", "minLength": 1, "maxLength": 16 },
+    "algorithmVersion": { "type": "string", "maxLength": 16, "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "schemaVersion": { "const": "1.0" },
+    "depthTier": { "enum": ["A", "B", "C", "D"] },
+    "depthSource": { "enum": ["LIDAR", "TOF", "DEPTH_FROM_MOTION", "NONE"] },
+    "deviceListed": { "type": "boolean", "description": "False when the host opted in to an unlisted device (design 18, item 3)." },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "os"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "os": { "type": "string", "minLength": 1, "maxLength": 64 }
+      }
+    },
+    "sessionId": { "type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" }
+  }
+}
