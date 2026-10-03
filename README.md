@@ -13,7 +13,7 @@ This repository defines the schema contracts that are used across Atlas services
   - **`codegen/`** — Maven module generating Java types from `avro/*.avsc` (AT-2); consumed by ingestion and processing services
 - **`vectors/conformance/`** — Cross-platform numerical-parity vectors for tier A algorithms and shared primitives
 - **`vectors/boundary/`** — Boundary vectors for tolerance threshold testing and association rule validation
-- **`vectors/negative/`** — Payloads the intake must reject (105 vectors), including batch per-item rejection
+- **`vectors/negative/`** — Payloads the intake must reject (118 vectors), including batch per-item rejection and the `uploads/complete` hint-dropping cases
 - **`vectors-artifact/`** — Maven module packaging all vectors (conformance, boundary, negative), the tolerance profiles and the JSON Schema as the `atlas-measurement-vectors` jar for Kit and test consumption
 - **`tolerance/`** — One folder per released tolerance profile (`tolerance/<version>/tolerance-profile.json`, listed with sha256 in `tolerance/manifest.json`), plus the normative text of the tolerance function and the association rule
 - **`reference/`** — Java 11 reference implementation of the specification: the tolerance function, validator, association rule, conformance/boundary/negative vector generators, and Python cross-check spec (`spec-crosscheck/specpy.py`). Produces the `atlas-measurement-schema-reference` jar (published).
