@@ -3,6 +3,8 @@ name: CI
 on:
   push:
     branches: [ main ]
+    # One release tag v<major>.<minor>.<patch> drives every published artifact (AT-16, design 31.10).
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
 
@@ -13,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        # Needed so the Avro compatibility gate below can diff against a baseline commit.
+        # Needed so the compatibility and governance gates below can diff against a baseline commit.
         fetch-depth: 0
 
     - name: Set up JDK 21
@@ -23,16 +25,16 @@ jobs:
         distribution: 'temurin'
         cache: maven
         # Populates ~/.m2/settings.xml with a <server id="github"> entry so `mvn deploy` can
-        # authenticate to GitHub Packages later in this job, using GITHUB_TOKEN below.
+        # authenticate to GitHub Packages (the publish job), using GITHUB_TOKEN there.
         server-id: github
 
     - name: Build with Maven
       run: ./mvnw -B verify
 
-    - name: Build the Avro schema-compatibility gate tool
+    - name: Build the schema-compatibility gates (Avro and JSON Schema)
       run: ./mvnw -f tools/schema-gate/pom.xml -B verify
 
-    - name: Determine Avro compatibility baseline
+    - name: Determine compatibility baseline
       id: baseline
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -44,20 +46,141 @@ jobs:
     - name: Avro backward-compatibility and enum-change gate (AT-2)
       run: ./.github/scripts/avro-compat-gate.sh "${{ steps.baseline.outputs.ref }}"
 
+    - name: JSON Schema backward-compatibility gate (AT-16)
+      run: ./.github/scripts/json-schema-compat-gate.sh "${{ steps.baseline.outputs.ref }}"
+
+    - name: Governance gate - vector and tolerance-profile changes need a recorded QA approval (AT-16)
+      run: |
+        ./.github/scripts/governance-gate-selftest.sh
+        ./.github/scripts/governance-gate.sh "${{ steps.baseline.outputs.ref }}"
+
+    - name: Reference implementation - schemas, validator, tolerance function, association, vector reproducibility (AT-16)
+      # Also fails when a committed vector is not byte-identical to what its generator produces.
+      run: ./mvnw -f reference/pom.xml -B verify
+
+    - name: Independent Python cross-check of algorithm-spec.md against the conformance vectors (AT-16)
+      run: python3 reference/spec-crosscheck/specpy.py
+
+    - name: Generated Java types from the JSON Schema (jsonschema2pojo, JVM 11)
+      run: ./mvnw -f codegen-json/pom.xml -B install
+
+    - name: Kotlin JVM 11 artifact - tolerance function against the boundary vectors, generated types from Kotlin
+      run: ./mvnw -f kotlin/pom.xml -B verify
+
+    - name: Vector artifact
+      run: ./mvnw -f vectors-artifact/pom.xml -B verify
+
     - name: Generate and test the Avro Java types (codegen)
       # Includes the Testcontainers-based round-trip/spike IT (needs Docker; available by
       # default on GitHub-hosted ubuntu-latest runners).
       run: ./mvnw -f codegen/pom.xml -B verify
 
-    - name: Check for a GitHub Packages publish token
+  swift:
+    # The Swift port and the generated Swift types need a macOS runner (SwiftPM on Linux lacks the Apple frameworks of the
+    # Kits' targets, and the Accelerate parity of the cores is verified in the Kit tickets).
+    runs-on: macos-15
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Generate the Swift types from the JSON Schema (quicktype, pinned)
+      run: ./swift/generate-types.sh
+
+    - name: Swift tests - tolerance function against the boundary vectors, generated types
+      working-directory: swift
+      run: swift test
+
+    - name: Assemble the publishable Swift package and build it
+      run: |
+        ./.github/scripts/assemble-swift-package.sh "$RUNNER_TEMP/swift-package"
+        cd "$RUNNER_TEMP/swift-package" && swift build
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: swift-package
+        path: ${{ runner.temp }}/swift-package
+
+  publish:
+    # Runs only for a release tag v<major>.<minor>.<patch> (AT-16, design 31.10). Everything below is gated on the
+    # GH_PACKAGES_TOKEN repository secret, exactly like AT-2's deploy step: while it is absent the job succeeds and
+    # publishes nothing. The token needs write:packages and, for the Swift repository and the Kit dispatches, repo access.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ build, swift ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Release version from the tag
+      id: version
+      run: echo "value=$(./.github/scripts/release-version.sh "${GITHUB_REF_NAME}")" >> "$GITHUB_OUTPUT"
+
+    - name: Check for a publish token
       id: packages
       run: echo "configured=${{ secrets.GH_PACKAGES_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
 
-    - name: Publish the generated types jar to GitHub Packages
-      # Open point 4's default (AT-2.md): publish to GitHub Packages Maven once the
-      # GH_PACKAGES_TOKEN repository secret exists; never fail the build while it's absent.
-      # Until then, consumers use `./mvnw -f codegen/pom.xml install` locally (see README.md).
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.packages.outputs.configured == 'true'
+    - name: Set up JDK 21
+      if: steps.packages.outputs.configured == 'true'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        server-id: github
+
+    - name: Publish the Maven artifacts to GitHub Packages (types, reference, Kotlin, vectors, Avro codegen)
+      if: steps.packages.outputs.configured == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-      run: ./mvnw -f codegen/pom.xml -B -DskipTests deploy
+      run: |
+        ./.github/scripts/set-release-version.sh "${{ steps.version.outputs.value }}"
+        # types first: the Kotlin artifact depends on it
+        for module in codegen-json reference kotlin vectors-artifact codegen; do
+          ./mvnw -f "$module/pom.xml" -B -DskipTests -Dmaven.javadoc.skip=true deploy
+        done
+
+    - uses: actions/download-artifact@v4
+      if: steps.packages.outputs.configured == 'true'
+      with:
+        name: swift-package
+        path: swift-package
+
+    - name: Publish the Swift package (atlas-measurement-schema-swift, tag v<version>)
+      if: steps.packages.outputs.configured == 'true'
+      env:
+        TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+      run: |
+        # The separate repository is created by the user; until it exists this step only warns.
+        REPO="https://x-access-token:${TOKEN}@github.com/pawangogia21/atlas-measurement-schema-swift.git"
+        if ! git clone --quiet "$REPO" swift-repo 2>/dev/null; then
+          echo "::warning::pawangogia21/atlas-measurement-schema-swift does not exist (or the token cannot read it): Swift package not published"
+          exit 0
+        fi
+        cd swift-repo
+        git rm -rq --ignore-unmatch .
+        cp -R ../swift-package/. .
+        git add -A
+        git -c user.name="atlas-release" -c user.email="atlas-release@users.noreply.github.com" commit -q -m "Release v${VERSION}" || true
+        git -c user.name="atlas-release" -c user.email="atlas-release@users.noreply.github.com" tag -a "v${VERSION}" -m "v${VERSION}"
+        git push --quiet origin HEAD "v${VERSION}"
+
+    - name: Trigger both Kits' CI (design 31.10)
+      if: steps.packages.outputs.configured == 'true'
+      env:
+        TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+      run: |
+        for kit in atlas-measure-kit-ios atlas-measure-kit-android; do
+          curl -sS -o /dev/null -w "$kit dispatch: %{http_code}\n" -X POST \
+            -H "Authorization: Bearer ${TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/pawangogia21/${kit}/dispatches" \
+            -d "{\"event_type\":\"measurement-schema-released\",\"client_payload\":{\"version\":\"${VERSION}\"}}" || true
+        done
