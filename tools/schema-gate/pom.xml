@@ -24,6 +24,19 @@
         <junit.version>5.11.3</junit.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- keep every Jackson artifact (transitives included) on one patched version, as reference/pom.xml does -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.avro</groupId>
