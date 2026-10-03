@@ -1,8 +1,16 @@
-# qaAgent approvals for vector and tolerance-profile releases (AT-16 sub-task K, design 31.4).
-# One line per approved artifact version; the CI gate (.github/scripts/governance-gate.sh) fails a vector or
-# tolerance-profile change that has no matching line. Format, space separated:
+# qaAgent approvals for the governed contract, vector and tolerance-profile artifacts (AT-16 sub-task K, design 31.4).
+# One line per approved artifact version; the CI gate (.github/scripts/governance-gate.sh) fails a governed change that has no
+# matching line. Format, space separated:
 #   <artifact> <version> <digest> <approved-by> <yyyy-mm-dd> <ticket>
-# <artifact>: tolerance-profile | vectors-conformance | vectors-boundary | vectors-negative
-# <digest>:   .github/scripts/governance-gate.sh --digests   (sha256 over the sorted file hashes of the artifact)
-# The line is added by the QA approver after review, in the same PR as the change. A released version is immutable:
-# a retune is a new version (1.1.0) with its own line, never an edit of 1.0.0.
+# <artifact> <version>:
+#   tolerance-profile <v>      the folder tolerance/<v>/ (a retune is a new folder, 1.1.0, never an edit of 1.0.0)
+#   vectors-<set> <v>          the folder vectors/<set>/<v>/ for any set (conformance, boundary, negative, ...)
+#   file <path>                any other governed file: algorithm-spec.md, tolerance/*, vectors/* outside the version folders,
+#                              json-schema/** (schemas, examples, .enum-approvals), avro/.enum-approvals. README.md files are
+#                              documentation and not governed.
+# <digest>: .github/scripts/governance-gate.sh --digests   (sha256 over the sorted path:mode:content-sha256 lines of the tracked
+#           files of the artifact; untracked files never count)
+# Removing a released artifact needs the line:  <artifact> <version> RETIRE <approved-by> <yyyy-mm-dd> <ticket>
+# The file is append-only: a line present at the baseline may not be removed or edited. The line is added by the QA approver
+# after review, in the same PR as the change. The approver field is free text: who may add a line is enforced by CODEOWNERS and a
+# required code-owner review on governance/ (repository settings), not by this file.

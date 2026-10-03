@@ -127,6 +127,48 @@ class JsonSchemaCompatibilityGateTest {
     }
 
     @Test
+    void tighteningKeywordsTheGateDoesNotKnowAreRejected() throws IOException {
+        // F10: each of these can tighten an existing property and used to pass silently
+        String[][] cases = {
+            {"multipleOf", "0.001"}, {"dependentRequired", "{\"sigmaM\":[\"ci95M\"]}"}, {"dependentSchemas", "{\"sigmaM\":{\"required\":[\"ci95M\"]}}"},
+            {"propertyNames", "{\"maxLength\":3}"}, {"patternProperties", "{\"^x\":{\"type\":\"number\"}}"}, {"contains", "{\"type\":\"number\"}"},
+            {"minContains", "2"}, {"maxContains", "1"}, {"unevaluatedProperties", "false"}, {"unevaluatedItems", "false"}, {"$dynamicRef", "\"#x\""},
+            {"$anchor", "\"x\""}, {"contentEncoding", "\"base64\""}};
+        for (String[] c : cases) {
+            JsonSchemaCompatibilityGate.Result r = changed(n -> {
+                try {
+                    ((ObjectNode) ((ObjectNode) n.get("$defs")).get("measured")).set(c[0], MAPPER.readTree(c[1]));
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            assertThat(r.violations()).as(c[0]).anyMatch(v -> v.contains("keyword '" + c[0] + "' is not understood"));
+        }
+        // also on a property, and an unknown keyword removed or changed (cannot be compared either)
+        assertThat(changed(n -> ((ObjectNode) props(n).get("confidence")).put("multipleOf", 0.01)).violations()).isNotEmpty();
+    }
+
+    @Test
+    void anUnknownKeywordAlreadyInTheBaselineMayStayButNotChange() throws IOException {
+        ObjectNode b = (ObjectNode) MAPPER.readTree(REAL.toFile());
+        ((ObjectNode) ((ObjectNode) b.get("$defs")).get("measured")).put("multipleOf", 0.001);
+        MAPPER.writeValue(baseline.resolve(FILE).toFile(), b);
+        assertThat(changed(n -> ((ObjectNode) ((ObjectNode) n.get("$defs")).get("measured")).put("multipleOf", 0.001)).violations()).isEmpty();
+        assertThat(changed(n -> ((ObjectNode) ((ObjectNode) n.get("$defs")).get("measured")).put("multipleOf", 0.01)).violations()).isNotEmpty();
+        assertThat(changed(n -> { }).violations()).anyMatch(v -> v.contains("'multipleOf'"));
+    }
+
+    @Test
+    void freeAnnotationsMayChange() throws IOException {
+        assertThat(changed(n -> {
+            n.put("title", "Renamed");
+            n.put("$comment", "c");
+            n.putArray("examples").add("x");
+            ((ObjectNode) props(n).get("confidence")).put("default", 0.5).put("description", "reworded").put("deprecated", false);
+        }).violations()).isEmpty();
+    }
+
+    @Test
     void aRemovedDefinitionFails() throws IOException {
         assertThat(changed(n -> ((ObjectNode) n.get("$defs")).remove("vec2")).violations()).anyMatch(v -> v.contains("definition 'vec2' removed"));
     }

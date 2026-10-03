@@ -12,14 +12,15 @@ GATE_JAR="$REPO_ROOT/tools/schema-gate/target/atlas-measurement-schema-gate-0.0.
 APPROVALS_FILE="$REPO_ROOT/avro/.enum-approvals"
 BASELINE_DIR="$(mktemp -d)"
 
-BASELINE_REF="${1:-}"
+# The baseline is the merge-base with the given ref; a tag build or a first push (empty or all-zero ref) compares against the
+# previous release tag or origin/main (resolve-baseline.sh). A baseline that cannot be resolved fails a tag build.
+BASELINE_REF="$(cd "$REPO_ROOT" && "$(dirname "${BASH_SOURCE[0]}")/resolve-baseline.sh" "${1:-}")"
 if [ -z "$BASELINE_REF" ]; then
-  echo "Usage: avro-compat-gate.sh <baseline-git-ref>" >&2
-  exit 2
-fi
-
-if ! git -C "$REPO_ROOT" rev-parse --verify "$BASELINE_REF" >/dev/null 2>&1; then
-  echo "Baseline ref '$BASELINE_REF' does not exist yet (first commit on this branch) - skipping the gate."
+  if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+    echo "FAIL: no baseline to compare the Avro schemas against on a release build" >&2
+    exit 1
+  fi
+  echo "Baseline '${1:-}' does not exist yet (first commit on this branch) - skipping the gate."
   exit 0
 fi
 

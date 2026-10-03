@@ -22,7 +22,12 @@ import java.util.stream.Stream;
  * <p>Fails on: a removed schema file or property or {@code $defs} entry, a new required property, a changed
  * {@code type}, {@code $ref}, {@code format} or {@code pattern}, a tightened bound (higher minimum, lower maximum,
  * {@code minItems}, {@code maxItems}, {@code minLength}, {@code maxLength}, new {@code uniqueItems}), a changed
- * {@code additionalProperties}, a changed {@code items}.
+ * {@code additionalProperties}, a changed {@code items}, and any keyword the gate does not understand that is added,
+ * changed or removed (for example {@code multipleOf}, {@code dependentRequired}, {@code dependentSchemas},
+ * {@code propertyNames}, {@code patternProperties}, {@code contains}/{@code minContains}/{@code maxContains},
+ * {@code unevaluatedProperties}/{@code unevaluatedItems}, {@code $dynamicRef}): they can tighten a schema and cannot be
+ * compared, so they are never silently accepted. Only the annotations description, title, default, examples,
+ * {@code $comment}, {@code $id}, {@code $schema} and deprecated are free.
  * <p>Compatibility events that are failures unless approved by key: any change to an {@code enum} or {@code const}
  * (symbols are a compatibility event, as in the Avro gate) and any change to the conditional keywords
  * ({@code allOf, anyOf, oneOf, if, then, else, not}), which cannot be compared structurally. A key is
@@ -39,6 +44,10 @@ public final class JsonSchemaCompatibilityGate {
     private static final List<String> UPPER_BOUNDS = List.of("maximum", "exclusiveMaximum", "maxLength", "maxItems", "maxProperties");
     private static final List<String> EXACT = List.of("type", "$ref", "format", "pattern", "additionalProperties", "prefixItems");
     private static final List<String> APPROVABLE_EXACT = List.of("enum", "const", "allOf", "anyOf", "oneOf", "if", "then", "else", "not");
+    /** Keywords handled above or by the traversal ({@code items}, {@code uniqueItems}, {@code required}, members). */
+    private static final Set<String> TRAVERSED = Set.of("items", "uniqueItems", "required", "properties", "$defs");
+    /** Annotations that never change what a document must satisfy: free to change. */
+    private static final Set<String> FREE = Set.of("description", "title", "default", "examples", "$comment", "$id", "$schema", "deprecated");
 
     /** Result: the violations (empty = pass) and how many schema files were compared. */
     public static final class Result {
@@ -176,8 +185,22 @@ public final class JsonSchemaCompatibilityGate {
                 fail(file, ptr + "/required", "new required property '" + r + "' (add optional fields only)");
             }
         }
+        Set<String> keywords = new LinkedHashSet<>();
+        base.fieldNames().forEachRemaining(keywords::add);
+        cur.fieldNames().forEachRemaining(keywords::add);
+        for (String k : keywords) {
+            if (!isKnown(k) && !same(base.get(k), cur.get(k))) {
+                fail(file, ptr + "/" + k, "keyword '" + k + "' is not understood by the gate and was added, changed or removed (it can tighten the schema: "
+                        + "add optional properties only, or bump the major)");
+            }
+        }
         compareMembers(file, ptr + "/properties", base.get("properties"), cur.get("properties"), "property");
         compareMembers(file, ptr + "/$defs", base.get("$defs"), cur.get("$defs"), "definition");
+    }
+
+    private static boolean isKnown(String keyword) {
+        return EXACT.contains(keyword) || APPROVABLE_EXACT.contains(keyword) || LOWER_BOUNDS.contains(keyword) || UPPER_BOUNDS.contains(keyword)
+                || TRAVERSED.contains(keyword) || FREE.contains(keyword);
     }
 
     private void compareMembers(String file, String ptr, JsonNode base, JsonNode cur, String what) {
