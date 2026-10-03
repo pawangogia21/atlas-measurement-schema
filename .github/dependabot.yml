@@ -1,0 +1,23 @@
+# AT-16 S9: actions are pinned to commit SHAs and quicktype to a lockfile (Maven dependencies: see the maven entry); Dependabot proposes the bumps as reviewed pull requests.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /swift/quicktype
+    schedule:
+      interval: weekly
+  # the root reactor and each module with its own pom: dependency and plugin versions (Jackson etc.) are proposed as reviewed PRs
+  - package-ecosystem: maven
+    directories:
+      - /
+      - /codegen
+      - /codegen-json
+      - /kotlin
+      - /reference
+      - /vectors-artifact
+      - /tools/schema-gate
+    schedule:
+      interval: weekly

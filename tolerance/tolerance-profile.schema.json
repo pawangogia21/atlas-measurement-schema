@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.example/tolerance/tolerance-profile.schema.json",
+  "title": "Atlas tolerance profile",
+  "description": "Versioned thresholds for the single tolerance function (design 21.2). A released profile version is immutable; a retune publishes a new version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "rows", "overrides"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "rows": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/row" },
+      "allOf": [
+        { "contains": { "properties": { "name": { "const": "accuracyGate" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "accuracyGateP95" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "agree" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "minor" } }, "required": ["name"] } }
+      ]
+    },
+    "overrides": {
+      "description": "algorithmMajor (decimal string) -> row name -> partial row. Only the fields present replace the base row's fields; see tolerance/README.md.",
+      "type": "object",
+      "propertyNames": { "pattern": "^(0|[1-9][0-9]*)$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accuracyGate": { "$ref": "#/$defs/rowOverride" },
+          "accuracyGateP95": { "$ref": "#/$defs/rowOverride" },
+          "agree": { "$ref": "#/$defs/rowOverride" },
+          "minor": { "$ref": "#/$defs/rowOverride" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "floorM": { "type": "number", "minimum": 0 },
+    "relFrac": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sigmaK": { "type": ["number", "null"], "minimum": 0, "description": "null: no sigma term" },
+    "sigmaCapM": { "type": ["number", "null"], "minimum": 0, "description": "null: sigma term uncapped" },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "floorM", "relFrac", "sigmaK", "sigmaCapM"],
+      "properties": {
+        "name": { "enum": ["accuracyGate", "accuracyGateP95", "agree", "minor"] },
+        "floorM": { "$ref": "#/$defs/floorM" },
+        "relFrac": { "$ref": "#/$defs/relFrac" },
+        "sigmaK": { "$ref": "#/$defs/sigmaK" },
+        "sigmaCapM": { "$ref": "#/$defs/sigmaCapM" }
+      }
+    },
+    "rowOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "floorM": { "$ref": "#/$defs/floorM" },
+        "relFrac": { "$ref": "#/$defs/relFrac" },
+        "sigmaK": { "$ref": "#/$defs/sigmaK" },
+        "sigmaCapM": { "$ref": "#/$defs/sigmaCapM" }
+      }
+    }
+  }
+}

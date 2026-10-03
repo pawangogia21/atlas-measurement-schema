@@ -1,0 +1,18 @@
+{
+  "description" : "A vertical wall 3 m ahead, no floor: no horizontal plane, status NO_SUPPORT_PLANE.",
+  "category" : "degenerate",
+  "width" : 64,
+  "height" : 48,
+  "depthFile" : "depth.f32",
+  "confidence" : {
+    "constant" : 1.0
+  },
+  "depthIntrinsics" : {
+    "fx" : 57.6,
+    "fy" : 57.6,
+    "cx" : 31.5,
+    "cy" : 23.5
+  },
+  "poseCameraToWorldRowMajor" : [ 1.0, 0.0, -0.0, 0.0, -0.0, 1.0, -0.0, 1.2, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+  "windowIndex" : 1
+}

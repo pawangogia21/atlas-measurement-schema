@@ -1,0 +1,1449 @@
+{
+  "vectorSet" : "negative",
+  "version" : "1.0.0",
+  "description" : "Payloads the server must reject. Every vector expects HTTP 422 with code CLIENT_MEASUREMENT_INVALID, except kind batchItems (a valid envelope: per-item results in expectedItems, and the text each invalid item's errors must contain in expectedItemErrorContains) and kind hintsComplete (the clientMeasurements array of uploads/complete: the upload is never rejected, a body-level violation drops all hints and an item-level one only that item, with the warning CLIENT_HINTS_DROPPED in expectedWarnings). A single document nested deeper than 8 is refused before it is materialised, including the over-100k-deep body, which a consumer must reject without exhausting its stack. In a batch, a body deeper than the transport ceiling of 32 (batch-body-depth-33) is refused as a whole, while an item deeper than 8 but within the ceiling is INVALID on its own (batch-item-depth-9, kind batchItems). An unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED (batch-item-schema-version-unsupported).",
+  "vectors" : [ {
+    "id" : "missing-schemaVersion",
+    "kind" : "liveMeasurement",
+    "path" : "missing-schemaVersion.json",
+    "reason" : "required field schemaVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "schemaVersion"
+  }, {
+    "id" : "missing-algorithmVersion",
+    "kind" : "liveMeasurement",
+    "path" : "missing-algorithmVersion.json",
+    "reason" : "required field algorithmVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "missing-clientMeasurementId",
+    "kind" : "liveMeasurement",
+    "path" : "missing-clientMeasurementId.json",
+    "reason" : "required field clientMeasurementId is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "clientMeasurementId"
+  }, {
+    "id" : "missing-timestamp",
+    "kind" : "liveMeasurement",
+    "path" : "missing-timestamp.json",
+    "reason" : "required field timestamp is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "timestamp"
+  }, {
+    "id" : "missing-mode",
+    "kind" : "liveMeasurement",
+    "path" : "missing-mode.json",
+    "reason" : "required field mode is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "mode"
+  }, {
+    "id" : "missing-unit",
+    "kind" : "liveMeasurement",
+    "path" : "missing-unit.json",
+    "reason" : "required field unit is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unit"
+  }, {
+    "id" : "missing-dimensions",
+    "kind" : "liveMeasurement",
+    "path" : "missing-dimensions.json",
+    "reason" : "required field dimensions is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "dimensions"
+  }, {
+    "id" : "missing-confidence",
+    "kind" : "liveMeasurement",
+    "path" : "missing-confidence.json",
+    "reason" : "required field confidence is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "confidence"
+  }, {
+    "id" : "missing-state",
+    "kind" : "liveMeasurement",
+    "path" : "missing-state.json",
+    "reason" : "required field state is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "state"
+  }, {
+    "id" : "missing-qualityFlags",
+    "kind" : "liveMeasurement",
+    "path" : "missing-qualityFlags.json",
+    "reason" : "required field qualityFlags is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "qualityFlags"
+  }, {
+    "id" : "missing-depthTier",
+    "kind" : "liveMeasurement",
+    "path" : "missing-depthTier.json",
+    "reason" : "required field depthTier is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthTier"
+  }, {
+    "id" : "missing-depthSource",
+    "kind" : "liveMeasurement",
+    "path" : "missing-depthSource.json",
+    "reason" : "required field depthSource is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthSource"
+  }, {
+    "id" : "missing-frameOfReference",
+    "kind" : "liveMeasurement",
+    "path" : "missing-frameOfReference.json",
+    "reason" : "required field frameOfReference is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "frameOfReference"
+  }, {
+    "id" : "missing-scaleSource",
+    "kind" : "liveMeasurement",
+    "path" : "missing-scaleSource.json",
+    "reason" : "required field scaleSource is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "scaleSource"
+  }, {
+    "id" : "missing-device",
+    "kind" : "liveMeasurement",
+    "path" : "missing-device.json",
+    "reason" : "required field device is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "device"
+  }, {
+    "id" : "unknown-field-top-level",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-top-level.json",
+    "reason" : "unknown top-level field (additionalProperties false)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-field-nested-dimensions",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-nested-dimensions.json",
+    "reason" : "unknown field inside a dimension value",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-field-nested-device",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-nested-device.json",
+    "reason" : "unknown field inside device",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-field-nested-frame-of-reference",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-nested-frame-of-reference.json",
+    "reason" : "unknown field inside frameOfReference",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-field-nested-obb",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-nested-obb.json",
+    "reason" : "unknown field inside obb",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-field-nested-keypoint",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-field-nested-keypoint.json",
+    "reason" : "unknown field inside a keypoint",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "unknown-enum-mode",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-mode.json",
+    "reason" : "mode is not an OBJECT_BOX / POINT_TO_POINT / PLANE_DISTANCE symbol",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "mode"
+  }, {
+    "id" : "unknown-enum-state",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-state.json",
+    "reason" : "state is not a known symbol",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "state"
+  }, {
+    "id" : "unknown-enum-depth-tier",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-depth-tier.json",
+    "reason" : "depthTier is not A, B, C or D",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthTier"
+  }, {
+    "id" : "unknown-enum-depth-source",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-depth-source.json",
+    "reason" : "depthSource is not a known symbol",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthSource"
+  }, {
+    "id" : "unknown-enum-scale-source",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-scale-source.json",
+    "reason" : "scaleSource is not a known symbol",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "scaleSource"
+  }, {
+    "id" : "unknown-enum-quality-flag",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-quality-flag.json",
+    "reason" : "qualityFlags contains an unknown symbol",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "qualityFlags"
+  }, {
+    "id" : "unknown-enum-unit",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-unit.json",
+    "reason" : "unit must be METRE",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unit"
+  }, {
+    "id" : "unknown-enum-frame-convention",
+    "kind" : "liveMeasurement",
+    "path" : "unknown-enum-frame-convention.json",
+    "reason" : "frameOfReference.convention must be Y_UP_RIGHT_HANDED",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "convention"
+  }, {
+    "id" : "wrong-trust",
+    "kind" : "liveMeasurement",
+    "path" : "wrong-trust.json",
+    "reason" : "trust must be UNVERIFIED_ESTIMATE on client records",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "trust"
+  }, {
+    "id" : "confidence-above-1",
+    "kind" : "liveMeasurement",
+    "path" : "confidence-above-1.json",
+    "reason" : "confidence must be within 0..1",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "confidence"
+  }, {
+    "id" : "confidence-negative",
+    "kind" : "liveMeasurement",
+    "path" : "confidence-negative.json",
+    "reason" : "confidence must be within 0..1",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "confidence"
+  }, {
+    "id" : "confidence-wrong-type",
+    "kind" : "liveMeasurement",
+    "path" : "confidence-wrong-type.json",
+    "reason" : "confidence must be a number",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "confidence"
+  }, {
+    "id" : "vio-metric-confidence-above-cap",
+    "kind" : "liveMeasurement",
+    "path" : "vio-metric-confidence-above-cap.json",
+    "reason" : "VIO_METRIC caps confidence at 0.6",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "confidence"
+  }, {
+    "id" : "negative-dimension-value",
+    "kind" : "liveMeasurement",
+    "path" : "negative-dimension-value.json",
+    "reason" : "dimension values are metres >= 0",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "value"
+  }, {
+    "id" : "timestamp-not-date-time",
+    "kind" : "liveMeasurement",
+    "path" : "timestamp-not-date-time.json",
+    "reason" : "timestamp must be an RFC 3339 date-time",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "timestamp"
+  }, {
+    "id" : "client-measurement-id-not-uuid",
+    "kind" : "liveMeasurement",
+    "path" : "client-measurement-id-not-uuid.json",
+    "reason" : "clientMeasurementId must be a UUID",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "clientMeasurementId"
+  }, {
+    "id" : "algorithm-version-not-semver",
+    "kind" : "liveMeasurement",
+    "path" : "algorithm-version-not-semver.json",
+    "reason" : "algorithmVersion must be MAJOR.MINOR.PATCH",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "object-box-without-height",
+    "kind" : "liveMeasurement",
+    "path" : "object-box-without-height.json",
+    "reason" : "OBJECT_BOX requires lengthM, widthM and heightM",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "dimensions"
+  }, {
+    "id" : "object-box-with-distance",
+    "kind" : "liveMeasurement",
+    "path" : "object-box-with-distance.json",
+    "reason" : "OBJECT_BOX must not carry distanceM",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "dimensions"
+  }, {
+    "id" : "point-to-point-with-box-dimensions",
+    "kind" : "liveMeasurement",
+    "path" : "point-to-point-with-box-dimensions.json",
+    "reason" : "POINT_TO_POINT carries distanceM only",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "dimensions"
+  }, {
+    "id" : "keypoints-33",
+    "kind" : "liveMeasurement",
+    "path" : "keypoints-33.json",
+    "reason" : "overlay.keypoints holds at most 32 items",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "keypoints"
+  }, {
+    "id" : "depth-9",
+    "kind" : "liveMeasurement",
+    "path" : "depth-9.json",
+    "reason" : "JSON depth 9, the limit is 8",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "JSON depth above 8"
+  }, {
+    "id" : "depth-100001",
+    "kind" : "liveMeasurement",
+    "path" : "depth-100001.json",
+    "reason" : "nested 100001 levels deep (a parser must refuse it without exhausting its stack)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "JSON depth above 8"
+  }, {
+    "id" : "value-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "value-over-maximum.json",
+    "reason" : "dimension value above 9999.99999 m does not fit NUMERIC(9,5)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "value-just-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "value-just-over-maximum.json",
+    "reason" : "9999.99999 is the largest value, 10000.00001 is rejected",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "sigma-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "sigma-over-maximum.json",
+    "reason" : "sigmaM above 9999.99999",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "ci95-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "ci95-over-maximum.json",
+    "reason" : "ci95M above 9999.99999",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "value-1e308",
+    "kind" : "liveMeasurement",
+    "path" : "value-1e308.json",
+    "reason" : "a huge finite value",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "value-1e999-overflows-a-double",
+    "kind" : "liveMeasurement",
+    "path" : "value-1e999-overflows-a-double.json",
+    "reason" : "1e999 overflows a double to Infinity",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "finiteNumber"
+  }, {
+    "id" : "value-negative-1e999",
+    "kind" : "liveMeasurement",
+    "path" : "value-negative-1e999.json",
+    "reason" : "-1e999 overflows a double to -Infinity",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "finiteNumber"
+  }, {
+    "id" : "yaw-1e999",
+    "kind" : "liveMeasurement",
+    "path" : "yaw-1e999.json",
+    "reason" : "an overflowing number anywhere is rejected, not only in dimensions",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "finiteNumber"
+  }, {
+    "id" : "half-extent-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "half-extent-over-maximum.json",
+    "reason" : "obb.halfExtentsM above 9999.99999",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "world-coordinate-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "world-coordinate-over-maximum.json",
+    "reason" : "world coordinates are within +-100000 m",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "algorithm-version-major-over-int",
+    "kind" : "liveMeasurement",
+    "path" : "algorithm-version-major-over-int.json",
+    "reason" : "algorithm_major is an INT column: 2147483648 does not fit",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "algorithm-version-ten-digit-component",
+    "kind" : "liveMeasurement",
+    "path" : "algorithm-version-ten-digit-component.json",
+    "reason" : "version components stay below 10^9",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "algorithm-version-over-16-characters",
+    "kind" : "liveMeasurement",
+    "path" : "algorithm-version-over-16-characters.json",
+    "reason" : "algorithmVersion is at most 16 characters",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "capture-algorithm-version-patch-over-int",
+    "kind" : "clientCapture",
+    "path" : "capture-algorithm-version-patch-over-int.json",
+    "reason" : "algorithm_patch is an INT column",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "epoch-over-int",
+    "kind" : "liveMeasurement",
+    "path" : "epoch-over-int.json",
+    "reason" : "worldOriginEpoch is an INT column",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "worldOriginEpoch"
+  }, {
+    "id" : "geometry-endpoints-on-object-box",
+    "kind" : "liveMeasurement",
+    "path" : "geometry-endpoints-on-object-box.json",
+    "reason" : "OBJECT_BOX derives its box from obb and carries no endpoints",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "geometry"
+  }, {
+    "id" : "geometry-plane-on-point-to-point",
+    "kind" : "liveMeasurement",
+    "path" : "geometry-plane-on-point-to-point.json",
+    "reason" : "POINT_TO_POINT does not carry a plane",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "geometry"
+  }, {
+    "id" : "geometry-three-endpoints",
+    "kind" : "liveMeasurement",
+    "path" : "geometry-three-endpoints.json",
+    "reason" : "endpointsWorld holds exactly two points",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "endpointsWorld"
+  }, {
+    "id" : "geometry-unknown-field",
+    "kind" : "liveMeasurement",
+    "path" : "geometry-unknown-field.json",
+    "reason" : "unknown field inside geometry",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "geometry-endpoint-coordinate-over-maximum",
+    "kind" : "liveMeasurement",
+    "path" : "geometry-endpoint-coordinate-over-maximum.json",
+    "reason" : "endpoint coordinates are within +-100000 m",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "plane-normal-not-unit",
+    "kind" : "liveMeasurement",
+    "path" : "plane-normal-not-unit.json",
+    "reason" : "the plane normal must have unit length within 1e-3",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unitLength"
+  }, {
+    "id" : "plane-normal-length-0.9989",
+    "kind" : "liveMeasurement",
+    "path" : "plane-normal-length-0.9989.json",
+    "reason" : "the plane normal length may differ from 1 by at most 1e-3: 0.9989 is just outside (0.9991 is accepted, see the examples)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unitLength"
+  }, {
+    "id" : "plane-normal-zero-length",
+    "kind" : "liveMeasurement",
+    "path" : "plane-normal-zero-length.json",
+    "reason" : "a zero-length plane normal is not a plane",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "unitLength"
+  }, {
+    "id" : "plane-normal-component-over-1",
+    "kind" : "liveMeasurement",
+    "path" : "plane-normal-component-over-1.json",
+    "reason" : "a unit vector has components within -1..1",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "plane-missing-offset",
+    "kind" : "liveMeasurement",
+    "path" : "plane-missing-offset.json",
+    "reason" : "a plane has normalWorld and offsetM",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "offsetM"
+  }, {
+    "id" : "plane-on-object-box-mode",
+    "kind" : "liveMeasurement",
+    "path" : "plane-on-object-box-mode.json",
+    "reason" : "OBJECT_BOX does not carry a plane",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "geometry"
+  }, {
+    "id" : "duplicate-key-top-level",
+    "kind" : "liveMeasurement",
+    "path" : "duplicate-key-top-level.json",
+    "reason" : "the key confidence appears twice (first 0.87, last 0.5): parsers that keep the first and the last would disagree, so it is rejected",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "duplicate object key"
+  }, {
+    "id" : "duplicate-key-nested",
+    "kind" : "liveMeasurement",
+    "path" : "duplicate-key-nested.json",
+    "reason" : "a key repeated inside dimensions.lengthM",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "duplicate object key"
+  }, {
+    "id" : "duplicate-key-hides-a-bad-value",
+    "kind" : "liveMeasurement",
+    "path" : "duplicate-key-hides-a-bad-value.json",
+    "reason" : "the first confidence (5) is invalid and the last is valid: a last-wins parser would accept it",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "duplicate object key"
+  }, {
+    "id" : "trailing-content-second-document",
+    "kind" : "liveMeasurement",
+    "path" : "trailing-content-second-document.json",
+    "reason" : "a second JSON document follows the valid one",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "trailing content"
+  }, {
+    "id" : "trailing-content-second-document-no-space",
+    "kind" : "liveMeasurement",
+    "path" : "trailing-content-second-document-no-space.json",
+    "reason" : "a second JSON document directly after the valid one",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "trailing content"
+  }, {
+    "id" : "trailing-content-garbage",
+    "kind" : "liveMeasurement",
+    "path" : "trailing-content-garbage.json",
+    "reason" : "garbage follows the valid document",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "trailing-content-comma",
+    "kind" : "liveMeasurement",
+    "path" : "trailing-content-comma.json",
+    "reason" : "a trailing comma after the document",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "empty-body",
+    "kind" : "liveMeasurement",
+    "path" : "empty-body.json",
+    "reason" : "an empty body",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "whitespace-only-body",
+    "kind" : "liveMeasurement",
+    "path" : "whitespace-only-body.json",
+    "reason" : "a body of whitespace only",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "nan-literal",
+    "kind" : "liveMeasurement",
+    "path" : "nan-literal.json",
+    "reason" : "NaN is not a JSON number",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "infinity-literal",
+    "kind" : "liveMeasurement",
+    "path" : "infinity-literal.json",
+    "reason" : "Infinity is not a JSON number",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "body-over-256k-characters",
+    "kind" : "liveMeasurement",
+    "path" : "body-over-256k-characters.json",
+    "reason" : "a document over 262144 characters is refused before parsing (whitespace keeps the vector small)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "document larger than"
+  }, {
+    "id" : "string-over-4096-characters",
+    "kind" : "liveMeasurement",
+    "path" : "string-over-4096-characters.json",
+    "reason" : "a string value over 4096 characters (the 21-million-character case at a testable size)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "string value longer than"
+  }, {
+    "id" : "schema-version-over-4096-characters",
+    "kind" : "liveMeasurement",
+    "path" : "schema-version-over-4096-characters.json",
+    "reason" : "a schemaVersion of 4097 characters is refused, never echoed back",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "string value longer than"
+  }, {
+    "id" : "number-over-32-characters",
+    "kind" : "liveMeasurement",
+    "path" : "number-over-32-characters.json",
+    "reason" : "a number of 42 characters",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "number longer than"
+  }, {
+    "id" : "name-over-128-characters",
+    "kind" : "liveMeasurement",
+    "path" : "name-over-128-characters.json",
+    "reason" : "an object key of 129 characters",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "name longer than"
+  }, {
+    "id" : "not-json",
+    "kind" : "liveMeasurement",
+    "path" : "not-json.json",
+    "reason" : "the body is not JSON",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "not valid JSON"
+  }, {
+    "id" : "root-is-array",
+    "kind" : "liveMeasurement",
+    "path" : "root-is-array.json",
+    "reason" : "the document must be a JSON object",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "JSON object"
+  }, {
+    "id" : "capture-missing-appVersion",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-appVersion.json",
+    "reason" : "required field appVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "appVersion"
+  }, {
+    "id" : "capture-missing-kitVersion",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-kitVersion.json",
+    "reason" : "required field kitVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "kitVersion"
+  }, {
+    "id" : "capture-missing-algorithmVersion",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-algorithmVersion.json",
+    "reason" : "required field algorithmVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "algorithmVersion"
+  }, {
+    "id" : "capture-missing-schemaVersion",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-schemaVersion.json",
+    "reason" : "required field schemaVersion is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "schemaVersion"
+  }, {
+    "id" : "capture-missing-depthTier",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-depthTier.json",
+    "reason" : "required field depthTier is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthTier"
+  }, {
+    "id" : "capture-missing-depthSource",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-depthSource.json",
+    "reason" : "required field depthSource is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthSource"
+  }, {
+    "id" : "capture-missing-device",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-device.json",
+    "reason" : "required field device is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "device"
+  }, {
+    "id" : "capture-missing-sessionId",
+    "kind" : "clientCapture",
+    "path" : "capture-missing-sessionId.json",
+    "reason" : "required field sessionId is absent",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "sessionId"
+  }, {
+    "id" : "capture-unknown-field",
+    "kind" : "clientCapture",
+    "path" : "capture-unknown-field.json",
+    "reason" : "unknown field (additionalProperties false)",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "additionalProperties"
+  }, {
+    "id" : "capture-unknown-enum-depth-tier",
+    "kind" : "clientCapture",
+    "path" : "capture-unknown-enum-depth-tier.json",
+    "reason" : "depthTier is not A, B, C or D",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "depthTier"
+  }, {
+    "id" : "batch-101-items",
+    "kind" : "batch",
+    "path" : "batch-101-items.json",
+    "reason" : "the batch holds at most 100 items",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "items"
+  }, {
+    "id" : "batch-empty",
+    "kind" : "batch",
+    "path" : "batch-empty.json",
+    "reason" : "the batch holds at least one item",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "items"
+  }, {
+    "id" : "batch-unknown-envelope-field",
+    "kind" : "batch",
+    "path" : "batch-unknown-envelope-field.json",
+    "reason" : "unknown field next to items",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "batch envelope"
+  }, {
+    "id" : "batch-body-depth-33",
+    "kind" : "batch",
+    "path" : "batch-body-depth-33.json",
+    "reason" : "a body nested deeper than the transport ceiling of 32 is refused as a whole before it is materialised",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "JSON depth above 32"
+  }, {
+    "id" : "batch-over-400k-characters",
+    "kind" : "batch",
+    "path" : "batch-over-400k-characters.json",
+    "reason" : "a batch body over 409600 characters is refused as a whole",
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "document larger than"
+  }, {
+    "id" : "batch-item-depth-9",
+    "kind" : "batchItems",
+    "path" : "batch-item-depth-9.json",
+    "reason" : "an item nested 9 levels deep (within the transport ceiling) is INVALID on its own; the other items are processed",
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID" ],
+    "expectedItemErrorContains" : [ "", "JSON depth above 8", "" ]
+  }, {
+    "id" : "batch-item-schema-version-unsupported",
+    "kind" : "batchItems",
+    "path" : "batch-item-schema-version-unsupported.json",
+    "reason" : "an item with an unsupported schemaVersion is INVALID with code CLIENT_SCHEMA_UNSUPPORTED, not persisted (the Kit retries after an update)",
+    "expectedItems" : [ "VALID", "CLIENT_SCHEMA_UNSUPPORTED" ],
+    "expectedItemErrorContains" : [ "", "schemaVersion is not supported" ]
+  }, {
+    "id" : "batch-per-item-rejection",
+    "kind" : "batchItems",
+    "path" : "batch-per-item-rejection.json",
+    "reason" : "valid envelope, items 2 and 4 are invalid: the batch is answered per item (INVALID) and the valid items are processed",
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "", "additionalProperties at $", "", "enum at $.depthTier" ]
+  }, {
+    "id" : "hints-complete-all-valid",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-all-valid.json",
+    "reason" : "valid hints: nothing is dropped and there is no warning",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID" ],
+    "expectedItemErrorContains" : [ "" ],
+    "expectedWarnings" : [ ]
+  }, {
+    "id" : "hints-complete-empty-array",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-empty-array.json",
+    "reason" : "an empty clientMeasurements array is fine: nothing to drop, no warning",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ ]
+  }, {
+    "id" : "hints-complete-item-dropped",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-dropped.json",
+    "reason" : "one invalid item is dropped on its own, the others are kept, the upload is accepted with CLIENT_HINTS_DROPPED",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID", "VALID" ],
+    "expectedItemErrorContains" : [ "", "enum at $.depthTier", "" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-schema-unsupported",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-schema-unsupported.json",
+    "reason" : "an item with an unsupported schemaVersion is dropped with CLIENT_SCHEMA_UNSUPPORTED",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_SCHEMA_UNSUPPORTED" ],
+    "expectedItemErrorContains" : [ "schemaVersion is not supported" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-depth-9",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-depth-9.json",
+    "reason" : "an item nested 9 levels deep is dropped on its own (the body is within the transport ceiling of 32)",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "VALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "", "JSON depth above 8" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-item-not-an-object",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-item-not-an-object.json",
+    "reason" : "an array element that is not an object is dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "batch item must be a JSON object" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-50-items",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-50-items.json",
+    "reason" : "50 items is the limit: the body is accepted and each item is judged on its own",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : false,
+    "expectedItems" : [ "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID", "CLIENT_MEASUREMENT_INVALID" ],
+    "expectedItemErrorContains" : [ "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $", "required at $" ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-51-items",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-51-items.json",
+    "reason" : "51 items: a body-level violation, all hints are dropped, the upload is still accepted",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "at most 50",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-not-an-array",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-not-an-array.json",
+    "reason" : "clientMeasurements that is not an array: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "must be an array",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-body-depth-33",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-body-depth-33.json",
+    "reason" : "a body nested deeper than the transport ceiling of 32: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "JSON depth above 32",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-duplicate-key",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-duplicate-key.json",
+    "reason" : "a duplicate object key anywhere: all hints are dropped",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "duplicate object key",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  }, {
+    "id" : "hints-complete-not-json",
+    "kind" : "hintsComplete",
+    "path" : "hints-complete-not-json.json",
+    "reason" : "not JSON: all hints are dropped, the upload is still accepted",
+    "expectedUploadRejected" : false,
+    "expectedAllHintsDropped" : true,
+    "expectedRequestErrorContains" : "not valid JSON",
+    "expectedItems" : [ ],
+    "expectedItemErrorContains" : [ ],
+    "expectedWarnings" : [ "CLIENT_HINTS_DROPPED" ]
+  } ],
+  "files" : [ {
+    "path" : "algorithm-version-major-over-int.json",
+    "sha256" : "c4d2d5286ec5def2aad2fe9552ef8f8484b95d5b06d6f2fe1348cf70b4e0fae4",
+    "bytes" : 1265
+  }, {
+    "path" : "algorithm-version-not-semver.json",
+    "sha256" : "0eb72acc9fa8fceb0e3d042ddfaa8ffe61eff51ede15b438a7c3b432672ee314",
+    "bytes" : 1254
+  }, {
+    "path" : "algorithm-version-over-16-characters.json",
+    "sha256" : "15a9c41e7f1996fddddf7d9ccda219b04a826c5f15271b2e602845b79f4aa230",
+    "bytes" : 1272
+  }, {
+    "path" : "algorithm-version-ten-digit-component.json",
+    "sha256" : "0da714d90d2493bd032bae9d2a700e37707612ed7d012401efba50d6480b928a",
+    "bytes" : 1265
+  }, {
+    "path" : "batch-101-items.json",
+    "sha256" : "255c86a6bfb908d370835becea794e5eb7fb80f37cfee7509af319a026c4f57f",
+    "bytes" : 65359
+  }, {
+    "path" : "batch-body-depth-33.json",
+    "sha256" : "be0fc4e1cd656b68e59c9dc89da4be4e7bf07a7f198d0d97ab116c15a514a544",
+    "bytes" : 746
+  }, {
+    "path" : "batch-empty.json",
+    "sha256" : "e813d564bccbeefe1db875d1c9abb55d63c52b639acc61134a5f1d19cc489b67",
+    "bytes" : 13
+  }, {
+    "path" : "batch-item-depth-9.json",
+    "sha256" : "7e2f4f86583c3c0cf1b5819ad007f2cd49e5c166cfa339b95023acd425e014dc",
+    "bytes" : 3025
+  }, {
+    "path" : "batch-item-schema-version-unsupported.json",
+    "sha256" : "39fb444dce1855a82eda68253dbb0e4b2d7e12ddfc7756f2b688825b2555087e",
+    "bytes" : 1833
+  }, {
+    "path" : "batch-over-400k-characters.json",
+    "sha256" : "059c70d7045b75cff6f8dc02c7c4926d099792f54223c0c6ad063d47b83e6809",
+    "bytes" : 409613
+  }, {
+    "path" : "batch-per-item-rejection.json",
+    "sha256" : "b3ddd255829c3e4e2d252fdd93f3e4e41997dbcf62c2cdd6a0c8e83cdc77259a",
+    "bytes" : 3664
+  }, {
+    "path" : "batch-unknown-envelope-field.json",
+    "sha256" : "d15096397044304e93de044cd626b15dd557e44818d08054316ec807ddb98514",
+    "bytes" : 665
+  }, {
+    "path" : "body-over-256k-characters.json",
+    "sha256" : "98d336fe3dfa7ba8943d191bc15d7a79c35650772394a218792a98e35be5a620",
+    "bytes" : 263400
+  }, {
+    "path" : "capture-algorithm-version-patch-over-int.json",
+    "sha256" : "d001a3aa301706c40af0df011a32555b1f1306f55839d894a98ad0cc3ab54b81",
+    "bytes" : 239
+  }, {
+    "path" : "capture-missing-algorithmVersion.json",
+    "sha256" : "873b5f56c7c9fec6bc8124739195b12bb795b50211f21fafb46d449a5d30c2d8",
+    "bytes" : 203
+  }, {
+    "path" : "capture-missing-appVersion.json",
+    "sha256" : "4e3cabc37ad7f3f9cedd7826f5441219ffa66af4f1b603543edc0277d781832f",
+    "bytes" : 209
+  }, {
+    "path" : "capture-missing-depthSource.json",
+    "sha256" : "ba9add6245b1eed5bd925d2a638d24aca90664af31e66a9f8a0d33ef8907b462",
+    "bytes" : 208
+  }, {
+    "path" : "capture-missing-depthTier.json",
+    "sha256" : "ec9d0bbd4d21ad4f646ed9865d13a3ab362f77c8eb9b850d6f65f239740f7a0f",
+    "bytes" : 214
+  }, {
+    "path" : "capture-missing-device.json",
+    "sha256" : "5c64d7050ef4b53f0106b8bcb8c1293167fa1739b5d890472a393b21198c2f94",
+    "bytes" : 182
+  }, {
+    "path" : "capture-missing-kitVersion.json",
+    "sha256" : "fa26b7c877be85e58271e4cc82410f334b76be56eac61b4a32ed210de09f9c57",
+    "bytes" : 209
+  }, {
+    "path" : "capture-missing-schemaVersion.json",
+    "sha256" : "641c7450d5d6c24e41e0891b563e99010a75396c82a7f467609af7be8315bdb6",
+    "bytes" : 208
+  }, {
+    "path" : "capture-missing-sessionId.json",
+    "sha256" : "9c826d2126efe5f7ce0958479d9a713a3b806af25fe5552381444e9f879387a9",
+    "bytes" : 179
+  }, {
+    "path" : "capture-unknown-enum-depth-tier.json",
+    "sha256" : "1c1e6a778f0861602fff32d5448fce9f73539c9eb4e1ab96d5c6409cc460d60b",
+    "bytes" : 230
+  }, {
+    "path" : "capture-unknown-field.json",
+    "sha256" : "02f2719376bc180c0981b444b3ad57bb0c62aae899e446ff59ce6fcada18848f",
+    "bytes" : 243
+  }, {
+    "path" : "ci95-over-maximum.json",
+    "sha256" : "08030fd986abd4dd20b1d9a226eae9c5ed455531765c7525925756e681bde964",
+    "bytes" : 1256
+  }, {
+    "path" : "client-measurement-id-not-uuid.json",
+    "sha256" : "528657b157cded4eeaa32c0f2611499762f02fa826819c478049b48e69721926",
+    "bytes" : 1230
+  }, {
+    "path" : "confidence-above-1.json",
+    "sha256" : "268672819b77d0ff33ecee25f0e2b17faebe2d7d9b7b01ef07b342b7084cf540",
+    "bytes" : 1256
+  }, {
+    "path" : "confidence-negative.json",
+    "sha256" : "21f061cdff5d7bb5ffff1e1ec2836a2d1b38fb9649672f84130b014d63a8ce9f",
+    "bytes" : 1257
+  }, {
+    "path" : "confidence-wrong-type.json",
+    "sha256" : "725c7dc5e9f6f287ea475c1b746bdc522b7cd416c7f093027d0d741fae2e3a05",
+    "bytes" : 1258
+  }, {
+    "path" : "depth-100001.json",
+    "sha256" : "7fc249ef1e8731d5b0eca1265d99b2fb81e14768925318c611cfc401ca29b4d1",
+    "bytes" : 200009
+  }, {
+    "path" : "depth-9.json",
+    "sha256" : "615846b17f7f1dc7e4b91f71ea4848623166cd568f6f23c5f8742db01573c0a3",
+    "bytes" : 1310
+  }, {
+    "path" : "duplicate-key-hides-a-bad-value.json",
+    "sha256" : "0a4f3b6c57badeff181189b685267bac68054b3d0592ed617ec7be85542772db",
+    "bytes" : 1270
+  }, {
+    "path" : "duplicate-key-nested.json",
+    "sha256" : "f31d25f65071188b26e57d607834b86f24d3f24b0904a9b48a21b892872fcaff",
+    "bytes" : 1266
+  }, {
+    "path" : "duplicate-key-top-level.json",
+    "sha256" : "c4a816b6fe33e63d7af96cf887b065f090564a508c77e9568d2d1a03ade771a9",
+    "bytes" : 1273
+  }, {
+    "path" : "empty-body.json",
+    "sha256" : "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "bytes" : 1
+  }, {
+    "path" : "epoch-over-int.json",
+    "sha256" : "577075cc43e551e1b771c5f679d14afe6fe9bddc113d1b6bbeb469315a570536",
+    "bytes" : 1265
+  }, {
+    "path" : "geometry-endpoint-coordinate-over-maximum.json",
+    "sha256" : "457524ca13f893ba46605f6cc18194b5cc09b593ab0e8f7463c549ca6f8994df",
+    "bytes" : 650
+  }, {
+    "path" : "geometry-endpoints-on-object-box.json",
+    "sha256" : "209507ab2668e6eb41e762453de51e882382014ec7209e084ba5d38496cf459e",
+    "bytes" : 750
+  }, {
+    "path" : "geometry-plane-on-point-to-point.json",
+    "sha256" : "1e80fc312422143479bf1e640a9d61ff52eb0ab35a5581dd56268ec42ff6a41c",
+    "bytes" : 691
+  }, {
+    "path" : "geometry-three-endpoints.json",
+    "sha256" : "09da22acfe36f804518979534ccc166ded73e99ede26d1c1b397955ca112464a",
+    "bytes" : 655
+  }, {
+    "path" : "geometry-unknown-field.json",
+    "sha256" : "bfbd082b84bfd7de1d1166ec89c5b7d9c58ba4128fedb1f10eef78b7b9e37de3",
+    "bytes" : 657
+  }, {
+    "path" : "half-extent-over-maximum.json",
+    "sha256" : "5c186f97addd98db586083d60fe42fe4743d947e05394c6f8f7f6b29fe14811e",
+    "bytes" : 1256
+  }, {
+    "path" : "hints-complete-50-items.json",
+    "sha256" : "a643302872e8735efb74ed465c73e694eec75b45d38d989ce751db3fb51bffe1",
+    "bytes" : 152
+  }, {
+    "path" : "hints-complete-51-items.json",
+    "sha256" : "9c8733f156c96a9e521a23aca299a623d6f70d36da4892aa0113a5fb21bb184f",
+    "bytes" : 155
+  }, {
+    "path" : "hints-complete-all-valid.json",
+    "sha256" : "8527ab874faccb0b65a21a51443b2ac575c591c9bc93869c373d53de4aa7d6f8",
+    "bytes" : 649
+  }, {
+    "path" : "hints-complete-body-depth-33.json",
+    "sha256" : "73dad959972f401473b579fe7148dfd59c6515e5ceb2a65a42408ce661fa44ee",
+    "bytes" : 736
+  }, {
+    "path" : "hints-complete-duplicate-key.json",
+    "sha256" : "d38d833e42fab793ee49a415598d55bf75468aaf5718ef426ce0792b33b2ee13",
+    "bytes" : 660
+  }, {
+    "path" : "hints-complete-empty-array.json",
+    "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "bytes" : 3
+  }, {
+    "path" : "hints-complete-item-depth-9.json",
+    "sha256" : "b68778d5d162cc2b0c23b64eb9eb217b596528fed43159426452518758ce6c58",
+    "bytes" : 1350
+  }, {
+    "path" : "hints-complete-item-dropped.json",
+    "sha256" : "63ae9f94f98f5a511f0106ad4b713457c776ad71d54d63c0b3c59f6202d090e9",
+    "bytes" : 1943
+  }, {
+    "path" : "hints-complete-item-not-an-object.json",
+    "sha256" : "acc07b62f23f458923737c4cd4a66bd05d1e71eb4f384003baaf2dcc760d6349",
+    "bytes" : 4
+  }, {
+    "path" : "hints-complete-item-schema-unsupported.json",
+    "sha256" : "ecf1dfcd385543ba2a96660178e30af297340160a6615ea893603cab12d6596b",
+    "bytes" : 649
+  }, {
+    "path" : "hints-complete-not-an-array.json",
+    "sha256" : "e346432021b04179518d9614f3560ccd71354a4ee101ddcb893d6959a9d6301c",
+    "bytes" : 8
+  }, {
+    "path" : "hints-complete-not-json.json",
+    "sha256" : "95d2b1934931691669cc35a87619518015336213dda0a60fe1b09f9b8e3e993d",
+    "bytes" : 2
+  }, {
+    "path" : "infinity-literal.json",
+    "sha256" : "501c24aa77b06c619ef42c56271df247da023847cdc569e358dc43023cbe2d2f",
+    "bytes" : 1260
+  }, {
+    "path" : "keypoints-33.json",
+    "sha256" : "2095bceca1dd81aaf2b6fc4825a8487b39d4876d5a3df0eb595c926fa96de38c",
+    "bytes" : 3816
+  }, {
+    "path" : "missing-algorithmVersion.json",
+    "sha256" : "0c6f50e61af3a4707fccf6f548bfadb4216609642af8efdea46e8d006930ad17",
+    "bytes" : 1229
+  }, {
+    "path" : "missing-clientMeasurementId.json",
+    "sha256" : "4e610f41013e29d29b378cb00294909f0e1d05cf47b52f976a2b97eb14a17bda",
+    "bytes" : 1195
+  }, {
+    "path" : "missing-confidence.json",
+    "sha256" : "6987b4c71763778ad21835f1b699e73d58fd376e5c74fbfc2384f28d69c2a6d1",
+    "bytes" : 1238
+  }, {
+    "path" : "missing-depthSource.json",
+    "sha256" : "24f5d9cbfcf8f06b88cd3830b5a9ed897507540e26039aaa643c94d150f7a24c",
+    "bytes" : 1234
+  }, {
+    "path" : "missing-depthTier.json",
+    "sha256" : "0f6aa8cf89a14b69c4d36d65f021741e0c950443ae667012f74c28d09e3596eb",
+    "bytes" : 1240
+  }, {
+    "path" : "missing-device.json",
+    "sha256" : "7abb3baa9f9146eb48d8e1b609e9a2ec647e9b4c720fdcfaa0359331e4b24402",
+    "bytes" : 1187
+  }, {
+    "path" : "missing-dimensions.json",
+    "sha256" : "a631c3d024550100f1b445290348f62d422f491dca7e4401cebfc89cb3d078a9",
+    "bytes" : 1077
+  }, {
+    "path" : "missing-frameOfReference.json",
+    "sha256" : "68c8527d29331b4178a7839fdb391bd44e332e25e4f182231ce2ab907ea6d194",
+    "bytes" : 1097
+  }, {
+    "path" : "missing-mode.json",
+    "sha256" : "6d51bf303ce40472b6bf5e13c5ff84348dd01c07381518792521a4079c0102d8",
+    "bytes" : 1236
+  }, {
+    "path" : "missing-qualityFlags.json",
+    "sha256" : "85260485539020247073965c9bbba968adad733ed68c0faf6e74f47cd092c3ad",
+    "bytes" : 1224
+  }, {
+    "path" : "missing-scaleSource.json",
+    "sha256" : "591517284dc020236695f80b3c9d73fc04732d5f68858322830febf108150ee9",
+    "bytes" : 1220
+  }, {
+    "path" : "missing-schemaVersion.json",
+    "sha256" : "540a3567d4b004b451ad48faf624186cecc3490b0f444780419ac794a7ef523b",
+    "bytes" : 1234
+  }, {
+    "path" : "missing-state.json",
+    "sha256" : "4917e0da93ac835f642a8cff9730c2029062317abf69f31a3ddee3fdb5020ec4",
+    "bytes" : 1239
+  }, {
+    "path" : "missing-timestamp.json",
+    "sha256" : "8cc4a294f74850e2a48a1fc780554ae2e6922545de924699089033c5a869a1a5",
+    "bytes" : 1217
+  }, {
+    "path" : "missing-unit.json",
+    "sha256" : "183e58874f4c6f791136fcd8a452bfa9523928c129f386f77ebd3ae68016d961",
+    "bytes" : 1241
+  }, {
+    "path" : "name-over-128-characters.json",
+    "sha256" : "cd6507678ef2dc792f85db773f7cc96eaa11f46aeee6d98006ba0774c66e1f6d",
+    "bytes" : 1390
+  }, {
+    "path" : "nan-literal.json",
+    "sha256" : "b5579eefe1f30fd81eacccfe8d90073ccaa32905e3123f40b2089606ac061cf7",
+    "bytes" : 1255
+  }, {
+    "path" : "negative-dimension-value.json",
+    "sha256" : "8758efc476eaec12de7602fd1f46eebbf839f72a48df948e7810738567b855ff",
+    "bytes" : 1255
+  }, {
+    "path" : "not-json.json",
+    "sha256" : "11347122fc8de6d6cd209f8d2a299c436b9318be7fa06dd62e3f27708cb271d7",
+    "bytes" : 19
+  }, {
+    "path" : "number-over-32-characters.json",
+    "sha256" : "20c09f17ea372f9a85fd5e33ca702df8331c6f28069a795721fe2ce05ee5b9c7",
+    "bytes" : 1294
+  }, {
+    "path" : "object-box-with-distance.json",
+    "sha256" : "4b60ee3756115f437c7c6b654e6a77e539043a8ec73b52e81a79a8d419e63935",
+    "bytes" : 1313
+  }, {
+    "path" : "object-box-without-height.json",
+    "sha256" : "14780a55f439aff137e7b4b627b0c281e0b8c30b31a257c09b360763320b0322",
+    "bytes" : 1201
+  }, {
+    "path" : "plane-missing-offset.json",
+    "sha256" : "07ff3d1f5c6f1a6d487248ebb5e2a69bd552ee96b11ad6c12a7ea66ff607b2e2",
+    "bytes" : 623
+  }, {
+    "path" : "plane-normal-component-over-1.json",
+    "sha256" : "f5ed065f4a0e68593a4fe4c144000c1ccb5df7b631196718fec0d98261e63330",
+    "bytes" : 639
+  }, {
+    "path" : "plane-normal-length-0.9989.json",
+    "sha256" : "5a9c10ce35aab9a2f89386adf7112b3831b23625d8a43132aa8acd5b52d46f69",
+    "bytes" : 642
+  }, {
+    "path" : "plane-normal-not-unit.json",
+    "sha256" : "7c82d4def1708a50d6da2956742fb0bec9a8d4adaf42a8888e614e2e2dc9ce31",
+    "bytes" : 639
+  }, {
+    "path" : "plane-normal-zero-length.json",
+    "sha256" : "a3982fba62a5495e1c3f94f1f21de33be2f273916ec841dfead9825ff4c10dc9",
+    "bytes" : 637
+  }, {
+    "path" : "plane-on-object-box-mode.json",
+    "sha256" : "27de44632a1bca00915248b1a325d99439bafd8a404f3852fb8e4389753894ee",
+    "bytes" : 741
+  }, {
+    "path" : "point-to-point-with-box-dimensions.json",
+    "sha256" : "f67959a45a974f4c67345e04a6cf39c59ab32ab9f1573e40aa803f899c924182",
+    "bytes" : 1260
+  }, {
+    "path" : "root-is-array.json",
+    "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "bytes" : 3
+  }, {
+    "path" : "schema-version-over-4096-characters.json",
+    "sha256" : "b6314a76847a5f110f9e572eaa93e9a516ccac200627ac61e5c2b4a9c5024804",
+    "bytes" : 5350
+  }, {
+    "path" : "sigma-over-maximum.json",
+    "sha256" : "2f09dae5b70cad4192dbdb4994d2a5c63549bd1d466c85449543eab8789a96b2",
+    "bytes" : 1256
+  }, {
+    "path" : "string-over-4096-characters.json",
+    "sha256" : "de9bc76048d6fc0e53a7d306f47d1b1b1ba87f221d8c3c4032bff12066abd40b",
+    "bytes" : 5343
+  }, {
+    "path" : "timestamp-not-date-time.json",
+    "sha256" : "a7bdfd3f9e30436786629f401f10fdf4027cc6c218d2577fc2073d74e6bb7bb7",
+    "bytes" : 1241
+  }, {
+    "path" : "trailing-content-comma.json",
+    "sha256" : "d105255852c10431698400cccace11690ddfd36f6adc2689835a16bf991f475e",
+    "bytes" : 1257
+  }, {
+    "path" : "trailing-content-garbage.json",
+    "sha256" : "a2d646bf51e52f7e3d6e2b2bb26297b3b86dabf2b60471f9a55cefa772f0ecf1",
+    "bytes" : 1259
+  }, {
+    "path" : "trailing-content-second-document-no-space.json",
+    "sha256" : "3d740bcc8359c0dee89bcf5e1f8a7032481465e4d2d9cd33ea0fff8a46120795",
+    "bytes" : 1258
+  }, {
+    "path" : "trailing-content-second-document.json",
+    "sha256" : "9e543436ea17a243b8159140cd1f3582ced64e465fc69586e9d0af4ebd8ce9e8",
+    "bytes" : 1267
+  }, {
+    "path" : "unknown-enum-depth-source.json",
+    "sha256" : "670aa6d449b8f5ca891a025aeaac6ef7713d7349b6f685031efe9980a05d03ef",
+    "bytes" : 1256
+  }, {
+    "path" : "unknown-enum-depth-tier.json",
+    "sha256" : "0c64df96be571c40b34a0fdb5242af74b130317766e738d211064f56fce547a0",
+    "bytes" : 1256
+  }, {
+    "path" : "unknown-enum-frame-convention.json",
+    "sha256" : "d4551012846d50579c7caf3aaddea78ae5f5039813da059d1414f6052de4d2e8",
+    "bytes" : 1243
+  }, {
+    "path" : "unknown-enum-mode.json",
+    "sha256" : "79616bd897d2a70af11727f8d135fe232f82f805c1dbfcd7e8fd7cbebeef6d02",
+    "bytes" : 1252
+  }, {
+    "path" : "unknown-enum-quality-flag.json",
+    "sha256" : "49d3b283614f43392ccf8f54b08f1c663f6e1def49be22baa1e64d2ac5327a99",
+    "bytes" : 1267
+  }, {
+    "path" : "unknown-enum-scale-source.json",
+    "sha256" : "93257b7cf07117a3547955c9794f380b0860dc1eadecf6bb6cdcd0b689a5b904",
+    "bytes" : 1242
+  }, {
+    "path" : "unknown-enum-state.json",
+    "sha256" : "63095e430e1b2b041b741d75f4f6deba551c4c940945af04efb4a2546a98cce1",
+    "bytes" : 1256
+  }, {
+    "path" : "unknown-enum-unit.json",
+    "sha256" : "aad88e969e0a1b202e55caba9db5ce216af872b2a92096d3150f0d5e19d16763",
+    "bytes" : 1255
+  }, {
+    "path" : "unknown-field-nested-device.json",
+    "sha256" : "48dd011bdc568cc9742b6464dbd00d50958f943a1ab67684c71889f802721444",
+    "bytes" : 1268
+  }, {
+    "path" : "unknown-field-nested-dimensions.json",
+    "sha256" : "2ad2315d04b0623000e16efbab334cacf711bda311841de366a04b92a39bed16",
+    "bytes" : 1266
+  }, {
+    "path" : "unknown-field-nested-frame-of-reference.json",
+    "sha256" : "9b6cdafb0187cd343fd7c887caf915f4cef28daf9b32012b13cb54320d81e9a0",
+    "bytes" : 1268
+  }, {
+    "path" : "unknown-field-nested-keypoint.json",
+    "sha256" : "1d5afe0359bdb2976cbeb08491209c95d1918c71b30265b0bb103d0d5c984195",
+    "bytes" : 1266
+  }, {
+    "path" : "unknown-field-nested-obb.json",
+    "sha256" : "b3832bc5354e92b77a61758c59d5c0f40b9af5fa88e84f6446045f35db7338a2",
+    "bytes" : 1266
+  }, {
+    "path" : "unknown-field-top-level.json",
+    "sha256" : "b28db44c9f2606586ef09d9feaab5ab8a8e94ff2730b504fa0348673cd47a673",
+    "bytes" : 1266
+  }, {
+    "path" : "value-1e308.json",
+    "sha256" : "e61240ba605dc8e56545f8e6fe85f938702415a5f0708b001342d11b173c8332",
+    "bytes" : 1258
+  }, {
+    "path" : "value-1e999-overflows-a-double.json",
+    "sha256" : "a52f25aebc349ffd9676f85698a6e7fadc43abcaef82856501cd674d932d7f4d",
+    "bytes" : 1256
+  }, {
+    "path" : "value-just-over-maximum.json",
+    "sha256" : "89475c2dd9c304e66752200398902ee74a7f604e9aa3b062e51be141d7946d57",
+    "bytes" : 1262
+  }, {
+    "path" : "value-negative-1e999.json",
+    "sha256" : "89cb010da4c8cc6dac1c0bb9d73791f72d9dd603168b858cddb87e918dd134be",
+    "bytes" : 1257
+  }, {
+    "path" : "value-over-maximum.json",
+    "sha256" : "57ec2a6bdb07c1d55745a68f4ce616a7cc759f0e90aabf1bc4147aeba89ef14f",
+    "bytes" : 1256
+  }, {
+    "path" : "vio-metric-confidence-above-cap.json",
+    "sha256" : "b197928a7e0925308161bf74501fe919d08b78d2cd039e34b656a8f8c33229b6",
+    "bytes" : 1247
+  }, {
+    "path" : "whitespace-only-body.json",
+    "sha256" : "087587b1201473b45aa498c854e205a6a4e4d041b666a18abcbccaf6df1d2661",
+    "bytes" : 5
+  }, {
+    "path" : "world-coordinate-over-maximum.json",
+    "sha256" : "1c06cbc1bb3d98cb2e3d4734235b9c083d013029f4e6265c4eddce5142e476c8",
+    "bytes" : 1250
+  }, {
+    "path" : "wrong-trust.json",
+    "sha256" : "7496310b7b4fb65472c0f4c8968aa1f5a29263944c742a49093d8e484f08e74a",
+    "bytes" : 1254
+  }, {
+    "path" : "yaw-1e999.json",
+    "sha256" : "f1da01625e76fde82a3a6fc1ef7bc34a779fcc81f5de43c386398cf246bd08e4",
+    "bytes" : 1257
+  } ]
+}

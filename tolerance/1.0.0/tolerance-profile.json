@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "rows": [
+    { "name": "accuracyGate",    "floorM": 0.01,  "relFrac": 0.02, "sigmaK": null, "sigmaCapM": null },
+    { "name": "accuracyGateP95", "floorM": 0.025, "relFrac": 0.04, "sigmaK": null, "sigmaCapM": null },
+    { "name": "agree",           "floorM": 0.02,  "relFrac": 0.02, "sigmaK": 2,    "sigmaCapM": 0.10 },
+    { "name": "minor",           "floorM": 0.05,  "relFrac": 0.05, "sigmaK": 3,    "sigmaCapM": 0.15 }
+  ],
+  "overrides": {}
+}

@@ -1,0 +1,18 @@
+{
+  "manifest" : "vectors",
+  "version" : "@project.version@",
+  "toleranceProfileVersion" : "1.0.0",
+  "files" : [ {
+    "path" : "boundary/1.0.0/manifest.json",
+    "sha256" : "8c6f2cbdcfd562064bc05eb080fe02be9818275d02663c43e3389303f14459af",
+    "bytes" : 405
+  }, {
+    "path" : "conformance/1.0.0/manifest.json",
+    "sha256" : "745b764000d349c43315c047e0ee45270195d2a81f28c4fe7683b941f166760f",
+    "bytes" : 23040
+  }, {
+    "path" : "negative/1.0.0/manifest.json",
+    "sha256" : "725e6719dcaf99ed41f2ffb1febb05ea1aadf0717efee40dcd3ca89f6a697367",
+    "bytes" : 59891
+  } ]
+}

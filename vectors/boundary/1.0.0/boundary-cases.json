@@ -1,0 +1,1540 @@
+{
+  "description" : "Boundary vectors for the tolerance function (profile 1.0.0): every row and every term at exactly, just under (-1e-5 m) and just over (+1e-5 m) the threshold, rounding edges, per-dimension classification and invalid inputs (non-finite, out of range) that every port must reject with an error: in the invalid cases a non-finite number is the string NaN, Infinity or -Infinity (JSON has no such number).",
+  "tolEpsilon" : 1.0E-9,
+  "threshold" : [ {
+    "id" : "accuracyGate-floor-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
+  }, {
+    "id" : "accuracyGate-relative-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.2,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-relative-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.19999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-relative-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.20001000000000002,
+    "within" : false
+  }, {
+    "id" : "accuracyGate-floor-relative-crossover-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-relative-crossover-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-floor-relative-crossover-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.5,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
+  }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.0,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 19999.99999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-reference-at-the-1e6-m-limit-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.00001,
+    "within" : false
+  }, {
+    "id" : "accuracyGate-sigma-ignored-exact",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.01,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-sigma-ignored-just-under",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.00999,
+    "within" : true
+  }, {
+    "id" : "accuracyGate-sigma-ignored-just-over",
+    "row" : "accuracyGate",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.01,
+    "diff" : 0.01001,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-floor-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-floor-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-floor-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-relative-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.4,
+    "diff" : 0.4,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-relative-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.4,
+    "diff" : 0.39999,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-relative-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.4,
+    "diff" : 0.40001000000000003,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-floor-relative-crossover-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-floor-relative-crossover-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-floor-relative-crossover-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 0.625,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 40000.0,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 39999.99999,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-reference-at-the-1e6-m-limit-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 40000.0,
+    "diff" : 40000.00001,
+    "within" : false
+  }, {
+    "id" : "accuracyGateP95-sigma-ignored-exact",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.025,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-sigma-ignored-just-under",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.024990000000000002,
+    "within" : true
+  }, {
+    "id" : "accuracyGateP95-sigma-ignored-just-over",
+    "row" : "accuracyGateP95",
+    "major" : 1,
+    "term" : "sigma-ignored",
+    "ref" : 0.1,
+    "sigmaServer" : 5.0,
+    "sigmaClient" : 5.0,
+    "tol" : 0.025,
+    "diff" : 0.02501,
+    "within" : false
+  }, {
+    "id" : "agree-floor-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02,
+    "within" : true
+  }, {
+    "id" : "agree-floor-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.01999,
+    "within" : true
+  }, {
+    "id" : "agree-floor-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02001,
+    "within" : false
+  }, {
+    "id" : "agree-relative-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.2,
+    "within" : true
+  }, {
+    "id" : "agree-relative-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.19999,
+    "within" : true
+  }, {
+    "id" : "agree-relative-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.2,
+    "diff" : 0.20001000000000002,
+    "within" : false
+  }, {
+    "id" : "agree-floor-relative-crossover-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02,
+    "within" : true
+  }, {
+    "id" : "agree-floor-relative-crossover-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.01999,
+    "within" : true
+  }, {
+    "id" : "agree-floor-relative-crossover-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.02,
+    "diff" : 0.02001,
+    "within" : false
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.0,
+    "within" : true
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 19999.99999,
+    "within" : true
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 20000.0,
+    "diff" : 20000.00001,
+    "within" : false
+  }, {
+    "id" : "agree-sigma-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.0565685424949238,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.0565585424949238,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.0565685424949238,
+    "diff" : 0.056578542494923806,
+    "within" : false
+  }, {
+    "id" : "agree-sigma-cap-exact",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.1,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-cap-just-under",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.09999000000000001,
+    "within" : true
+  }, {
+    "id" : "agree-sigma-cap-just-over",
+    "row" : "agree",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.1,
+    "diff" : 0.10001,
+    "within" : false
+  }, {
+    "id" : "minor-floor-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.05,
+    "within" : true
+  }, {
+    "id" : "minor-floor-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.04999,
+    "within" : true
+  }, {
+    "id" : "minor-floor-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor",
+    "ref" : 0.1,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.050010000000000006,
+    "within" : false
+  }, {
+    "id" : "minor-relative-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.5,
+    "within" : true
+  }, {
+    "id" : "minor-relative-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.49999,
+    "within" : true
+  }, {
+    "id" : "minor-relative-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "relative",
+    "ref" : 10.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.5,
+    "diff" : 0.50001,
+    "within" : false
+  }, {
+    "id" : "minor-floor-relative-crossover-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.05,
+    "within" : true
+  }, {
+    "id" : "minor-floor-relative-crossover-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.04999,
+    "within" : true
+  }, {
+    "id" : "minor-floor-relative-crossover-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "floor-relative-crossover",
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 0.05,
+    "diff" : 0.050010000000000006,
+    "within" : false
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 50000.0,
+    "within" : true
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 49999.99999,
+    "within" : true
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "reference-at-the-1e6-m-limit",
+    "ref" : 1000000.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "tol" : 50000.0,
+    "diff" : 50000.00001,
+    "within" : false
+  }, {
+    "id" : "minor-sigma-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.08485281374238571,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.08484281374238571,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma",
+    "ref" : 0.1,
+    "sigmaServer" : 0.02,
+    "sigmaClient" : 0.02,
+    "tol" : 0.08485281374238571,
+    "diff" : 0.0848628137423857,
+    "within" : false
+  }, {
+    "id" : "minor-sigma-cap-exact",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.15,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-cap-just-under",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.14998999999999998,
+    "within" : true
+  }, {
+    "id" : "minor-sigma-cap-just-over",
+    "row" : "minor",
+    "major" : 1,
+    "term" : "sigma-cap",
+    "ref" : 0.1,
+    "sigmaServer" : 1.0,
+    "sigmaClient" : 1.0,
+    "tol" : 0.15,
+    "diff" : 0.15001,
+    "within" : false
+  } ],
+  "within" : [ {
+    "id" : "rounding-exact",
+    "diff" : 0.02,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-below-half-unit-rounds-down-to-tol",
+    "diff" : 0.020004,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-above-half-unit-rounds-up-past-tol",
+    "diff" : 0.020006,
+    "tol" : 0.02,
+    "within" : false
+  }, {
+    "id" : "rounding-one-unit-over",
+    "diff" : 0.02001,
+    "tol" : 0.02,
+    "within" : false
+  }, {
+    "id" : "rounding-one-unit-under",
+    "diff" : 0.01999,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "rounding-zero-diff",
+    "diff" : 0.0,
+    "tol" : 0.02,
+    "within" : true
+  }, {
+    "id" : "limit-difference-exactly-1e6-m-is-within-a-tolerance-of-1e6-m",
+    "diff" : 1000000.0,
+    "tol" : 1000000.0,
+    "within" : true
+  }, {
+    "id" : "limit-difference-exactly-1e6-m-is-beyond-a-small-tolerance",
+    "diff" : 1000000.0,
+    "tol" : 0.02,
+    "within" : false
+  }, {
+    "id" : "limit-tolerance-exactly-1e6-m",
+    "diff" : 0.5,
+    "tol" : 1000000.0,
+    "within" : true
+  } ],
+  "classify" : [ {
+    "id" : "agree-floor-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.12000000000000001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-floor-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.12001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-floor-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.08,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-relative-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.2,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-relative-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.20001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-relative-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 9.8,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-floor-relative-crossover-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.02,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-floor-relative-crossover-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.02001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-floor-relative-crossover-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 0.98,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1020000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1020000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-reference-at-the-1e6-m-limit-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 980000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1565685424949238,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1565785424949238,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-sigma-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.0434314575050762,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-cap-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.2,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "agree-sigma-cap-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.20001000000000002,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "agree-sigma-cap-client-below-server",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.0,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "minor-floor-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.15000000000000002,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-floor-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.0,
+      "client" : 0.15001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-relative-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.5,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-relative-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 10.0,
+      "sigmaServer" : 0.0,
+      "client" : 10.50001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-floor-relative-crossover-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.05,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-floor-relative-crossover-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.05001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1050000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-reference-at-the-1e6-m-limit-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1050000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-sigma-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.1848528137423857,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-sigma-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 0.02,
+      "client" : 0.18486281374238572,
+      "sigmaClient" : 0.02
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "minor-sigma-cap-exact",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.25,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "minor-sigma-cap-just-over",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.1,
+      "sigmaServer" : 1.0,
+      "client" : 0.25001,
+      "sigmaClient" : 1.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "multi-all-dimensions-agree",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.319,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 3.0,
+      "sigmaServer" : 0.0,
+      "client" : 3.05,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.2,
+      "sigmaServer" : 0.0,
+      "client" : 0.2,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "multi-one-minor-dimension-decides",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.3,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.34,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  }, {
+    "id" : "multi-one-major-dimension-decides",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : 0.36,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "classify-reference-exactly-1e6-m",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "AGREE"
+  }, {
+    "id" : "classify-difference-exactly-1e6-m",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.0,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MAJOR_DIFF"
+  }, {
+    "id" : "multi-sigma-is-per-dimension",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.5,
+      "sigmaServer" : 0.02,
+      "client" : 0.55,
+      "sigmaClient" : 0.02
+    }, {
+      "server" : 0.5,
+      "sigmaServer" : 0.0,
+      "client" : 0.53,
+      "sigmaClient" : 0.0
+    } ],
+    "outcome" : "MINOR_DIFF"
+  } ],
+  "invalid" : [ {
+    "id" : "classify-client-nan",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : "NaN",
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-nan",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : "NaN",
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-server-nan",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : "NaN",
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-client-nan",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : "NaN"
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-sigma-server-nan",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1.0,
+    "sigmaServer" : "NaN",
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-nan",
+    "op" : "within",
+    "diff" : "NaN",
+    "tol" : 0.02,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-nan",
+    "op" : "within",
+    "diff" : 0.02,
+    "tol" : "NaN",
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-nan",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : "NaN",
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-client-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : "Infinity",
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : "Infinity",
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-server-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : "Infinity",
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-client-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : "Infinity"
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-sigma-server-infinity",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1.0,
+    "sigmaServer" : "Infinity",
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-infinity",
+    "op" : "within",
+    "diff" : "Infinity",
+    "tol" : 0.02,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-infinity",
+    "op" : "within",
+    "diff" : 0.02,
+    "tol" : "Infinity",
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-infinity",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : "Infinity",
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-client-negative-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : "-Infinity",
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-negative-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : "-Infinity",
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-server-negative-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : "-Infinity",
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-sigma-client-negative-infinity",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : "-Infinity"
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-sigma-server-negative-infinity",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1.0,
+    "sigmaServer" : "-Infinity",
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-negative-infinity",
+    "op" : "within",
+    "diff" : "-Infinity",
+    "tol" : 0.02,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-negative-infinity",
+    "op" : "within",
+    "diff" : 0.02,
+    "tol" : "-Infinity",
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-negative-infinity",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : "-Infinity",
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-client-huge-1e300",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0E300,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-huge-1e300",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0E300,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-huge-1e300",
+    "op" : "within",
+    "diff" : 1.0E300,
+    "tol" : 0.02,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-huge-1e300",
+    "op" : "within",
+    "diff" : 0.02,
+    "tol" : 1.0E300,
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-huge-1e300",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1.0E300,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-just-over-1e6-m",
+    "op" : "within",
+    "diff" : 1000000.00001,
+    "tol" : 1000000.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-diff-just-below-minus-1e6-m",
+    "op" : "within",
+    "diff" : -1000000.00001,
+    "tol" : 1000000.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "within-tol-just-over-1e6-m",
+    "op" : "within",
+    "diff" : 0.5,
+    "tol" : 1000000.00001,
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-just-over-1e6-m",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1000000.00001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-ref-just-below-minus-1e6-m",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : -1000000.00001,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : 0.0,
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-server-just-over-1e6-m",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1000000.00001,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-difference-just-over-1e6-m",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 0.0,
+      "sigmaServer" : 0.0,
+      "client" : 1000000.00001,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-negative-sigma-server",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : -0.001,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-negative-sigma-client",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : -0.001
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-one-bad-dimension-among-good-ones",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ {
+      "server" : 1.0,
+      "sigmaServer" : 0.0,
+      "client" : 1.0,
+      "sigmaClient" : 0.0
+    }, {
+      "server" : 0.3,
+      "sigmaServer" : 0.0,
+      "client" : "NaN",
+      "sigmaClient" : 0.0
+    } ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "classify-no-dimensions",
+    "op" : "classify",
+    "major" : 1,
+    "dims" : [ ],
+    "expect" : "ERROR"
+  }, {
+    "id" : "tol-negative-sigma-client",
+    "op" : "tol",
+    "row" : "agree",
+    "major" : 1,
+    "ref" : 1.0,
+    "sigmaServer" : 0.0,
+    "sigmaClient" : -1.0,
+    "expect" : "ERROR"
+  } ]
+}

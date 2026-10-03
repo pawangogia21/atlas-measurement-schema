@@ -8,9 +8,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>atlas-measurement-schema-gate</name>
-    <description>CI-only tool (AT-2 task 3): fails a change to avro/*.avsc that is backward-incompatible
-        with the previous released version, or that changes an enum's symbols without an explicit
-        approval entry. Never published, never a dependency of the codegen artifact or of the
+    <description>CI-only tool (AT-2 task 3, AT-16 sub-task L): fails a change to avro/*.avsc that is
+        backward-incompatible with the previous released version, or that changes an enum's symbols without an
+        explicit approval entry; JsonSchemaCompatibilityGate does the same for json-schema/v*/ (additive optional
+        fields only within a schema major). Never published, never a dependency of the codegen artifact or of the
         services that consume it.
     </description>
 
@@ -19,14 +20,34 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
         <avro.version>1.12.0</avro.version>
+        <jackson.version>2.18.11</jackson.version>
         <junit.version>5.11.3</junit.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- keep every Jackson artifact (transitives included) on one patched version, as reference/pom.xml does -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
             <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <!-- JSON Schema compatibility gate (AT-16 sub-task L) -->
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

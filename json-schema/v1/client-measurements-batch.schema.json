@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.example/measurement/v1/client-measurements-batch.schema.json",
+  "title": "ClientMeasurementsBatchRequest",
+  "description": "Body of POST /api/v1/client-measurements:batch (design 25.2): up to 100 items. The 400 KB body cap, the 4 KB per item cap, the timestamp windows and the JSON depth limit are intake rules, not schema rules. Items are validated individually against live-measurement (a bad item is INVALID, it does not fail the batch).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": { "$ref": "live-measurement.schema.json" }
+    }
+  }
+}

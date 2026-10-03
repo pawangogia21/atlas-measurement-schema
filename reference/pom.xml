@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atlas</groupId>
+    <artifactId>atlas-measurement-schema-reference</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>atlas-measurement-schema-reference</name>
+    <description>AT-16 reference implementations (JVM 11): client-measurement validator (JSON Schema plus the
+        depth limit), the single tolerance function, the tier A shared-math reference of algorithm-spec.md and
+        the conformance vector generator. The JSON Schema files and tolerance-profile.json are the single
+        source of truth and are read from the repository (never copied or hard-coded).
+    </description>
+
+    <properties>
+        <maven.compiler.release>11</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.outputTimestamp>2026-10-03T03:58:15Z</project.build.outputTimestamp>
+        <jackson.version>2.18.11</jackson.version>
+        <junit.version>5.11.3</junit.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- the validator library brings jackson-dataformat-yaml: keep every Jackson artifact on one patched version -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../json-schema</directory>
+                <targetPath>json-schema</targetPath>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../tolerance</directory>
+                <targetPath>tolerance</targetPath>
+                <includes>
+                    <include>*/tolerance-profile.json</include>
+                    <include>tolerance-profile.schema.json</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/pawangogia21/atlas-measurement-schema</url>
+        </repository>
+    </distributionManagement>
+</project>

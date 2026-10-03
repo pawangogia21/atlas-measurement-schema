@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.example/measurement/v1/live-measurement.schema.json",
+  "title": "LiveMeasurement",
+  "description": "Client live measurement, schema 1.0 (design 17.3, 25.2, 25.3). Metres everywhere, 1-sigma uncertainty, Y-up right-handed world frame. Unknown fields are rejected. Every metric has a maximum (the NUMERIC(9,5) columns of design 25.3 hold at most 9999.99999) and version components stay below 10^9 (INT columns). JSON nesting depth (at most 8), finite numbers and the unit length of geometry.plane.normalWorld are not expressible in JSON Schema and are enforced at intake before and after validation (see json-schema/README.md).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "algorithmVersion", "clientMeasurementId", "timestamp", "mode", "unit",
+    "dimensions", "confidence", "state", "qualityFlags", "depthTier", "depthSource",
+    "frameOfReference", "scaleSource", "device"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0", "description": "measurement-schema version; a different value is CLIENT_SCHEMA_UNSUPPORTED at intake." },
+    "algorithmVersion": { "$ref": "#/$defs/semver", "description": "Kit algorithm semver (design 21.4); maps to algorithm_major/minor/patch." },
+    "clientMeasurementId": { "$ref": "#/$defs/uuid", "description": "Idempotency key generated at freeze()." },
+    "supersedesClientMeasurementId": { "$ref": "#/$defs/uuid", "description": "An edited re-send is a new id that supersedes the old one (design 21.1)." },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "mode": { "enum": ["OBJECT_BOX", "POINT_TO_POINT", "PLANE_DISTANCE"] },
+    "unit": { "type": "string", "const": "METRE" },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lengthM": { "$ref": "#/$defs/measured" },
+        "widthM": { "$ref": "#/$defs/measured" },
+        "heightM": { "$ref": "#/$defs/measured" },
+        "distanceM": { "$ref": "#/$defs/measured" }
+      }
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Composite confidence; capped at 0.6 by the core when scaleSource is VIO_METRIC (not expressible per field here, enforced by the conditional below)." },
+    "state": { "enum": ["SEARCHING", "TRACKING", "STABLE", "DEGRADED", "UNSUPPORTED"] },
+    "qualityFlags": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 8,
+      "items": { "enum": ["LOW_TEXTURE", "TOO_FAR", "TOO_CLOSE", "TRACKING_LIMITED", "PARTIAL_VIEW", "REFLECTIVE_SUSPECT", "THERMAL_THROTTLED", "DEPTH_SPARSE"] }
+    },
+    "depthTier": { "enum": ["A", "B", "C", "D"], "description": "Claimed tier (design 18); the server treats it as a claim." },
+    "depthSource": { "enum": ["LIDAR", "TOF", "DEPTH_FROM_MOTION", "NONE"], "description": "Claimed depth source." },
+    "obb": {
+      "description": "Gravity-aligned box (design 17.3). halfExtentsM = [x, y, z] in the box's own frame: x and z are the footprint half-extents along the box axes (the frame yawed by yawRad about +Y), index 1 is the VERTICAL half-extent (Y up). centerWorld is the box centre; the box rests on y = supportPlaneY.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["centerWorld", "halfExtentsM", "yawRad", "supportPlaneY"],
+      "properties": {
+        "centerWorld": { "$ref": "#/$defs/vec3" },
+        "halfExtentsM": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number", "minimum": 0, "maximum": 9999.99999 } },
+        "yawRad": { "type": "number", "minimum": -1000, "maximum": 1000, "description": "Rotation about +Y, radians." },
+        "supportPlaneY": { "type": "number", "minimum": -100000, "maximum": 100000 }
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cornersWorld": { "type": "array", "minItems": 8, "maxItems": 8, "items": { "$ref": "#/$defs/vec3" } },
+        "cornersScreen": { "type": "array", "minItems": 8, "maxItems": 8, "items": { "$ref": "#/$defs/vec2" } },
+        "edges": {
+          "type": "array",
+          "maxItems": 12,
+          "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer", "minimum": 0, "maximum": 7 } },
+          "description": "Pairs of indices into cornersWorld."
+        },
+        "keypoints": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "world", "screen", "sigma"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 32 },
+              "world": { "$ref": "#/$defs/vec3" },
+              "screen": { "$ref": "#/$defs/vec2" },
+              "sigma": { "type": "number", "minimum": 0, "maximum": 9999.99999 }
+            }
+          }
+        },
+        "labelAnchorScreen": { "$ref": "#/$defs/vec2" }
+      }
+    },
+    "geometry": {
+      "description": "Optional association inputs (design 21.2, section 35.2 amendment), in the frame of frameOfReference. A Kit that cannot supply them still produces a valid hint; the server then falls back to the dimension-only association. OBJECT_BOX derives its box from obb and carries no geometry. POINT_TO_POINT may carry endpointsWorld, PLANE_DISTANCE may carry plane (see allOf). Keypoint names are free text and not a contract.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "endpointsWorld": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/$defs/vec3" }, "description": "POINT_TO_POINT: the two endpoints, metres." },
+        "plane": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["normalWorld", "offsetM"],
+          "description": "PLANE_DISTANCE: the plane n . x = offsetM. The normal must have unit length within 1e-3 (checked at intake); n with offset o and -n with offset -o are the same plane.",
+          "properties": {
+            "normalWorld": { "$ref": "#/$defs/unitVec3" },
+            "offsetM": { "type": "number", "minimum": -100000, "maximum": 100000 }
+          }
+        }
+      }
+    },
+    "frameOfReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["convention", "worldOriginEpoch", "sessionId"],
+      "properties": {
+        "convention": { "type": "string", "const": "Y_UP_RIGHT_HANDED" },
+        "worldOriginId": { "type": "string", "maxLength": 64, "description": "Diagnostics only." },
+        "worldOriginEpoch": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
+        "sessionId": { "$ref": "#/$defs/uuid" }
+      }
+    },
+    "scaleSource": { "enum": ["SENSOR_METRIC_LIDAR", "SENSOR_METRIC_DEPTH", "VIO_METRIC"] },
+    "trust": { "type": "string", "const": "UNVERIFIED_ESTIMATE", "description": "Always UNVERIFIED_ESTIMATE on a client record; optional on the wire, the server stamps it." },
+    "device": {
+      "title": "LiveDevice",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "os", "kitVersion"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "os": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "kitVersion": { "type": "string", "minLength": 1, "maxLength": 16 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "mode": { "const": "OBJECT_BOX" } }, "required": ["mode"] },
+      "then": {
+        "properties": { "dimensions": { "required": ["lengthM", "widthM", "heightM"], "not": { "required": ["distanceM"] } } }
+      },
+      "else": {
+        "properties": { "dimensions": { "required": ["distanceM"], "not": { "anyOf": [{ "required": ["lengthM"] }, { "required": ["widthM"] }, { "required": ["heightM"] }] } } }
+      }
+    },
+    {
+      "if": { "properties": { "mode": { "const": "POINT_TO_POINT" } }, "required": ["mode"] },
+      "else": { "properties": { "geometry": { "not": { "required": ["endpointsWorld"] } } } }
+    },
+    {
+      "if": { "properties": { "mode": { "const": "PLANE_DISTANCE" } }, "required": ["mode"] },
+      "else": { "properties": { "geometry": { "not": { "required": ["plane"] } } } }
+    },
+    {
+      "if": { "properties": { "scaleSource": { "const": "VIO_METRIC" } }, "required": ["scaleSource"] },
+      "then": { "properties": { "confidence": { "maximum": 0.6 } } }
+    }
+  ],
+  "$defs": {
+    "uuid": { "type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" },
+    "semver": { "type": "string", "maxLength": 16, "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$", "description": "MAJOR.MINOR.PATCH, each below 10^9 (the algorithm_major/minor/patch INT columns)." },
+    "vec2": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number", "minimum": -100000, "maximum": 100000 } },
+    "vec3": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number", "minimum": -100000, "maximum": 100000 } },
+    "unitVec3": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number", "minimum": -1, "maximum": 1 }, "description": "Unit-length direction (length 1 within 1e-3, checked at intake)." },
+    "measured": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "sigmaM", "ci95M"],
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 9999.99999, "description": "Metres; at most 9999.99999 (NUMERIC(9,5))." },
+        "sigmaM": { "type": "number", "minimum": 0, "maximum": 9999.99999, "description": "1-sigma, metres." },
+        "ci95M": { "type": "number", "minimum": 0, "maximum": 9999.99999, "description": "95% interval half-width, metres." }
+      }
+    }
+  }
+}

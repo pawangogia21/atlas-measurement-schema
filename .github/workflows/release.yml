@@ -1,0 +1,187 @@
+name: Release
+
+# AT-16: the release job. It lives in its own workflow so that it runs from the definition on the DEFAULT BRANCH: a
+# `workflow_run` workflow always uses the workflow file of main, not the file of the tagged commit, and runs with main as
+# its ref. A tagged commit therefore cannot edit this file (or the provenance script it calls, which is taken from a
+# checkout of main) to skip the "is on main" check. Triggered when CI finished for a tag push v<major>.<minor>.<patch>
+# (build and swift jobs green); the Swift package is taken from that CI run.
+# What this does NOT prevent: the build and deploy still execute the tagged commit's poms and mvnw (provenance proves that
+# commit is on main, i.e. was merged through the main ruleset), and a tag-triggered ci.yml of an unreviewed commit can ask
+# for its own token permissions. The controls that close that are GitHub settings: the `release` environment (required
+# reviewers, deployment branches restricted to `main` so only this workflow can read its secrets), the v* tag ruleset and the
+# main ruleset with required code-owner review (README.md, "One-time GitHub setup").
+
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    # head_branch is the tag name for a tag push. Only a successful CI run of a push event qualifies; the tag name is
+    # validated again (strict semver) by release-version.sh below.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: ubuntu-latest
+    environment: release
+    concurrency:
+      group: release-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+      actions: read   # download the Swift package artifact of the CI run
+    env:
+      TAG: ${{ github.event.workflow_run.head_branch }}
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+    # The trusted scripts: main, never the tagged commit.
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      with:
+        ref: main
+        path: trusted
+        persist-credentials: false
+
+    # The commit under release, by SHA (not by the tag name: a tag could be moved between the CI run and now). The whole
+    # history is needed by the provenance check.
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
+        path: release
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: The checkout is the CI-verified commit, and the tag still points at it
+      working-directory: release
+      run: |
+        [ "$(git rev-parse HEAD)" = "$RELEASE_SHA" ] || { echo "FAIL: checked-out HEAD is not $RELEASE_SHA" >&2; exit 1; }
+        [ "$(git rev-parse "refs/tags/$TAG^{commit}")" = "$RELEASE_SHA" ] || { echo "FAIL: tag $TAG no longer points at $RELEASE_SHA" >&2; exit 1; }
+
+    - name: The tagged commit must be on main (script from main)
+      working-directory: release
+      run: ../trusted/.github/scripts/verify-tag-provenance.sh main
+
+    - name: Release version from the tag
+      id: version
+      run: echo "value=$(./trusted/.github/scripts/release-version.sh "$TAG")" >> "$GITHUB_OUTPUT"
+
+    - name: Check that publishing is enabled
+      id: gate
+      env:
+        PUBLISH_ENABLED: ${{ secrets.PUBLISH_ENABLED }}
+        VERSION: ${{ steps.version.outputs.value }}
+      run: |
+        if [ "$PUBLISH_ENABLED" = "true" ]; then
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "enabled=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::PUBLISH_ENABLED is not 'true': release v${VERSION} was verified but NOT published"
+          echo "### Release v${VERSION}: NOT published (secret PUBLISH_ENABLED is not 'true')" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Set up JDK 21
+      if: steps.gate.outputs.enabled == 'true'
+      uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        # no dependency cache in the release job: it builds from Central only
+        # Populates ~/.m2/settings.xml with a <server id="github"> entry; its credentials are GITHUB_ACTOR and GITHUB_TOKEN.
+        server-id: github
+
+    - name: Preflight - which Maven artifacts of this version already exist
+      id: preflight
+      if: steps.gate.outputs.enabled == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+      # Fails for a half-published version; reports `complete` when a re-run follows a failure after the Maven step.
+      run: ./trusted/.github/scripts/release-preflight.sh "$VERSION"
+
+    - name: The tagged commit must still be on main, right before publishing
+      if: steps.gate.outputs.enabled == 'true'
+      working-directory: release
+      run: |
+        [ "$(git rev-parse HEAD)" = "$RELEASE_SHA" ] || { echo "FAIL: checked-out HEAD is not $RELEASE_SHA" >&2; exit 1; }
+        ../trusted/.github/scripts/verify-tag-provenance.sh main
+
+    - name: Publish the Maven artifacts to GitHub Packages (types, reference, Kotlin, vectors, Avro codegen)
+      if: steps.gate.outputs.enabled == 'true' && steps.preflight.outputs.maven_state == 'none'
+      env:
+        # Not the personal access token: this job's own token, scoped by `permissions: packages: write` to this repository.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+      run: |
+        # the tagged commit's own build files, proven to be on main above
+        cd release
+        ./.github/scripts/set-release-version.sh "$VERSION"
+        # types first: the Kotlin artifact depends on it
+        for module in codegen-json reference kotlin vectors-artifact codegen; do
+          ./mvnw -f "$module/pom.xml" -B -DskipTests -Dmaven.javadoc.skip=true deploy
+        done
+
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      if: steps.gate.outputs.enabled == 'true' && vars.SWIFT_REPO_ENABLED != 'false'
+      with:
+        name: swift-package
+        path: swift-package
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish the Swift package (atlas-measurement-schema-swift, tag v<version>)
+      if: steps.gate.outputs.enabled == 'true' && vars.SWIFT_REPO_ENABLED != 'false'
+      env:
+        # Fine-grained token, Contents: write on atlas-measurement-schema-swift only.
+        SWIFT_REPO_TOKEN: ${{ secrets.SWIFT_REPO_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+      # Fails closed (missing repository, bad token). The tag is created only after the content was pushed. Skipping this
+      # step on purpose is the repository variable SWIFT_REPO_ENABLED=false.
+      run: ./trusted/.github/scripts/publish-swift-package.sh swift-package "$VERSION"
+
+    - name: Trigger the Kits' CI (design 31.10)
+      if: steps.gate.outputs.enabled == 'true' && vars.KIT_DISPATCH_ENABLED != 'false'
+      env:
+        # Fine-grained token, Contents: write on the two Kit repositories only (repository_dispatch).
+        KIT_DISPATCH_TOKEN: ${{ secrets.KIT_DISPATCH_TOKEN }}
+        VERSION: ${{ steps.version.outputs.value }}
+        SWIFT_REPO_ENABLED: ${{ vars.SWIFT_REPO_ENABLED }}
+      run: |
+        kits=(atlas-measure-kit-android)
+        # the iOS Kit consumes the Swift package: nothing to tell it while that package is not published
+        if [ "$SWIFT_REPO_ENABLED" != "false" ]; then
+          kits+=(atlas-measure-kit-ios)
+        fi
+        ./trusted/.github/scripts/dispatch-kits.sh "$VERSION" "${kits[@]}"
+
+    - name: Release summary
+      if: steps.gate.outputs.enabled == 'true'
+      env:
+        VERSION: ${{ steps.version.outputs.value }}
+        MAVEN_STATE: ${{ steps.preflight.outputs.maven_state }}
+        SWIFT_REPO_ENABLED: ${{ vars.SWIFT_REPO_ENABLED }}
+        KIT_DISPATCH_ENABLED: ${{ vars.KIT_DISPATCH_ENABLED }}
+      run: |
+        {
+          echo "### Release v${VERSION}"
+          if [ "$MAVEN_STATE" = "complete" ]; then
+            echo "- Maven artifacts: already published by an earlier run, left untouched"
+          else
+            echo "- Maven artifacts: published"
+          fi
+          if [ "$SWIFT_REPO_ENABLED" = "false" ]; then
+            echo "- Swift package: SKIPPED on purpose (SWIFT_REPO_ENABLED=false), the release is incomplete"
+          else
+            echo "- Swift package: published (tag v${VERSION})"
+          fi
+          if [ "$KIT_DISPATCH_ENABLED" = "false" ]; then
+            echo "- Kit dispatch: SKIPPED on purpose (KIT_DISPATCH_ENABLED=false), the release is incomplete"
+          else
+            echo "- Kit dispatch: sent"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
