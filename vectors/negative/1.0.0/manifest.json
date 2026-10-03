@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "description": "Negative vectors: invalid payloads that must be rejected by JSON Schema validation or application-level checks",
+  "vectors": [
+    {
+      "id": "unknown-field",
+      "path": "unknown-field.json",
+      "reason": "Schema violation: additionalProperties=false rejects unknown fields",
+      "expectedError": "VALIDATION_FAILED"
+    },
+    {
+      "id": "too-many-keypoints",
+      "path": "too-many-keypoints.json",
+      "reason": "Schema violation: overlay.keypoints maxItems=32, this has 33",
+      "expectedError": "VALIDATION_FAILED"
+    },
+    {
+      "id": "wrong-trust",
+      "path": "wrong-trust.json",
+      "reason": "Schema violation: trust must be const UNVERIFIED_ESTIMATE",
+      "expectedError": "VALIDATION_FAILED"
+    },
+    {
+      "id": "vio-metric-high-confidence",
+      "path": "vio-metric-high-confidence.json",
+      "reason": "Application check: VIO_METRIC scaleSource caps confidence at 0.6; this has 0.95",
+      "expectedError": "CLIENT_MEASUREMENT_INVALID"
+    },
+    {
+      "id": "missing-qualityflags",
+      "path": "missing-qualityflags.json",
+      "reason": "Schema violation: qualityFlags is required",
+      "expectedError": "VALIDATION_FAILED"
+    },
+    {
+      "id": "wrong-mode-dimensions",
+      "path": "wrong-mode-dimensions.json",
+      "reason": "Application check: POINT_TO_POINT mode should only have distanceM, not length/width/height",
+      "expectedError": "CLIENT_MEASUREMENT_INVALID"
+    },
+    {
+      "id": "bad-depthtier",
+      "path": "bad-depthtier.json",
+      "reason": "Schema violation: depthTier enum must be one of [A,B,C,D]",
+      "expectedError": "VALIDATION_FAILED"
+    },
+    {
+      "id": "confidence-out-of-range",
+      "path": "confidence-out-of-range.json",
+      "reason": "Schema violation: confidence must be in range [0, 1]",
+      "expectedError": "VALIDATION_FAILED"
+    }
+  ]
+}

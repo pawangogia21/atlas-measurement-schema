@@ -2,11 +2,14 @@ package com.atlas.measurement.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
@@ -164,5 +167,19 @@ class ClientMeasurementValidatorTest {
             sb.append(i == 0 ? "" : ",").append(item);
         }
         return sb.append("]}").toString();
+    }
+
+    @Test
+    void negativeVectorsAreRejected() throws IOException {
+        JsonNode manifest = MAPPER.readTree(Files.readAllBytes(Paths.get("../vectors/negative/1.0.0/manifest.json")));
+        for (JsonNode vector : manifest.get("vectors")) {
+            String id = vector.get("id").asText();
+            String path = vector.get("path").asText();
+            byte[] content = Files.readAllBytes(Paths.get("../vectors/negative/1.0.0").resolve(path));
+            String payload = new String(content);
+            var result = validator.validateLiveMeasurement(payload);
+            assertThat(result.valid()).as(id + ": " + vector.get("reason").asText()).isFalse();
+            assertThat(result.code).as(id).isNotNull();
+        }
     }
 }

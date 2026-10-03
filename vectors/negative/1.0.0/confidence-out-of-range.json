@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "algorithmVersion": "1.1.2",
+  "clientMeasurementId": "3f2b8c1e-7a4d-4e0b-9c55-1d2e3f4a5b6c",
+  "timestamp": "2026-10-03T09:15:30.250Z",
+  "mode": "OBJECT_BOX",
+  "unit": "METRE",
+  "dimensions": {
+    "lengthM": { "value": 0.602, "sigmaM": 0.004, "ci95M": 0.008 }
+  },
+  "confidence": 1.5,
+  "state": "STABLE",
+  "qualityFlags": [],
+  "depthTier": "A",
+  "depthSource": "LIDAR",
+  "frameOfReference": {
+    "convention": "Y_UP_RIGHT_HANDED",
+    "worldOriginEpoch": 2,
+    "sessionId": "b1d0a2c4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+  },
+  "scaleSource": "SENSOR_METRIC_LIDAR",
+  "trust": "UNVERIFIED_ESTIMATE",
+  "device": { "model": "iPhone15,3", "os": "iOS 18.2", "kitVersion": "1.1.0" }
+}
