@@ -16,21 +16,22 @@ The client contract of the Measure Kits (design 17.3, 25.2, 25.3). Draft 2020-12
 - `trust`, when present, must be `UNVERIFIED_ESTIMATE` (the server stamps it on every client record).
 - `dimensions` must match `mode`: `OBJECT_BOX` has `lengthM`, `widthM`, `heightM`; the other modes have `distanceM`.
 - `confidence` is at most 0.6 when `scaleSource` is `VIO_METRIC`.
-- Optional `geometry` object carries `endpointsWorld` (for `POINT_TO_POINT`) and `plane` (for `PLANE_DISTANCE`); normals must be unit-length (1.0 ± 1e-5 m).
-- `value`, `sigmaM` and `ci95M` are bounded (within approximately ±10000 m); `algorithmVersion` major/minor/patch fit INT range.
-- Numeric values must be finite (not NaN or Infinity).
+- Optional `geometry` object: `endpointsWorld` (two points, `POINT_TO_POINT` only) and `plane` (`normalWorld`, `offsetM`; `PLANE_DISTANCE` only). `OBJECT_BOX` derives its box from `obb` and carries no geometry. Without geometry the server falls back to the dimension-only association.
+- Every metric has a maximum: `value`, `sigmaM`, `ci95M`, `halfExtentsM` and keypoint `sigma` are in 0..9999.99999 (the `NUMERIC(9,5)` columns); world coordinates and offsets are within +-100000. `algorithmVersion` is `MAJOR.MINOR.PATCH` with each component at most 9 digits (no leading zeros) and at most 16 characters; `kitVersion` at most 16.
 
 ## Rules that are intake rules, not schema rules
 
 JSON Schema cannot express them; the intake service (AT-17) applies them with the same helper.
 
-- **JSON depth at most 8.** Depth counts containers; the root object is depth 1. It is enforced while parsing, before schema validation, so a deeply nested body is never materialised (`com.atlas.measurement.validation.ClientMeasurementValidator`, Jackson `maxNestingDepth`). **Batch exception:** the depth limit applies per `LiveMeasurement` item in a batch (so one item at depth 9 causes the whole request to return HTTP 422 for that item), not to the batch envelope itself. A body deeper than 32, over size, or with too many items rejects the whole request.
+- **JSON depth at most 8.** Depth counts containers; the root object is depth 1. It is enforced while parsing, before schema validation, so a deeply nested body is never materialised (`com.atlas.measurement.validation.ClientMeasurementValidator`, Jackson `maxNestingDepth`). It applies per `LiveMeasurement` document. In a batch the body is parsed with a transport ceiling of 32: an item nested deeper than 8 but within 32 is `CLIENT_MEASUREMENT_INVALID` on its own (the other items are processed; vector `batch-item-depth-9`), and only a body deeper than 32 (`batch-body-depth-33`) rejects the whole request.
 - An unsupported `schemaVersion` (anything but `1.0`) is `CLIENT_SCHEMA_UNSUPPORTED`; every other violation is `CLIENT_MEASUREMENT_INVALID`.
-- Size caps (4 KB per item, 256 KiB per `complete` body, 400 KiB per batch body, 50 items in `complete`). Whole-request limits: batch size 1-100 items, request body 400 KiB. String fields capped at 4096 chars, `algorithmVersion` and `kitVersion` at 32 chars, field names at 128 chars.
-- Duplicate object keys and trailing JSON content are rejected; all numeric values must be finite.
-- Timestamp windows: hint timestamp at most 5 minutes in the future and no older than 24 hours before the `complete` request. Batch timestamps at most 5 minutes in the future and at most 30 days old (offline sync).
-- `sessionId` equality with the create request (for `complete`); idempotency by `(tenantId, ownerId, clientMeasurementId)` for the batch endpoint.
-- On the `complete` endpoint, invalid hints are dropped and the upload succeeds with status 202 and `warnings: ["CLIENT_HINTS_DROPPED"]`; the upload itself is **never rejected for bad hints**.
+- Size limits, checked while parsing (characters, not bytes): a document at most 256 * 1024 (the `complete` hints body), a batch body at most 400 * 1024, strings at most 4096, numbers at most 32 characters, field names at most 128. At most 100 items in a batch (at least 1) and at most 50 in `complete`.
+- Duplicate object keys, trailing content after the document and numbers outside the finite double range (1e999) are rejected.
+- `geometry.plane.normalWorld` must have unit length within 1e-3 (`unitLength at $.geometry.plane.normalWorld`).
+- **Whole-request rejection (HTTP 422) of a batch** happens only for transport reasons: not JSON, a body over the size limit, deeper than 32, a string or number over its limit, a duplicate key, trailing content, or a bad envelope (`{"items": [1..100 objects]}`, nothing else) or item count. Anything wrong inside an item is that item's result.
+- Timestamp windows, `sessionId` equality with the create request and idempotency on `clientMeasurementId` are service rules of the intake (AT-17), not applied by the reference validator; no window length is specified here.
+- On `uploads/complete`, `validateCompleteHints` never rejects the upload for bad hints: a body-level violation drops all hints, an item-level one only that item, and the response is 202 `VALIDATING` with `warnings: ["CLIENT_HINTS_DROPPED"]`.
+- Error strings never echo client text: `<keyword> at <instance path>` (e.g. `additionalProperties at $`, `maximum at $.dimensions.lengthM.value`, `unitLength at ...`), plus `: <property>` for a missing required property, or a fixed text (`duplicate object key`, `trailing content after the JSON document`, `finiteNumber: ...`, `JSON depth above 8`, `document larger than ... characters`).
 
 ## Generated Java types (`codegen-json/`, AT-16)
 
@@ -41,20 +42,13 @@ JSON Schema cannot express them; the intake service (AT-17) applies them with th
 The generated types carry no validation of their own beyond the mapper's strictness settings. Always deserialize with `StrictMapper.create()`, which enforces:
 - Unknown properties fail (matching the schema's `additionalProperties: false`)
 - Unknown enum values fail (rather than being silently set to `null`)
-- JSON nesting depth ≤ 8 (enforced during parsing via Jackson's `maxNestingDepth`)
+- JSON nesting depth ≤ 8, duplicate keys, trailing content, non-finite numbers and the intake size limits (enforced during parsing)
 
 Ranges, patterns, field conditionals (the `dimensions` → `mode` rule), and the VIO_METRIC confidence cap are all enforced by JSON Schema validation, not by the generated code. The intake service applies them with `ClientMeasurementValidator` (the reference implementation, in `reference/`).
 
 ### Per-item batch validation
 
-For a batch request, call `ClientMeasurementValidator.validateBatchItems(jsonString)` to return per-item validation results with codes and errors:
-
-```java
-public List<Result> validateBatchItems(String json) { ... }
-// Result: code (VALID, CLIENT_MEASUREMENT_INVALID, etc.), errors (list of violation strings)
-```
-
-The envelope and per-item parsing are handled in one call; the HTTP 200 response body and per-item result codes are implementation-specific (reference implementation shape defined in `reference/`). See `vectors/negative/README.md` for negative test vectors.
+For a batch request, call `ClientMeasurementValidator.validateBatchItems(jsonString)`. It returns a `BatchResult`: `request` (invalid when the whole request is refused, then `items` is empty) and, otherwise, `items` with one `Result` per item (`code`, null when valid, `CLIENT_MEASUREMENT_INVALID` or `CLIENT_SCHEMA_UNSUPPORTED`, and `errors`). `validateBatch` gives the all-or-nothing view, and `validateCompleteHints` the `complete` variant (`HintsResult`, with `warnings()`). See `vectors/negative/README.md` for the vectors.
 
 ### Swift types
 

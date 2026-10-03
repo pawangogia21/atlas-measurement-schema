@@ -1,6 +1,6 @@
 # Negative Vectors
 
-Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_INVALID`, plus per-item batch error reporting. Each of the 105 vectors is a mutation of a valid example from `json-schema/v1/examples/`.
+Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_INVALID`, plus per-item batch error reporting (kind `batchItems`: a valid envelope answered per item). Each of the 105 vectors is a mutation of a valid example from `json-schema/v1/examples/`.
 
 ## Layout
 
@@ -10,26 +10,19 @@ Payloads that the intake service must reject with HTTP 422 `CLIENT_MEASUREMENT_I
 - 105 JSON files: payloads organized by kind:
   - `liveMeasurement` (single item): missing/malformed/invalid required fields (timestamp, capture, mode, dimensions, etc.), depth limits (9 and 100001 levels), invalid enums and field values
   - `clientCapture` (the capture object): missing/invalid required fields and enums
-  - `batch` (whole request): invalid envelope, non-object items, batch-size violations, too many items (101), empty batch
-  - `batchItems` (per-item validation): rejection reporting with per-item results
+  - `batch` (whole request refused): invalid or unknown envelope field, too many items (101), empty batch, body over 400 KiB (409600 characters), body deeper than the transport ceiling of 32 (`batch-body-depth-33`)
+  - `batchItems` (per-item validation, `expectedItems` lists the code of each item): `batch-per-item-rejection`, `batch-item-depth-9`, `batch-item-schema-version-unsupported`
 
 ## Error tokens and depth enforcement
 
-Every negative vector expects HTTP 422 with a `code` field. The manifest specifies `expectedErrorContains` (a field name or keyword) that must appear in the response's `message` or error details field (e.g. `"required field schemaVersion is absent"`, `"additionalProperties"` for unknown fields, `"maximum"` for out-of-range, `"duplicate object key"`, `"trailing content"`).
+Every vector except kind `batchItems` expects `expectedStatus` 422, `expectedCode` `CLIENT_MEASUREMENT_INVALID` and an `expectedErrorContains` token that must appear in one of the returned error strings. Error strings are `<keyword> at <instance path>` (plus `: <property>` for a missing required property) or a fixed text, never client text. Tokens in use: a schema keyword (`additionalProperties`, `maximum`, `unitLength`, `finiteNumber`), a property name or path part (`schemaVersion`, `depthTier`, `items`) or a fixed text (`JSON object`, `duplicate object key`, `trailing content`, `not valid JSON`, `JSON depth above 8`, `JSON depth above 32`, `document larger than`, `string value longer than`, `number longer than`, `name longer than`, `batch envelope`). The `batchItems` vectors carry `expectedItems` instead (see below).
 
-- **JSON depth limit 8** (depth counts containers; root is depth 1): enforced while parsing before schema validation via Jackson's `maxNestingDepth`, so a deeply nested body is never materialized. The limit applies per `LiveMeasurement` item in a batch, not to the batch envelope itself. A too-deep item rejects the whole request with HTTP 422 (batch exception: see `json-schema/README.md`). Test cases: `depth-9.json` (single item just over limit) and `batch-item-depth-9.json` (batch with one item at depth 9).
-- **Over-limit nesting**: `depth-100001.json` tests stack-safe rejection of a payload recursively nested 100,001 levels deep — a consumer must refuse it without exhausting its stack.
+- **JSON depth limit 8** (depth counts containers; root is depth 1): enforced while parsing before schema validation via Jackson's `maxNestingDepth`, so a deeply nested body is never materialised. A single document (`depth-9.json`, `depth-100001.json`, which a consumer must refuse without exhausting its stack) is refused as a whole with `JSON depth above 8`.
+- **Batch exception:** a batch body is parsed with a transport ceiling of 32. An item nested deeper than 8 but within 32 is INVALID on its own: `batch-item-depth-9.json` is a `batchItems` vector with `expectedItems` `["VALID", "CLIENT_MEASUREMENT_INVALID", "VALID"]`, and the other items are processed. Only a body deeper than 32 (`batch-body-depth-33.json`, kind `batch`, `JSON depth above 32`), a body over 400 KiB, or a bad envelope or item count rejects the whole request with HTTP 422.
 
 ## Per-item batch validation (`ClientMeasurementValidator.validateBatchItems`)
 
-A batch request body with 1–100 valid `LiveMeasurement` items in an `items` array returns HTTP 200 (per-item results format is implementation-specific; see `json-schema/README.md` for the reference):
-
-```java
-List<Result> validateBatchItems(String json)
-// Each Result has: code (VALID, CLIENT_MEASUREMENT_INVALID, etc.), errors (list of violation strings)
-```
-
-The batch envelope itself must be a JSON object with an `items` key and array; violations in the envelope (non-object items, batch size out of range, missing `items` key) return HTTP 422 with a single error in the response. Test cases: `batch-per-item-rejection.json` (valid envelope, mixed valid/invalid items), `batch-empty.json` (zero items), `batch-101-items.json` (101 items). **Exception:** if one item is deeper than the JSON depth limit (9), the whole request rejects with HTTP 422 (see `batch-item-depth-9.json` and `json-schema/README.md`).
+A batch whose envelope is `{"items": [1..100 objects]}` is processed item by item: each item is `VALID`, `CLIENT_MEASUREMENT_INVALID` or `CLIENT_SCHEMA_UNSUPPORTED` (an unsupported `schemaVersion`; the Kit retries after an update), and a bad item does not fail the batch. The reference API returns a `BatchResult` with `request` and per-item `Result`s (`code`, `errors`); the vectors state only the expected codes, in order, in `expectedItems`. Test cases: `batch-per-item-rejection.json` (items 2 and 4 invalid), `batch-item-depth-9.json`, `batch-item-schema-version-unsupported.json`. Whole-request refusals (kind `batch`): `batch-empty.json`, `batch-101-items.json`, `batch-unknown-envelope-field.json`, `batch-over-400k-characters.json`, `batch-body-depth-33.json`.
 
 ## Regenerate (reproducible, byte-identical)
 
