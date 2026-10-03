@@ -72,9 +72,13 @@ class ToleranceProfile private constructor(
 }
 
 object Tolerance {
+    /** Largest metre value the tolerance function accepts (the schema caps metrics at 9999.99999 m). */
+    const val MAX_ABS_METRES: Double = 1.0e6
+
     /** `max(floorM, relFrac*|ref|, min(sigmaK*combinedSigma, sigmaCapM))`; sigma term omitted if `sigmaK` is null. */
     fun tol(ref: Double, sigmaServer: Double, sigmaClient: Double, row: ToleranceRow): Double {
         requireFinite(ref, "ref")
+        require(abs(ref) <= MAX_ABS_METRES) { "ref must be at most $MAX_ABS_METRES in magnitude" }
         requireSigma(sigmaServer, "sigmaServer")
         requireSigma(sigmaClient, "sigmaClient")
         var t = max(row.floorM, row.relFrac * abs(ref))
@@ -86,8 +90,14 @@ object Tolerance {
         return t
     }
 
-    /** Integer units of 1e-5 m: `floor(x * 1e5 + 0.5)` in double arithmetic, identical in every port. */
-    fun units(metres: Double): Long = floor(metres * 1e5 + 0.5).toLong()
+    /**
+     * Integer units of 1e-5 m: `floor(x * 1e5 + 0.5)` in double arithmetic, identical in every port. Non-finite input
+     * and |x| above [MAX_ABS_METRES] are errors, never a silent 0 or a saturated value.
+     */
+    fun units(metres: Double): Long {
+        require(metres.isFinite() && abs(metres) <= MAX_ABS_METRES) { "metres must be finite and at most $MAX_ABS_METRES in magnitude" }
+        return floor(metres * 1e5 + 0.5).toLong()
+    }
 
     /** `diff <= tol` compared in metres rounded to 1e-5. */
     fun withinTolerance(diff: Double, tol: Double): Boolean = units(diff) <= units(tol)
@@ -101,6 +111,7 @@ object Tolerance {
 
     private fun allWithin(row: ToleranceRow, dims: List<DimensionPair>): Boolean =
         dims.all { d ->
+            requireFinite(d.client, "client")
             withinTolerance(abs(d.client - d.server), tol(d.server, d.sigmaServer, d.sigmaClient, row))
         }
 

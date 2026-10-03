@@ -95,4 +95,42 @@ class ToleranceTest {
             assertEquals(c.get("outcome").asText(), Tolerance.classify(base, c.get("major").asInt(), dims).name, c.get("id").asText())
         }
     }
+
+    /** A number, or the string NaN / Infinity / -Infinity (the boundary vectors' encoding of a non-finite value). */
+    private fun number(n: JsonNode): Double = if (n.isTextual) n.asText().toDouble() else n.asDouble()
+
+    @Test
+    fun invalidInputVectorsAreErrors() {
+        var count = 0
+        for (c in boundary.get("invalid")) {
+            val id = c.get("id").asText()
+            assertEquals("ERROR", c.get("expect").asText(), id)
+            count++
+            when (c.get("op").asText()) {
+                "classify" -> {
+                    val dims = c.get("dims").map {
+                        DimensionPair(number(it.get("server")), number(it.get("sigmaServer")), number(it.get("client")), number(it.get("sigmaClient")))
+                    }
+                    assertThrows(IllegalArgumentException::class.java, { Tolerance.classify(base, c.get("major").asInt(), dims) }, id)
+                }
+                "within" ->
+                    assertThrows(IllegalArgumentException::class.java, { Tolerance.withinTolerance(number(c.get("diff")), number(c.get("tol"))) }, id)
+                else -> {
+                    val row = base.row(c.get("row").asText(), c.get("major").asInt())
+                    assertThrows(IllegalArgumentException::class.java, {
+                        Tolerance.tol(number(c.get("ref")), number(c.get("sigmaServer")), number(c.get("sigmaClient")), row)
+                    }, id)
+                }
+            }
+        }
+        assertTrue(count >= 30)
+    }
+
+    @Test
+    fun aNonFiniteClientValueIsNeverAgree() {
+        for (bad in doubleArrayOf(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 1e300)) {
+            assertThrows(IllegalArgumentException::class.java) { Tolerance.classify(base, 1, listOf(DimensionPair(0.6, 0.01, bad, 0.01))) }
+            assertThrows(IllegalArgumentException::class.java) { Tolerance.units(bad) }
+        }
+    }
 }

@@ -60,15 +60,17 @@ public final class BoundaryVectorGenerator {
 
     private void run(Path out) throws IOException {
         ObjectNode cases = MAPPER.createObjectNode();
-        cases.put("description", "Boundary vectors for the tolerance function (profile 1.0.0): every row and every term at exactly, just under (-1e-5 m) and just over (+1e-5 m) the threshold, rounding edges and per-dimension classification.");
+        cases.put("description", "Boundary vectors for the tolerance function (profile 1.0.0): every row and every term at exactly, just under (-1e-5 m) and just over (+1e-5 m) the threshold, rounding edges, per-dimension classification and invalid inputs (non-finite, out of range) that every port must reject with an error: in the invalid cases a non-finite number is the string NaN, Infinity or -Infinity (JSON has no such number).");
         cases.put("tolEpsilon", 1e-9);
         ArrayNode threshold = cases.putArray("threshold");
         ArrayNode within = cases.putArray("within");
         ArrayNode classify = cases.putArray("classify");
+        ArrayNode invalid = cases.putArray("invalid");
         thresholds(threshold);
         rounding(within);
         classifyAtThresholds(classify);
         classifyMultiDimension(classify);
+        invalidInputs(invalid);
         files.put("boundary-cases.json", json(cases));
 
         ObjectNode assoc = MAPPER.createObjectNode();
@@ -179,6 +181,96 @@ public final class BoundaryVectorGenerator {
             n.put("tol", (double) c[2]);
             n.put("within", (boolean) c[3]);
         }
+    }
+
+    // ---- invalid input -----------------------------------------------------------------------------------
+
+    /** A JSON number, or for a non-finite value the string NaN, Infinity or -Infinity. */
+    private static com.fasterxml.jackson.databind.JsonNode num(double v) {
+        if (Double.isNaN(v)) {
+            return MAPPER.getNodeFactory().textNode("NaN");
+        }
+        if (Double.isInfinite(v)) {
+            return MAPPER.getNodeFactory().textNode(v > 0 ? "Infinity" : "-Infinity");
+        }
+        return MAPPER.getNodeFactory().numberNode(v);
+    }
+
+    private void invalidInputs(ArrayNode out) {
+        double[] bad = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 1e300};
+        String[] names = {"nan", "infinity", "negative-infinity", "huge-1e300"};
+        for (int i = 0; i < bad.length; i++) {
+            final double b = bad[i];
+            classifyError(out, "classify-client-" + names[i], dim(1.0, 0, 0, b));
+            classifyError(out, "classify-server-" + names[i], dim(b, 0, 0, 1.0));
+            if (i < 3) { // a huge finite sigma is valid: the sigma term is capped
+                classifyError(out, "classify-sigma-server-" + names[i], dim(1.0, b, 0, 1.0));
+                classifyError(out, "classify-sigma-client-" + names[i], dim(1.0, 0, b, 1.0));
+                tolError(out, "tol-sigma-server-" + names[i], 1.0, b, 0);
+            }
+            withinError(out, "within-diff-" + names[i], b, 0.02);
+            withinError(out, "within-tol-" + names[i], 0.02, b);
+            tolError(out, "tol-ref-" + names[i], b, 0, 0);
+        }
+        classifyError(out, "classify-negative-sigma-server", dim(1.0, -0.001, 0, 1.0));
+        classifyError(out, "classify-negative-sigma-client", dim(1.0, 0, -0.001, 1.0));
+        classifyError(out, "classify-one-bad-dimension-among-good-ones", dim(1.0, 0, 0, 1.0), dim(0.3, 0, 0, Double.NaN));
+        classifyError(out, "classify-no-dimensions");
+        tolError(out, "tol-negative-sigma-client", 1.0, 0, -1);
+    }
+
+    private void classifyError(ArrayNode out, String id, ObjectNode... dims) {
+        List<DimensionPair> list = new ArrayList<>();
+        for (ObjectNode d : dims) {
+            list.add(new DimensionPair(d.get("server").asDouble(), d.get("sigmaServer").asDouble(),
+                    d.get("client").asDouble(), d.get("sigmaClient").asDouble()));
+        }
+        requireError(id, () -> Tolerance.classify(profile, 1, list));
+        ObjectNode c = out.addObject();
+        c.put("id", id);
+        c.put("op", "classify");
+        c.put("major", 1);
+        ArrayNode a = c.putArray("dims");
+        for (ObjectNode d : dims) {
+            ObjectNode e = a.addObject();
+            for (String k : new String[] {"server", "sigmaServer", "client", "sigmaClient"}) {
+                e.set(k, num(d.get(k).asDouble()));
+            }
+        }
+        c.put("expect", "ERROR");
+    }
+
+    private void withinError(ArrayNode out, String id, double diff, double tol) {
+        requireError(id, () -> Tolerance.withinTolerance(diff, tol));
+        ObjectNode c = out.addObject();
+        c.put("id", id);
+        c.put("op", "within");
+        c.set("diff", num(diff));
+        c.set("tol", num(tol));
+        c.put("expect", "ERROR");
+    }
+
+    private void tolError(ArrayNode out, String id, double ref, double sigmaServer, double sigmaClient) {
+        ToleranceRow row = profile.row("agree", 1);
+        requireError(id, () -> Tolerance.tol(ref, sigmaServer, sigmaClient, row));
+        ObjectNode c = out.addObject();
+        c.put("id", id);
+        c.put("op", "tol");
+        c.put("row", "agree");
+        c.put("major", 1);
+        c.set("ref", num(ref));
+        c.set("sigmaServer", num(sigmaServer));
+        c.set("sigmaClient", num(sigmaClient));
+        c.put("expect", "ERROR");
+    }
+
+    private static void requireError(String id, Runnable call) {
+        try {
+            call.run();
+        } catch (IllegalArgumentException expected) {
+            return;
+        }
+        throw new IllegalStateException(id + ": the reference returned a result for an invalid input, intended an error");
     }
 
     // ---- classification ----------------------------------------------------------------------------------

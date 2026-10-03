@@ -154,4 +154,56 @@ class ToleranceTest {
                     .as(c.get("id").asText()).isEqualTo(c.get("outcome").asText());
         }
     }
+
+    /** A number, or the string NaN / Infinity / -Infinity (the boundary vectors' encoding of a non-finite value). */
+    private static double number(JsonNode n) {
+        return n.isTextual() ? Double.parseDouble(n.asText()) : n.asDouble();
+    }
+
+    @Test
+    void invalidInputVectorsAreErrors() throws IOException {
+        ToleranceProfile base = ToleranceProfile.loadBundled();
+        int n = 0;
+        for (JsonNode c : boundary().get("invalid")) {
+            String id = c.get("id").asText();
+            assertThat(c.get("expect").asText()).isEqualTo("ERROR");
+            n++;
+            switch (c.get("op").asText()) {
+                case "classify": {
+                    List<Tolerance.DimensionPair> dims = new ArrayList<>();
+                    for (JsonNode d : c.get("dims")) {
+                        dims.add(new Tolerance.DimensionPair(number(d.get("server")), number(d.get("sigmaServer")),
+                                number(d.get("client")), number(d.get("sigmaClient"))));
+                    }
+                    assertThatThrownBy(() -> Tolerance.classify(base, c.get("major").asInt(), dims)).as(id).isInstanceOf(IllegalArgumentException.class);
+                    break;
+                }
+                case "within":
+                    assertThatThrownBy(() -> Tolerance.withinTolerance(number(c.get("diff")), number(c.get("tol")))).as(id)
+                            .isInstanceOf(IllegalArgumentException.class);
+                    break;
+                default:
+                    ToleranceRow row = base.row(c.get("row").asText(), c.get("major").asInt());
+                    assertThatThrownBy(() -> Tolerance.tol(number(c.get("ref")), number(c.get("sigmaServer")), number(c.get("sigmaClient")), row))
+                            .as(id).isInstanceOf(IllegalArgumentException.class);
+            }
+        }
+        assertThat(n).isGreaterThanOrEqualTo(30);
+    }
+
+    @Test
+    void aNonFiniteClientValueIsNeverAgree() {
+        // F1: (long) NaN was 0, so NaN compared as AGREE; +Infinity was MAJOR_DIFF
+        ToleranceProfile p;
+        try {
+            p = ToleranceProfile.loadBundled();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        for (double bad : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 1e300}) {
+            assertThatThrownBy(() -> Tolerance.classify(p, 1, List.of(new Tolerance.DimensionPair(0.6, 0.01, bad, 0.01))))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> Tolerance.units(bad)).isInstanceOf(IllegalArgumentException.class);
+        }
+    }
 }

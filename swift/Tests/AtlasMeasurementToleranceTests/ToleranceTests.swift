@@ -53,7 +53,7 @@ import Testing
 
     @Test func testSmokeWithinCases() throws {
         for c in try smoke()["within"] as! [[String: Any]] {
-            #expect(Tolerance.withinTolerance(diff: num(c, "diff"), tol: num(c, "tol"))
+            #expect(try Tolerance.withinTolerance(diff: num(c, "diff"), tol: num(c, "tol"))
                     == (c["within"] as! NSNumber).boolValue, Comment(rawValue: c["id"] as! String))
         }
     }
@@ -77,9 +77,9 @@ import Testing
         #expect(throws: ToleranceError.self) { try Tolerance.tol(ref: 1, sigmaServer: 0, sigmaClient: .infinity, row: row) }
     }
 
-    @Test func testUnitsRoundHalfUp() {
-        #expect(Tolerance.units(0.020004) == 2000)
-        #expect(Tolerance.units(0.020006) == 2001)
+    @Test func testUnitsRoundHalfUp() throws {
+        #expect(try Tolerance.units(0.020004) == 2000)
+        #expect(try Tolerance.units(0.020006) == 2001)
     }
 
     @Test func testBoundaryTolCases() throws {
@@ -91,14 +91,14 @@ import Testing
             let t = try Tolerance.tol(ref: num(c, "ref"), sigmaServer: num(c, "sigmaServer"),
                                       sigmaClient: num(c, "sigmaClient"), row: row)
             #expect(abs(t - num(c, "tol")) <= eps, Comment(rawValue: c["id"] as! String))
-            #expect(Tolerance.withinTolerance(diff: num(c, "diff"), tol: t)
+            #expect(try Tolerance.withinTolerance(diff: num(c, "diff"), tol: t)
                     == (c["within"] as! NSNumber).boolValue, Comment(rawValue: c["id"] as! String))
         }
     }
 
     @Test func testBoundaryWithinCases() throws {
         for c in try boundary()["within"] as! [[String: Any]] {
-            #expect(Tolerance.withinTolerance(diff: num(c, "diff"), tol: num(c, "tol"))
+            #expect(try Tolerance.withinTolerance(diff: num(c, "diff"), tol: num(c, "tol"))
                     == (c["within"] as! NSNumber).boolValue, Comment(rawValue: c["id"] as! String))
         }
     }
@@ -112,6 +112,54 @@ import Testing
             }
             let o = try Tolerance.classify(profile: base, algorithmMajor: (c["major"] as! NSNumber).intValue, dims: dims)
             #expect(o.rawValue == c["outcome"] as! String, Comment(rawValue: c["id"] as! String))
+        }
+    }
+
+    /// A number, or the string NaN / Infinity / -Infinity (the boundary vectors' encoding of a non-finite value).
+    private func number(_ v: Any?) -> Double {
+        if let s = v as? String { return Double(s)! }
+        return (v as! NSNumber).doubleValue
+    }
+
+    @Test func testInvalidInputVectorsAreErrors() throws {
+        let base = try base()
+        let cases = try boundary()["invalid"] as! [[String: Any]]
+        #expect(cases.count >= 30)
+        for c in cases {
+            let id = Comment(rawValue: c["id"] as! String)
+            #expect(c["expect"] as? String == "ERROR", id)
+            switch c["op"] as! String {
+            case "classify":
+                let dims = (c["dims"] as! [[String: Any]]).map {
+                    DimensionPair(server: number($0["server"]), sigmaServer: number($0["sigmaServer"]),
+                                  client: number($0["client"]), sigmaClient: number($0["sigmaClient"]))
+                }
+                #expect(throws: ToleranceError.self, id) {
+                    try Tolerance.classify(profile: base, algorithmMajor: (c["major"] as! NSNumber).intValue, dims: dims)
+                }
+            case "within":
+                #expect(throws: ToleranceError.self, id) {
+                    try Tolerance.withinTolerance(diff: number(c["diff"]), tol: number(c["tol"]))
+                }
+            default:
+                let row = try base.row(c["row"] as! String, algorithmMajor: (c["major"] as! NSNumber).intValue)
+                #expect(throws: ToleranceError.self, id) {
+                    try Tolerance.tol(ref: number(c["ref"]), sigmaServer: number(c["sigmaServer"]),
+                                      sigmaClient: number(c["sigmaClient"]), row: row)
+                }
+            }
+        }
+    }
+
+    /// F1: `Int64(.nan)` and `Int64(.infinity)` trap the process; the port throws instead.
+    @Test func testANonFiniteClientValueNeverTraps() throws {
+        let base = try base()
+        for bad in [Double.nan, .infinity, -.infinity, 1e300, 9.3e13] {
+            #expect(throws: ToleranceError.self) {
+                try Tolerance.classify(profile: base, algorithmMajor: 1,
+                                       dims: [DimensionPair(server: 0.6, sigmaServer: 0.01, client: bad, sigmaClient: 0.01)])
+            }
+            #expect(throws: ToleranceError.self) { try Tolerance.units(bad) }
         }
     }
 }

@@ -89,9 +89,13 @@ public struct ToleranceProfile {
 }
 
 public enum Tolerance {
+    /// Largest metre value the tolerance function accepts (the schema caps metrics at 9999.99999 m).
+    public static let maxAbsMetres: Double = 1.0e6
+
     /// `max(floorM, relFrac*|ref|, min(sigmaK*combinedSigma, sigmaCapM))`; sigma term omitted if `sigmaK` is nil.
     public static func tol(ref: Double, sigmaServer: Double, sigmaClient: Double, row: ToleranceRow) throws -> Double {
         try requireFinite(ref, "ref")
+        if abs(ref) > maxAbsMetres { throw ToleranceError.invalidInput("ref must be at most \(maxAbsMetres) in magnitude") }
         try requireSigma(sigmaServer, "sigmaServer")
         try requireSigma(sigmaClient, "sigmaClient")
         var t = max(row.floorM, row.relFrac * abs(ref))
@@ -105,14 +109,18 @@ public enum Tolerance {
         return t
     }
 
-    /// Integer units of 1e-5 m: `floor(x * 1e5 + 0.5)` in double arithmetic, identical in every port.
-    public static func units(_ metres: Double) -> Int64 {
-        Int64((metres * 1e5 + 0.5).rounded(.down))
+    /// Integer units of 1e-5 m: `floor(x * 1e5 + 0.5)` in double arithmetic, identical in every port. Non-finite input
+    /// and |x| above `maxAbsMetres` throw (never a trap, a silent 0 or a saturated value).
+    public static func units(_ metres: Double) throws -> Int64 {
+        guard metres.isFinite, abs(metres) <= maxAbsMetres else {
+            throw ToleranceError.invalidInput("metres must be finite and at most \(maxAbsMetres) in magnitude")
+        }
+        return Int64((metres * 1e5 + 0.5).rounded(.down))
     }
 
     /// `diff <= tol` compared in metres rounded to 1e-5.
-    public static func withinTolerance(diff: Double, tol: Double) -> Bool {
-        units(diff) <= units(tol)
+    public static func withinTolerance(diff: Double, tol: Double) throws -> Bool {
+        try units(diff) <= units(tol)
     }
 
     public static func classify(profile: ToleranceProfile, algorithmMajor: Int, dims: [DimensionPair]) throws -> Outcome {
@@ -124,8 +132,9 @@ public enum Tolerance {
 
     private static func allWithin(_ row: ToleranceRow, _ dims: [DimensionPair]) throws -> Bool {
         for d in dims {
+            try requireFinite(d.client, "client")
             let t = try tol(ref: d.server, sigmaServer: d.sigmaServer, sigmaClient: d.sigmaClient, row: row)
-            if !withinTolerance(diff: abs(d.client - d.server), tol: t) { return false }
+            if try !withinTolerance(diff: abs(d.client - d.server), tol: t) { return false }
         }
         return true
     }

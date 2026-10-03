@@ -24,11 +24,17 @@ public final class Tolerance {
         }
     }
 
+    /** Largest metre value the tolerance function accepts (the schema caps metrics at 9999.99999 m). */
+    public static final double MAX_ABS_METRES = 1.0e6;
+
     private Tolerance() {}
 
     /** {@code max(floorM, relFrac*|ref|, min(sigmaK*combinedSigma, sigmaCapM))}; sigma term omitted if sigmaK is null. */
     public static double tol(double ref, double sigmaServer, double sigmaClient, ToleranceRow row) {
         requireFinite(ref, "ref");
+        if (Math.abs(ref) > MAX_ABS_METRES) {
+            throw new IllegalArgumentException("ref must be at most " + MAX_ABS_METRES + " in magnitude");
+        }
         requireSigma(sigmaServer, "sigmaServer");
         requireSigma(sigmaClient, "sigmaClient");
         double t = Math.max(row.floorM, row.relFrac * Math.abs(ref));
@@ -42,8 +48,14 @@ public final class Tolerance {
         return t;
     }
 
-    /** Integer units of 1e-5 m: {@code floor(x * 1e5 + 0.5)} in double arithmetic, identical in every port. */
+    /**
+     * Integer units of 1e-5 m: {@code floor(x * 1e5 + 0.5)} in double arithmetic, identical in every port. Non-finite
+     * input and |x| above {@link #MAX_ABS_METRES} are errors, never a silent 0 or a saturated value.
+     */
     public static long units(double metres) {
+        if (Double.isNaN(metres) || Double.isInfinite(metres) || Math.abs(metres) > MAX_ABS_METRES) {
+            throw new IllegalArgumentException("metres must be finite and at most " + MAX_ABS_METRES + " in magnitude");
+        }
         return (long) Math.floor(metres * 1e5 + 0.5);
     }
 
@@ -67,6 +79,7 @@ public final class Tolerance {
 
     private static boolean allWithin(ToleranceRow row, List<DimensionPair> dims) {
         for (DimensionPair d : dims) {
+            requireFinite(d.client, "client");
             double diff = Math.abs(d.client - d.server);
             if (!withinTolerance(diff, tol(d.server, d.sigmaServer, d.sigmaClient, row))) {
                 return false;
