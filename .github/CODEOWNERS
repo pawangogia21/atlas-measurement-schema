@@ -20,3 +20,14 @@
 /mvnw                           @pawangogia21
 /mvnw.cmd                       @pawangogia21
 /swift/quicktype/               @pawangogia21
+
+# published artifacts: module poms (dependency versions, publishing coordinates), reference implementation, ports, generated-code
+# configuration, vector artifact, Avro schemas
+/pom.xml                        @pawangogia21
+/*/pom.xml                      @pawangogia21
+/reference/                     @pawangogia21
+/kotlin/                        @pawangogia21
+/swift/                         @pawangogia21
+/vectors-artifact/              @pawangogia21
+/codegen-json/                  @pawangogia21
+/avro/*.avsc                    @pawangogia21
