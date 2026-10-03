@@ -1,99 +1,68 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Atlas Measurement Tolerance Profile Schema",
-  "description": "Schema for the versioned tolerance profile used in measurement reconciliation and accuracy gates. See design section 21.2.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.example/tolerance/tolerance-profile.schema.json",
+  "title": "Atlas tolerance profile",
+  "description": "Versioned thresholds for the single tolerance function (design 21.2). A released profile version is immutable; a retune publishes a new version.",
   "type": "object",
-  "required": ["version", "rows"],
-  "additionalProperties": true,
+  "additionalProperties": false,
+  "required": ["version", "rows", "overrides"],
   "properties": {
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Profile version in semantic versioning format (e.g. 1.0.0). A breaking threshold change increments the major or minor version; editions stay immutable."
-    },
-    "description": {
-      "type": "string",
-      "description": "Human-readable description of this profile version."
-    },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
     "rows": {
       "type": "array",
-      "minItems": 1,
-      "description": "Tolerance threshold rows used in the tolerance function.",
-      "items": {
-        "type": "object",
-        "required": ["name", "purpose", "floorM", "relFrac"],
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "enum": ["accuracyGate", "accuracyGateP95", "agree", "minor"],
-            "description": "Unique name of the threshold row."
-          },
-          "purpose": {
-            "type": "string",
-            "description": "Human-readable purpose of this row (e.g. 'QA gate', 'Comparison classification')."
-          },
-          "description": {
-            "type": "string",
-            "description": "Detailed description of how this row is used."
-          },
-          "floorM": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Absolute floor tolerance in metres. Part of tol = max(floorM, relFrac * ref, ...)."
-          },
-          "relFrac": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Relative tolerance as a fraction of the reference value. Part of tol = max(floorM, relFrac * ref, ...)."
-          },
-          "sigmaK": {
-            "oneOf": [
-              { "type": "number", "minimum": 0 },
-              { "type": "null" }
-            ],
-            "description": "Sigma multiplier for the combined uncertainty term. null means the sigma term is omitted from the tolerance function. Part of tol = max(..., min(sigmaK * combinedSigma, sigmaCapM))."
-          },
-          "sigmaCapM": {
-            "oneOf": [
-              { "type": "number", "minimum": 0 },
-              { "type": "null" }
-            ],
-            "description": "Cap on the sigma term in metres. null means no cap. Used only if sigmaK is non-null."
-          }
-        }
-      }
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/row" },
+      "allOf": [
+        { "contains": { "properties": { "name": { "const": "accuracyGate" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "accuracyGateP95" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "agree" } }, "required": ["name"] } },
+        { "contains": { "properties": { "name": { "const": "minor" } }, "required": ["name"] } }
+      ]
     },
     "overrides": {
+      "description": "algorithmMajor (decimal string) -> row name -> partial row. Only the fields present replace the base row's fields; see tolerance/README.md.",
       "type": "object",
-      "description": "Per-algorithmMajor overrides of the rows above. Keys are algorithmMajor version numbers (e.g. '1', '2'); values are objects with the same structure as rows, overriding only the fields specified.",
+      "propertyNames": { "pattern": "^(0|[1-9][0-9]*)$" },
       "additionalProperties": {
         "type": "object",
-        "description": "Override values for a specific algorithmMajor.",
         "additionalProperties": false,
         "properties": {
-          "accuracyGate": { "$ref": "#/definitions/rowOverride" },
-          "accuracyGateP95": { "$ref": "#/definitions/rowOverride" },
-          "agree": { "$ref": "#/definitions/rowOverride" },
-          "minor": { "$ref": "#/definitions/rowOverride" }
+          "accuracyGate": { "$ref": "#/$defs/rowOverride" },
+          "accuracyGateP95": { "$ref": "#/$defs/rowOverride" },
+          "agree": { "$ref": "#/$defs/rowOverride" },
+          "minor": { "$ref": "#/$defs/rowOverride" }
         }
       }
-    },
-    "notes": {
-      "type": "object",
-      "description": "Informational notes about the profile (algorithm, comparison semantics, versioning policy, etc.)."
     }
   },
-  "definitions": {
+  "$defs": {
+    "floorM": { "type": "number", "minimum": 0 },
+    "relFrac": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sigmaK": { "type": ["number", "null"], "minimum": 0, "description": "null: no sigma term" },
+    "sigmaCapM": { "type": ["number", "null"], "minimum": 0, "description": "null: sigma term uncapped" },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "floorM", "relFrac", "sigmaK", "sigmaCapM"],
+      "properties": {
+        "name": { "enum": ["accuracyGate", "accuracyGateP95", "agree", "minor"] },
+        "floorM": { "$ref": "#/$defs/floorM" },
+        "relFrac": { "$ref": "#/$defs/relFrac" },
+        "sigmaK": { "$ref": "#/$defs/sigmaK" },
+        "sigmaCapM": { "$ref": "#/$defs/sigmaCapM" }
+      }
+    },
     "rowOverride": {
       "type": "object",
       "additionalProperties": false,
+      "minProperties": 1,
       "properties": {
-        "floorM": { "type": "number", "minimum": 0 },
-        "relFrac": { "type": "number", "minimum": 0, "maximum": 1 },
-        "sigmaK": { "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }] },
-        "sigmaCapM": { "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }] }
+        "floorM": { "$ref": "#/$defs/floorM" },
+        "relFrac": { "$ref": "#/$defs/relFrac" },
+        "sigmaK": { "$ref": "#/$defs/sigmaK" },
+        "sigmaCapM": { "$ref": "#/$defs/sigmaCapM" }
       }
     }
   }

@@ -5,14 +5,12 @@ This document specifies the units, coordinate systems, and frame-of-reference se
 ## Units
 
 All dimensions and distances in the measurement schema are in **metres**. This applies to:
-- `dimensions`: `lengthM`, `widthM`, `heightM`, `distanceM`
-- `obb`: `centerWorld`, `halfExtentsM`
-- `sigma`: `sigmaM`, `sigmaLengthM`, `sigmaWidthM`, `sigmaHeightM`, `sigmaDistanceM`
-- `ci95`: `ci95M`, `ci95LengthM`, `ci95WidthM`, `ci95HeightM`, `ci95DistanceM`
-- `overlay.keypoints`: `world`, `sigma`
+- `dimensions`: `lengthM`, `widthM`, `heightM` (box) or `distanceM` (two-point), each `{value, sigmaM, ci95M}`
+- `obb`: `centerWorld`, `halfExtentsM`, `supportPlaneY`
+- `overlay.keypoints[].world` and `overlay.keypoints[].sigma`
 - `depth` map: Float32 values in metres
 
-Values are stored and compared as `NUMERIC(9,5)` in Postgres (metres with 1e-5 precision) and as Float32 in JSON and the `LiveMeasurement` serialisation.
+Values are stored as `NUMERIC(9,5)` in Postgres (metres with 1e-5 precision) and compared in metres rounded to 1e-5 (`tolerance/README.md`). In JSON they are plain numbers (the schema does not constrain the binary width).
 
 ## Coordinate Systems
 
@@ -40,7 +38,7 @@ All values are Float32, in metres. The depth frame coordinate system and intrins
 
 Gravity is a unit vector in world coordinates, derived from the IMU (or the AR platform's estimate). It points downward (negative Y).
 
-Support planes are horizontal surfaces (e.g. tables, floors) detected by the platform, represented as their normal (pointing upward) and distance from the origin, in the world frame. The algorithm uses gravity to align the bounding box and compute the support plane estimate via RANSAC.
+Platform-detected planes are an optional `FrameBundle` input that speeds up the support-plane estimate. The algorithm uses gravity to align the bounding box; the support plane estimate itself is specified in `algorithm-spec.md`.
 
 ### Gravity-Aligned Bounding Box
 
@@ -49,7 +47,7 @@ The `obb` (oriented bounding box) has the following structure:
 - **`halfExtentsM[3]`**: Half-widths (X, Y, Z) in metres, all non-negative
   - X, Z are horizontal (gravity-perpendicular)
   - Y is vertical (gravity-aligned)
-- **`yawRad`**: Rotation around the Y axis, in radians [−π, π]
+- **`yawRad`**: Rotation around the Y axis, in radians
 - **`supportPlaneY`**: Y coordinate of the support plane (the plane on which the box rests), in metres
 
 The box is axis-aligned in the gravity frame: no roll or pitch, only yaw. This simplifies measurement, matches how users naturally measure furniture and parcels, and ensures consistency with the server's gravity-aligned representation.
@@ -99,7 +97,7 @@ The `FrameBundle` is the input from the AR platform to the Kit's core algorithm.
 | `image` | Optional: YCbCr or BGRA + size | Camera image, optional. Used for edge refinement and keypoint visualisation; the core algorithm works without it. The Kit drops a reference to the platform image before returning from `ingest()`. |
 | `depth` | Float32 map (width, height) + confidence, source, alignedToImage, intrinsics | **Metres, variable resolution, row-major.** Each pixel is depth in metres (or NaN/0 for invalid). `confidence[0..1]`, normalised by the adapter. `source`: `LIDAR`, `TOF`, `DEPTH_FROM_MOTION`, `NONE`. `alignedToImage`: boolean (false on ARCore if depth is at a different resolution). `depthIntrinsics` (`fx`, `fy`, `cx`, `cy`) already scaled to this depth map's resolution. |
 | `intrinsics` | fx, fy, cx, cy, image width/height | Image-space intrinsics; depth intrinsics are separate (in the `depth` struct). Per-frame, so refocusing or zoom changes are captured. |
-| `pose` | 4×4 matrix: camera-to-world | Column-major or row-major per platform convention. Transforms a point in camera space to world coordinates. ARKit and ARCore both use right-handed Y-up world frames. |
+| `pose` | 4×4 matrix: camera-to-world | Transforms a point in camera space to world coordinates. ARKit and ARCore both use right-handed Y-up world frames. The layout handed to the core is fixed in `algorithm-spec.md` (row-major). |
 | `trackingState` | Enum | `NORMAL`, `LIMITED(reason)`, `NOT_AVAILABLE`. Used to gate algorithm execution; `LIMITED` may flag a quality issue. |
 | `worldOriginEpoch` | Integer | Incremented on world-origin change (ARKit `worldOrigin`, ARCore relocalization). Frames with different epochs are in different coordinate systems. |
 | `sessionId` | UUID | Changes when the AR session is interrupted and resumed. Used to bind hints to the scan's capture session. |
@@ -124,8 +122,8 @@ When the depth source is `VIO_METRIC` (visual-inertial odometry scale, tier B), 
 
 Uncertainty is first-class: every dimension carries a 1-sigma estimate and a 95% confidence interval (CI95).
 
-- **`sigmaM`** (1-sigma): Root-sum-square of depth noise (range-dependent), fit residual, view coverage and tracking quality, in metres.
-- **`ci95M`** (95% confidence interval): Approximately `2 * sigmaM` for a normal distribution, clamped by the measurement's stability.
+- **`sigmaM`** (1-sigma): standard deviation of the reported value, in metres. The tolerance function treats it as 1-sigma (`combinedSigma = sqrt(sigmaServer^2 + sigmaClient^2)`).
+- **`ci95M`** (95% confidence interval): half-width of the 95% interval, in metres. The reported `ci95` must cover the truth 90 to 95 percent of the time (design section 24, item 3).
 
 The UI should show ranges ("1.20 m ± 0.03 m" or "1.17 m to 1.23 m") and state (`STABLE` for settling, `DEGRADED` for low confidence), not bare point numbers. Confidence (`0..1`) is a composite score combining coverage, tracking, depth quality and thermal state.
 
