@@ -13,12 +13,12 @@ This repository defines the schema contracts that are used across Atlas services
   - **`codegen/`** — Maven module generating Java types from `avro/*.avsc` (AT-2); consumed by ingestion and processing services
 - **`vectors/conformance/`** — Cross-platform numerical-parity vectors for tier A algorithms and shared primitives
 - **`vectors/boundary/`** — Boundary vectors for tolerance threshold testing and association rule validation
-- **`vectors/negative/`** — Payloads the intake must reject (62 vectors), including batch per-item rejection
-  - **`vectors-artifact/`** — Maven module packaging all vectors (conformance, boundary, negative), tolerance profile and JSON Schema as a jar for kit consumption
+- **`vectors/negative/`** — Payloads the intake must reject (105 vectors), including batch per-item rejection
+- **`vectors-artifact/`** — Maven module packaging all vectors (conformance, boundary, negative), tolerance profile and JSON Schema as a jar for kit consumption
 - **`tolerance/`** — Tolerance profile definitions, the unified tolerance function, and the association rule
 - **`reference/`** — Java 11 reference implementation of the specification: the tolerance function, validator, association rule, conformance/boundary/negative vector generators, and Python cross-check spec (`spec-crosscheck/specpy.py`). Produces the `atlas-measurement-schema-reference` jar (published).
-- **`kotlin/`** — Kotlin/JVM 11 port of the tolerance function and association rule, depending on the generated Java types jar; produces `atlas-measurement-schema-kotlin` jar (published).
-- **`docs/`** — Algorithm specifications and design documentation
+- **`kotlin/`** — Kotlin/JVM 11 port of the tolerance function, depending on the generated Java types jar; produces `atlas-measurement-schema-kotlin` jar (published).
+- **`docs/`** — Units, frame conventions, and coordinate system semantics (`conventions.md`)
 - **`governance/`** — QA approvals for vector and tolerance-profile releases (CI gate)
 - **`tools/schema-gate/`** — Maven module with gates for both Avro and JSON Schema backward compatibility (CI-only; never published, never a dependency)
 
@@ -80,7 +80,7 @@ how to approve an intentional enum change.
   ```
 - **GitHub Packages (once the `PUBLISH_ENABLED` secret of the `release` environment is `true`):** CI publishes
   the same artifact with `mvn deploy` for a release tag `v<major>.<minor>.<patch>` (see
-  `codegen/pom.xml`'s `<distributionManagement>` and "Release procedure" below); the publish steps are skipped, not failed, while
+  `codegen/pom.xml`'s `<distributionManagement>` and "Release procedure" below; publishing is tag-only). The publish steps are skipped, not failed, while
   the secret is absent. Once published, add this repository's GitHub Packages Maven registry to the
   consuming project's `settings.xml`/`pom.xml` `<repositories>` and use the same dependency
   coordinates as above with the released version.
@@ -104,31 +104,44 @@ record.
 ### Prerequisites
 
 - Java 21+
+- Swift (for `swift test` and package generation)
 - Docker (only for `codegen/`'s Testcontainers-based spike/round-trip test)
 
-### Build
+### Build all modules
 
-`codegen/` and `tools/schema-gate/` are separate Maven modules (own `pom.xml`, not aggregated
-under the root), built with `./mvnw`'s `-f` flag:
+Maven modules have separate `pom.xml` files and are built with `./mvnw`'s `-f` flag:
 
 ```bash
-./mvnw clean package                              # root: JSON Schema, vectors, tolerance
-./mvnw -f codegen/pom.xml clean verify             # Avro-generated Java types + tests
-./mvnw -f tools/schema-gate/pom.xml clean verify   # the CI compatibility gate tool
+# Generate Swift types (prerequisite for swift tests)
+./swift/generate-types.sh
+
+# Build and test all modules
+./mvnw -f reference/pom.xml clean verify       # Java reference: tolerance function, association, validators
+./mvnw -f codegen-json/pom.xml clean verify    # JSON Schema: Java types (Jackson + jsonschema2pojo)
+./mvnw -f codegen/pom.xml clean verify         # Avro: Java types + Apicurio spike test
+./mvnw -f kotlin/pom.xml clean verify          # Kotlin: tolerance function port
+./mvnw -f vectors-artifact/pom.xml clean verify # Vectors: conformance, boundary, negative artifact jar
+./mvnw -f tools/schema-gate/pom.xml clean verify # JSON Schema backward-compatibility gate
+swift test -Xlinker -rpath -Xlinker /Library/Developer/CommandLineTools/Library/Developer/usr/lib  # Swift tolerance tests
+
+# Root: JSON Schema files, tolerance profile, algorithm spec (no build, documentation)
+./mvnw clean package
 ```
 
-### Run Tests
+### Run all tests
 
 ```bash
 ./mvnw test
 ./mvnw -f codegen/pom.xml test              # unit tests only, no Docker needed
 ./mvnw -f codegen/pom.xml verify            # + the Testcontainers spike/round-trip IT
+swift test
 ```
 
-### Verify All
+### Verify everything
 
 ```bash
 ./mvnw clean verify
+swift test
 ```
 
 ## Release procedure (AT-16)
@@ -170,7 +183,7 @@ These live in GitHub, not in the repository; the workflow depends on them:
 
 ### Vector and tolerance-profile releases
 
-Every vector set (conformance, boundary, negative) and the tolerance profile are immutable once released. A retune publishes a new version (e.g. `1.1.0`), never edits `1.0.0`. The governance gate (`.github/scripts/governance-gate.sh`) enforces immutability and requires a QA approval line in `governance/qa-approvals.txt` for any new or changed artifact version (see `governance/README.md` in the gate output).
+Every vector set (conformance, boundary, negative) and the tolerance profile are immutable once released. A retune publishes a new version (e.g. `1.1.0`), never edits `1.0.0`. The governance gate (`.github/scripts/governance-gate.sh`) enforces immutability and requires a QA approval line in `governance/qa-approvals.txt` for any new or changed artifact version (see `governance/qa-approvals.txt` and the gate header text).
 
 ### Artifacts published per tag
 
