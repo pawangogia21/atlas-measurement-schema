@@ -30,3 +30,41 @@ One implementation per language, each reading `tolerance-profile.json` (no const
 - Kotlin (JVM 11): `kotlin/`
 
 `smoke-cases.json` holds a few hand-computed cases that all three test suites replay. The release boundary vectors (exactly, just under, just over every threshold) are delivered separately under `vectors/boundary/`.
+
+## Association Rule (AT-16, design 21.2)
+
+Server-side measurement association and NOT_COMPARABLE reason codes are defined by the reference implementation (`com.atlas.measurement.association.Association` in `reference/`). The rule is normative; Swift and Kotlin do not replay association vectors (the association is server-side only).
+
+### Decision inputs
+
+Context: whether the model is deleted, the schema version is supported, the depth tier is available, the server state (READY, PENDING, FAILED), and whether frame mapping is available.
+
+Per hint: the hint's `mode`, dimensions, geometric data (box / endpoints / plane).
+
+Per server measurement: its `id`, `mode`, dimensions, geometric data, and optionally a `seedClientMeasurementId` (for seeded matching).
+
+### Reason precedence (first match)
+
+1. `MODEL_DELETED` — the model is deleted.
+2. `SCHEMA_UNSUPPORTED` — the hint's schema version is not supported.
+3. `TIER_C` — the depth tier is C (lowest; future tiers may be defined).
+4. `SERVER_FAILED` — the server measurement state is FAILED.
+5. `PENDING` — the server state is PENDING (a soft error; the hint can retry).
+6. Per-hint `MODE_MISMATCH` — no server measurements exist in the hint's mode.
+7. `NO_ASSOCIATION` — no suitable server measurement found (geometric and dimension-only branches exhausted).
+
+### Association branches
+
+With one or more servers in the hint's mode, the rule tries:
+
+1. **SEEDED**: a hint with a `seedClientMeasurementId` matches its seed server (if found) — associated by construction.
+2. **GEOMETRIC** (if frame mapping is available): match by geometric similarity (IoU ≥ 0.5, endpoint distance ≤ 0.10 m, normal angle ≤ 5 degrees, plane offset ≤ 0.05 m).
+3. **DIMENSION_ONLY** (no frame mapping): match by per-dimension tolerance (footprint-sorted and height for OBJECT_BOX, single distance otherwise).
+
+### Geometric thresholds (provisional)
+
+IoU 0.5, endpoint distance 0.10 m, normal angle 5 degrees, plane offset 0.05 m. These are provisional like the tolerance profile and a change is a new vector release. Geometry comparisons use the same 1e-5 m rounding as the tolerance function (`com.atlas.measurement.tolerance.Tolerance.units(double)`).
+
+### Shared server measurement
+
+If a server measurement is matched to one hint, it is taken and unavailable for other hints (no sharing). The result for other hints that would match it is NO_ASSOCIATION.
