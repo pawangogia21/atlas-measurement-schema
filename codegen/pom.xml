@@ -20,7 +20,7 @@
         <confluent.version>7.7.1</confluent.version>
         <jackson.version>2.18.11</jackson.version>
         <junit.version>5.11.3</junit.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <!-- Confluent's Avro serializer/deserializer (used only in the Apicurio spike test below)
