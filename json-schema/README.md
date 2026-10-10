@@ -2,7 +2,7 @@
 
 The client contract of the Measure Kits (design 17.3, 25.2, 25.3). Draft 2020-12, one folder per schema major (`v1/`, wire `schemaVersion` `1.0`). Metres, 1-sigma, Y-up right-handed (`docs/conventions.md`).
 
-Package 1.1.0 adds the optional `clientCapture.worldOriginEpoch` (integer 0..2147483647, design 36.8): the `worldOriginEpoch` of the AR world frame in which the uploaded scan geometry is expressed, a client claim set once at upload creation. The wire `schemaVersion` stays `1.0` (additive minor). A consumer pinned to 1.0.0 rejects the field (`additionalProperties: false`), so bump the pin before any Kit sends it. Vectors: `vectors/client-capture/1.1.0/`.
+Package 1.1.0 adds the optional `clientCapture.worldOriginEpoch` (integer 0..2147483647, design 36.8): the `worldOriginEpoch` of the AR world frame in which the uploaded scan geometry is expressed, a client claim set once at upload creation. The wire `schemaVersion` stays `1.0` (additive minor). A consumer pinned to 1.0.0 rejects the field (`additionalProperties: false`), so bump the pin before any Kit sends it. Vectors: `vectors/client-capture/1.1.0/`. Intake validation must use the AT-16 schema validator (`ClientMeasurementValidator`), not DTO binding: the generated types can coerce `1.5` to `1` and `"7"` to `7`.
 
 | File | Validates |
 |---|---|
