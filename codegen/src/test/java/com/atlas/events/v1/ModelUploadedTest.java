@@ -31,4 +31,23 @@ class ModelUploadedTest {
         ModelUploaded roundTripped = AvroRoundTrip.roundTrip(event);
         assertThat(roundTripped).isEqualTo(event);
     }
+
+    @Test
+    void clientCaptureWorldOriginEpochDefaultsToNullAndRoundTrips() throws Exception {
+        ModelUploaded.Builder builder = ModelUploaded.newBuilder()
+                .setEventId(UUID.randomUUID())
+                .setOccurredAt(Instant.now())
+                .setModelId(UUID.randomUUID())
+                .setOwnerId("owner-1")
+                .setStorageKey("t/default/o/owner-1/m/model-1/raw/model.usdz")
+                .setStorageVersionId("v1")
+                .setSizeBytes(1024L)
+                .setSha256("a".repeat(64))
+                .setDetectedFormat("USDZ");
+
+        assertThat(builder.build().getClientCaptureWorldOriginEpoch()).isNull();
+
+        ModelUploaded withEpoch = builder.setClientCaptureWorldOriginEpoch(2147483647).build();
+        assertThat(AvroRoundTrip.roundTrip(withEpoch).getClientCaptureWorldOriginEpoch()).isEqualTo(2147483647);
+    }
 }
