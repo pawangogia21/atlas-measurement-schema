@@ -101,6 +101,7 @@ The `FrameBundle` is the input from the AR platform to the Kit's core algorithm.
 | `trackingState` | Enum | `NORMAL`, `LIMITED(reason)`, `NOT_AVAILABLE`. Used to gate algorithm execution; `LIMITED` may flag a quality issue. |
 | `worldOriginEpoch` | Integer | Incremented when the AR world origin changes, for example on relocalization. Frames with different epochs are in different coordinate systems. |
 | `sessionId` | UUID | Changes when the AR session is interrupted and resumed. Used to bind hints to the scan's capture session. |
+| scan `worldOriginEpoch` (optional, `clientCapture`, package 1.1.0) | Integer 0..2147483647 | The `worldOriginEpoch` of the AR world frame in which the uploaded scan geometry is expressed (the frame `transformToCanonical` maps from), set once at upload creation. A client claim; absent for older Kits and non-AR uploads, which gives no frame mapping (design 36.8). |
 | `planes` (optional) | Platform-detected planes | Extents and normals; speeds up support-plane estimation on tier B. Platform-specific representation (ARKit `ARPlaneAnchor`, ARCore `Plane`); the adapter normalises them. |
 | `gravity` | Unit vector (X, Y, Z) | Gravity vector (pointing downward, typically ~[0, −1, 0] in world frame), derived from IMU. Provided by the platform or computed from the pose if absent. |
 | `deviceInfo` | model, OS, thermal state | Device identifiers for bias tables and capability detection. |
