@@ -26,7 +26,6 @@ class ReleasedVectorsTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Path BOUNDARY = Paths.get("..", "vectors", "boundary", BoundaryVectorGenerator.VERSION);
     private static final Path NEGATIVE = Paths.get("..", "vectors", "negative", NegativeVectorGenerator.VERSION);
-
     private static final Path CLIENT_CAPTURE = Paths.get("..", "vectors", ClientCaptureEpochVectorGenerator.SET, ClientCaptureEpochVectorGenerator.VERSION);
 
     @Test

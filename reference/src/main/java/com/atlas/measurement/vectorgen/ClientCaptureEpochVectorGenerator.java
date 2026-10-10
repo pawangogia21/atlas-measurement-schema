@@ -25,6 +25,8 @@ import java.util.function.Consumer;
  * an edit of negative/1.0.0, because released vector sets are immutable. {@code expectedValid} is true for a
  * payload the intake must accept; an invalid one expects 422 {@code CLIENT_MEASUREMENT_INVALID} with the text
  * {@code expectedErrorContains} in its errors. The generator fails if the reference validator disagrees.
+ * The base object of every vector is {@code json-schema/v1/examples/client-capture.json}: editing that example
+ * changes the released set's bytes (and the byte-identical test fails).
  * Usage: {@code ClientCaptureEpochVectorGenerator <outDir>} (release layout vectors/client-capture/<version>/).
  */
 public final class ClientCaptureEpochVectorGenerator {
