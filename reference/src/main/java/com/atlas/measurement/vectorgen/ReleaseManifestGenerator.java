@@ -34,7 +34,7 @@ public final class ReleaseManifestGenerator {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final DefaultPrettyPrinter PRETTY = new DefaultPrettyPrinter()
             .withObjectIndenter(new DefaultIndenter("  ", "\n"));
-    private static final String[] VECTOR_SETS = {"boundary", "conformance", "negative"};
+    private static final String[] VECTOR_SETS = {"boundary", "client-capture", "conformance", "negative"};
 
     private static final Comparator<String> SEMVER = (a, b) -> {
         List<Integer> x = semver(a);
