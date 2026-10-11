@@ -42,7 +42,7 @@ Schemas follow semantic versioning with topic-specific version markers:
 ## Avro event schemas (AT-2)
 
 `avro/*.avsc` (namespace `com.atlas.events.v1`) defines the final v1 Kafka event contract:
-`ModelUploaded`, `ModelProcessed`, `ModelFailed`, `ModelDeleted`, `ModelPurged`, plus the shared
+`ModelUploaded`, `ModelProcessed`, `ModelFailed`, `ModelDeleted`, `ModelPurged`, `MeasurementComputed`, plus the shared
 `CaptureSource` enum. See `avro/README.md` for the full field list, the envelope convention, and
 schema registration.
 

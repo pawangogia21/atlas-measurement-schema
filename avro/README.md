@@ -8,21 +8,27 @@ Apache Avro schemas for the Atlas Kafka event contract (design section 6.1/6.2),
 - `CaptureSource.avsc` — shared enum, referenced by both `ModelUploaded` (as `claimedCaptureSource`)
   and `ModelProcessed` (as `derivedCaptureSource`). `UNKNOWN` is the first symbol and the default so
   new symbols stay backward compatible.
-- `ModelUploaded.avsc` — `atlas.model.uploaded.v1` / `atlas.model.uploaded.v1-heavy`.
+- `ModelUploaded.avsc` — `atlas.model.uploaded.v1` / `atlas.model.uploaded.v1-heavy`. Carries the client
+  claims `clientCaptureSessionId` and `clientCaptureWorldOriginEpoch` (`["null","int"]`, default null: the
+  `worldOriginEpoch` of the AR world frame of the uploaded scan, design section 36.8; added with
+  JSON Schema package 1.1.0, additive and backward compatible).
 - `ModelProcessed.avsc` — `atlas.model.processed.v1`.
 - `ModelFailed.avsc` — `atlas.model.failed.v1`. Defines its own `FailureStage` and `ReasonCode`
   enums (the reason codes list from design section 10.4).
 - `ModelDeleted.avsc` — `atlas.model.deleted.v1` (delete saga start).
 - `ModelPurged.avsc` — `atlas.model.purged.v1` (delete saga per-service confirmation). Defines its
   own `ConfirmingService` enum.
+- `MeasurementComputed.avsc` — `atlas.measurement.computed.v1` (AT-24 S15), key `modelId`. Only the
+  envelope today: the contract is reserved for `atlas-measurement-service`; emitting is not required
+  by any AT-24 acceptance criterion.
 
 Every schema carries the common envelope fields on top of its own payload fields: `eventId`,
 `eventType`, `occurredAt`, `modelId`, `tenantId`, `ownerId`, `traceId`, `schemaVersion` (design
 section 6.2). The W3C `traceparent` travels separately in Kafka message headers (section 6.3); the
 payload's `traceId` is for log/event correlation and survives independently of header handling.
 
-`atlas.model.scale-updated.v1` and `atlas.measurement.computed.v1` are reserved for later services
-(AT-2 out of scope); no schema is defined for them here.
+`atlas.model.scale-updated.v1` is reserved for a later service (AT-2 out of scope); no schema is
+defined for it here.
 
 ## Naming and versioning
 

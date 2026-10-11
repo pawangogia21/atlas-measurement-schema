@@ -38,7 +38,7 @@ class VectorsManifestTest {
         assertEquals("vectors", manifest.get("manifest").asText());
         assertFalse(manifest.get("version").asText().contains("@"), "Maven filtering replaces the version placeholder");
         assertEquals("1.0.0", manifest.get("toleranceProfileVersion").asText());
-        assertEquals(3, manifest.get("files").size());
+        assertEquals(4, manifest.get("files").size());
         int checked = 0;
         for (JsonNode f : manifest.get("files")) {
             String path = f.get("path").asText();

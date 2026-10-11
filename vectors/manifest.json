@@ -7,6 +7,10 @@
     "sha256" : "8c6f2cbdcfd562064bc05eb080fe02be9818275d02663c43e3389303f14459af",
     "bytes" : 405
   }, {
+    "path" : "client-capture/1.1.0/manifest.json",
+    "sha256" : "f0401d01ce259f3c9b3adbdc62b72ae9834d23e600aeff1cfb2f18237d6ed082",
+    "bytes" : 3090
+  }, {
     "path" : "conformance/1.0.0/manifest.json",
     "sha256" : "745b764000d349c43315c047e0ee45270195d2a81f28c4fe7683b941f166760f",
     "bytes" : 23040

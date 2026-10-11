@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +34,18 @@ class GeneratedTypesTest {
         }
         ClientCapture c = MAPPER.readValue(example("client-capture.json"), ClientCapture.class);
         assertThat(c.getDepthTier()).isEqualTo(ClientCapture.DepthTier.A);
+    }
+
+    @Test
+    void clientCaptureWorldOriginEpochRoundTrips() throws IOException {
+        for (int epoch : new int[] {0, 2147483647}) {
+            ObjectNode json = (ObjectNode) MAPPER.readTree(example("client-capture.json"));
+            json.put("worldOriginEpoch", epoch);
+            ClientCapture c = MAPPER.readValue(json.toString(), ClientCapture.class);
+            assertThat(c.getWorldOriginEpoch()).isEqualTo(epoch);
+            assertThat(MAPPER.readTree(MAPPER.writeValueAsString(c)).get("worldOriginEpoch").asInt()).isEqualTo(epoch);
+        }
+        assertThat(MAPPER.readValue(example("client-capture.json"), ClientCapture.class).getWorldOriginEpoch()).isNull();
     }
 
     @Test

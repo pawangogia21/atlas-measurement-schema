@@ -1,0 +1,89 @@
+{
+  "vectorSet" : "client-capture",
+  "version" : "1.1.0",
+  "description" : "clientCapture.worldOriginEpoch (schema 1.1, design 36.8): optional integer 0..2147483647. Each file is a complete clientCapture object; expectedValid says whether the intake accepts it, otherwise it answers 422 CLIENT_MEASUREMENT_INVALID with expectedErrorContains in the errors.",
+  "vectors" : [ {
+    "id" : "epoch-absent",
+    "kind" : "clientCapture",
+    "path" : "epoch-absent.json",
+    "reason" : "worldOriginEpoch is optional: an older Kit or a non-AR upload omits it",
+    "expectedValid" : true
+  }, {
+    "id" : "epoch-0",
+    "kind" : "clientCapture",
+    "path" : "epoch-0.json",
+    "reason" : "lower bound 0",
+    "expectedValid" : true
+  }, {
+    "id" : "epoch-2147483647",
+    "kind" : "clientCapture",
+    "path" : "epoch-2147483647.json",
+    "reason" : "upper bound 2147483647",
+    "expectedValid" : true
+  }, {
+    "id" : "epoch-negative",
+    "kind" : "clientCapture",
+    "path" : "epoch-negative.json",
+    "reason" : "below the lower bound",
+    "expectedValid" : false,
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "minimum"
+  }, {
+    "id" : "epoch-2147483648",
+    "kind" : "clientCapture",
+    "path" : "epoch-2147483648.json",
+    "reason" : "one over the upper bound",
+    "expectedValid" : false,
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "maximum"
+  }, {
+    "id" : "epoch-fractional",
+    "kind" : "clientCapture",
+    "path" : "epoch-fractional.json",
+    "reason" : "not an integer",
+    "expectedValid" : false,
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "type"
+  }, {
+    "id" : "epoch-string",
+    "kind" : "clientCapture",
+    "path" : "epoch-string.json",
+    "reason" : "a string, not an integer",
+    "expectedValid" : false,
+    "expectedStatus" : 422,
+    "expectedCode" : "CLIENT_MEASUREMENT_INVALID",
+    "expectedErrorContains" : "type"
+  } ],
+  "files" : [ {
+    "path" : "epoch-0.json",
+    "sha256" : "c9eb1e4f3315ae48a444266a888d1605eea75d4c975915a62df9e6432f35f365",
+    "bytes" : 314
+  }, {
+    "path" : "epoch-2147483647.json",
+    "sha256" : "7f05ca8668df8120aada743231e392b8e09d40fda3e68b6fb557d282b3d78d3a",
+    "bytes" : 323
+  }, {
+    "path" : "epoch-2147483648.json",
+    "sha256" : "a082c422b1288d6de88b0e700e009e80de7d7dc688b473f619ead91a38f5265c",
+    "bytes" : 323
+  }, {
+    "path" : "epoch-absent.json",
+    "sha256" : "1b84b6bce738741ffef3a0fd4f7cba08a7a2b1f53ac77dec11f30d935831ecfd",
+    "bytes" : 288
+  }, {
+    "path" : "epoch-fractional.json",
+    "sha256" : "2aae9b181565ae117bcc5e266069bab50ce8052709eb4f5c82217cab6baaa4f0",
+    "bytes" : 316
+  }, {
+    "path" : "epoch-negative.json",
+    "sha256" : "c48708836f6bccaf06ff503641c83d6d491fa648442427f2ef0d56da5535019a",
+    "bytes" : 315
+  }, {
+    "path" : "epoch-string.json",
+    "sha256" : "774f79ac258c2013927a03183653094a550fbf5628f208066194299365f5c937",
+    "bytes" : 316
+  } ]
+}

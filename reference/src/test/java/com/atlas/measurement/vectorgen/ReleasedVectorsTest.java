@@ -26,6 +26,7 @@ class ReleasedVectorsTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Path BOUNDARY = Paths.get("..", "vectors", "boundary", BoundaryVectorGenerator.VERSION);
     private static final Path NEGATIVE = Paths.get("..", "vectors", "negative", NegativeVectorGenerator.VERSION);
+    private static final Path CLIENT_CAPTURE = Paths.get("..", "vectors", ClientCaptureEpochVectorGenerator.SET, ClientCaptureEpochVectorGenerator.VERSION);
 
     @Test
     void boundaryRegenerationIsByteIdentical(@TempDir Path tmp) throws IOException {
@@ -37,6 +38,28 @@ class ReleasedVectorsTest {
     void negativeRegenerationIsByteIdentical(@TempDir Path tmp) throws IOException {
         NegativeVectorGenerator.generate(tmp);
         assertIdentical(tmp, NEGATIVE);
+    }
+
+    @Test
+    void clientCaptureEpochRegenerationIsByteIdentical(@TempDir Path tmp) throws IOException {
+        ClientCaptureEpochVectorGenerator.generate(tmp);
+        assertIdentical(tmp, CLIENT_CAPTURE);
+    }
+
+    @Test
+    void clientCaptureEpochVectorsReplay() throws IOException {
+        ClientMeasurementValidator validator = new ClientMeasurementValidator();
+        JsonNode manifest = MAPPER.readTree(CLIENT_CAPTURE.resolve("manifest.json").toFile());
+        assertThat(manifest.get("vectors")).hasSize(7);
+        for (JsonNode v : manifest.get("vectors")) {
+            ClientMeasurementValidator.Result r = validator.validateClientCapture(Files.readString(CLIENT_CAPTURE.resolve(v.get("path").asText())));
+            String id = v.get("id").asText();
+            assertThat(r.valid()).as(id).isEqualTo(v.get("expectedValid").asBoolean());
+            if (!r.valid()) {
+                assertThat(r.code).as(id).isEqualTo(v.get("expectedCode").asText());
+                assertThat(String.join("\n", r.errors)).as(id).contains(v.get("expectedErrorContains").asText());
+            }
+        }
     }
 
     @Test
@@ -57,7 +80,7 @@ class ReleasedVectorsTest {
             assertThat(ToleranceProfile.loadBundled(v.asText()).version()).isEqualTo(v.asText());
         }
         JsonNode vectors = MAPPER.readTree(Paths.get("..", "vectors", "manifest.json").toFile());
-        assertThat(vectors.get("files")).hasSize(3);
+        assertThat(vectors.get("files")).hasSize(4);
         for (JsonNode f : vectors.get("files")) {
             assertThat(ConformanceVectorGenerator.sha256(Files.readAllBytes(Paths.get("..", "vectors").resolve(f.get("path").asText()))))
                     .as(f.get("path").asText()).isEqualTo(f.get("sha256").asText());
@@ -66,7 +89,7 @@ class ReleasedVectorsTest {
 
     @Test
     void manifestHashesMatchTheFilesOnDisk() throws IOException {
-        for (Path dir : List.of(BOUNDARY, NEGATIVE)) {
+        for (Path dir : List.of(BOUNDARY, NEGATIVE, CLIENT_CAPTURE)) {
             JsonNode manifest = MAPPER.readTree(dir.resolve("manifest.json").toFile());
             List<String> listed = new java.util.ArrayList<>();
             for (JsonNode f : manifest.get("files")) {
