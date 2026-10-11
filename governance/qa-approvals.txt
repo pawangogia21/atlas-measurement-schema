@@ -33,3 +33,6 @@ tolerance-profile 1.0.0 9264e1fa22f32af2f27afbe81313aa3796b68b8d45c59e9fc428f41a
 vectors-boundary 1.0.0 225847e217971c0899dffd1a62bb28b1482a34e2b0c0f821e4fc61dcb160d423 qaAgent 2026-10-03 AT-16
 vectors-conformance 1.0.0 6f76d47116e0402062aac9f1d98d3939c34144cccdcacc7616101cd0200b4934 qaAgent 2026-10-03 AT-16
 vectors-negative 1.0.0 634db710a4b862d31deda8d5db5b6cc4e9e16e083ab4800db899f9d5cd5c6b1a qaAgent 2026-10-03 AT-16
+file json-schema/v1/client-capture.schema.json a8bb2199eed7ed351299b0420e7b505d93d52d31bbdee71b9764fdde752c54b7 qaAgent 2026-10-11 AT-24
+file vectors/manifest.json f97116709d298bc12d6fad54307875a1b0c760daf4df45631d957477ac766b3b qaAgent 2026-10-11 AT-24
+vectors-client-capture 1.1.0 3c7e017001b11de339191601b9b4986151e49e065d9296d2708c8cce60f52ccb qaAgent 2026-10-11 AT-24
